@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C51E799E-0601-4056-806E-584FD86DF48C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MnemonicFS</RootNamespace>
+    <AssemblyName>MnemonicFS</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Ionic.Zip, Version=1.8.4.28, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\dotnetzip\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net, Version=2.0.0.4, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\lucene\Lucene.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.SQLite, Version=1.0.60.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\sqlite\64-bit\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=2.0.38.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\sqlite\64-bit\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MfsCore\MfsFileLogEntry.cs" />
+    <Compile Include="MfsCore\MfsDBOperations.cs" />
+    <Compile Include="MfsCore\MfsNote.cs" />
+    <Compile Include="MfsCore\MfsOperations.cs" />
+    <Compile Include="MfsCore\MfsStorageDevice.cs" />
+    <Compile Include="MfsCore\MfsVCard.cs" />
+    <Compile Include="MfsExceptions\MfsAuthenticationException.cs" />
+    <Compile Include="MfsExceptions\MfsDBException.cs" />
+    <Compile Include="MfsExceptions\MfsDuplicateNameException.cs" />
+    <Compile Include="MfsExceptions\MfsFileDataException.cs" />
+    <Compile Include="MfsExceptions\MfsFileVersionConflictException.cs" />
+    <Compile Include="MfsExceptions\MfsFileVersionException.cs" />
+    <Compile Include="MfsExceptions\MfsIllegalArgumentException.cs" />
+    <Compile Include="MfsExceptions\MfsIllegalOperationException.cs" />
+    <Compile Include="MfsExceptions\MfsNonExistentResourceException.cs" />
+    <Compile Include="MfsExceptions\MfsNonExistentUserException.cs" />
+    <Compile Include="MfsExceptions\MfsStorageCorruptedException.cs" />
+    <Compile Include="MfsUtils\MfsIndexing\LuceneIndexer.cs" />
+    <Compile Include="MfsUtils\MfsDB\LogSchema.cs" />
+    <Compile Include="MfsUtils\MfsLogging\FileLogger.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MfsUtils\MfsDB\SystemSchema.cs" />
+    <Compile Include="MfsUtils\MfsSystem\BaseSystem.cs" />
+    <Compile Include="MfsUtils\MfsConfig\Config.cs" />
+    <Compile Include="MfsUtils\MfsConfig\PropertiesFileReader.cs" />
+    <Compile Include="MfsUtils\MfsCrypto\Hasher.cs" />
+    <Compile Include="MfsUtils\MfsCrypto\NumericValuesCustomHashDictionary.cs" />
+    <Compile Include="MfsUtils\MfsCrypto\RandomStrs.cs" />
+    <Compile Include="MfsUtils\MfsDB\UserSchema.cs" />
+    <Compile Include="MfsUtils\MfsStrings\StringUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
