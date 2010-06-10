@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary The Mnemonic Filing System
 
 = Introduction =
 MnemonicFS translates to The Mnemonic Filing System. It is an advanced information filing system (not a file system) for documents, sticky notes kind of information, URLs, and contact information.
