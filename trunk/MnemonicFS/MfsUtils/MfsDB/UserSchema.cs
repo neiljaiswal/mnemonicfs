@@ -146,6 +146,22 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [Note] NVARCHAR(2048) DEFAULT NULL,
                 [Url] NVARCHAR(4096) DEFAULT NULL
                 );
+
+                CREATE TABLE [L_FileBookmarks] (
+                [fkey_FileID] INTEGER NOT NULL
+                );
+
+                CREATE TABLE [L_NoteBookmarks] (
+                [fkey_NoteID] INTEGER NOT NULL
+                );
+
+                CREATE TABLE [L_UrlBookmarks] (
+                [fkey_UrlID] INTEGER NOT NULL
+                );
+
+                CREATE TABLE [L_VCardBookmarks] (
+                [fkey_VCardID] INTEGER NOT NULL
+                );
             ";
         }
     }

@@ -83,6 +83,10 @@
     <Compile Include="Tests\TestAspectsNotes.cs" />
     <Compile Include="Tests\TestAspectsUrls.cs" />
     <Compile Include="Tests\TestAspectsVCards.cs" />
+    <Compile Include="Tests\TestBookmarkFiles.cs" />
+    <Compile Include="Tests\TestBookmarkNotes.cs" />
+    <Compile Include="Tests\TestBookmarkUrls.cs" />
+    <Compile Include="Tests\TestBookmarkVCards.cs" />
     <Compile Include="Tests\TestBriefcases.cs" />
     <Compile Include="Tests\TestCollections.cs" />
     <Compile Include="Tests\TestFileHashing.cs" />

@@ -275,13 +275,19 @@ namespace MnemonicFS.MfsCore {
             MfsStorageDevice.InitDevice ();
         }
 
-        public static ulong CreateNewUser (string userIDStr, string passwordHash) {
-            if (DoesUserExist (userIDStr)) {
-                throw new MfsDuplicateNameException ("User already exists.");
+        private static string ProcessUserIDStr (string userID) {
+            return userID.Trim ().ToLower ();
+        }
+
+        public static ulong CreateNewUser (string userID, string passwordHash) {
+            if (userID == null || userID.Length == 0) {
+                throw new MfsIllegalArgumentException ("UserIDStr cannot be null or empty.");
             }
 
-            if (userIDStr == null || userIDStr.Length == 0) {
-                throw new MfsIllegalArgumentException ("UserIDStr cannot be null or empty.");
+            userID = ProcessUserIDStr (userID);
+
+            if (DoesUserExist (userID)) {
+                throw new MfsDuplicateNameException ("User already exists.");
             }
 
             if (passwordHash == null || passwordHash.Length != HASH_SIZE) {
@@ -291,28 +297,30 @@ namespace MnemonicFS.MfsCore {
             }
 
             Regex regex = new Regex (REGEX_STRING);
-            if (!regex.IsMatch (userIDStr)) {
+            if (!regex.IsMatch (userID)) {
                 throw new MfsIllegalArgumentException ("UserIDStr does not comply with user id format requirements.");
             }
 
-            return CreateUserSpecificPaths (userIDStr, passwordHash);
+            return CreateUserSpecificPaths (userID, passwordHash);
         }
 
-        private static ulong CreateUserSpecificPaths (string userIDStr, string passwordHash) {
-            string userSpecificPath = MfsStorageDevice.CreateUserPath (userIDStr);
+        private static ulong CreateUserSpecificPaths (string userID, string passwordHash) {
+            string userSpecificPath = MfsStorageDevice.CreateUserPath (userID);
 
-            ulong uid = MfsDBOperations.CreateUser (userIDStr, passwordHash, userSpecificPath);
+            ulong uid = MfsDBOperations.CreateUser (userID, passwordHash, userSpecificPath);
             Debug.Print ("Done creating user with userID: " + uid);
 
             return uid;
         }
 
-        public static int UpdateUserPassword (string userIDStr, string newPasswordHash) {
-            if (userIDStr == null) {
+        public static int UpdateUserPassword (string userID, string newPasswordHash) {
+            if (userID == null) {
                 throw new MfsIllegalArgumentException ("UserIDStr may not be null.");
             }
 
-            if (MfsDBOperations.DoesUserExist (userIDStr) == 0) {
+            userID = ProcessUserIDStr (userID);
+
+            if (MfsDBOperations.DoesUserExist (userID) == 0) {
                 throw new MfsNonExistentUserException ("User does not exist.");
             }
 
@@ -320,7 +328,7 @@ namespace MnemonicFS.MfsCore {
                 throw new MfsIllegalArgumentException ("Password hash may not be null or an invalid hash.");
             }
 
-            return MfsDBOperations.UpdateUserPassword (userIDStr, newPasswordHash);
+            return MfsDBOperations.UpdateUserPassword (userID, newPasswordHash);
         }
 
         public static List<string> GetMfsUsers () {
@@ -331,24 +339,28 @@ namespace MnemonicFS.MfsCore {
             return MfsDBOperations.GetUserCount ();
         }
 
-        public static int DeleteUser (string userIDStr, bool deleteUserStorage, bool deleteUserLogs) {
-            if (MfsDBOperations.DoesUserExist (userIDStr) == 0) {
+        public static int DeleteUser (string userID, bool deleteUserStorage, bool deleteUserLogs) {
+            userID = ProcessUserIDStr (userID);
+
+            if (MfsDBOperations.DoesUserExist (userID) == 0) {
                 throw new MfsNonExistentUserException ("User does not exist.");
             }
 
             if (deleteUserStorage) {
-                DeleteUserStorage (userIDStr);
+                DeleteUserStorage (userID);
             }
 
             if (deleteUserLogs) {
-                DeleteUserFileLogs (userIDStr);
+                DeleteUserFileLogs (userID);
             }
 
-            return MfsDBOperations.DeleteUser (userIDStr);
+            return MfsDBOperations.DeleteUser (userID);
         }
 
-        private static void DeleteUserStorage (string userIDStr) {
-            string path = MfsDBOperations.GetUserSpecificPath (userIDStr);
+        private static void DeleteUserStorage (string userID) {
+            userID = ProcessUserIDStr (userID);
+
+            string path = MfsDBOperations.GetUserSpecificPath (userID);
             Debug.Print ("Got user specific path: " + path);
 
             // First delete user db:
@@ -360,20 +372,24 @@ namespace MnemonicFS.MfsCore {
             MfsStorageDevice.DeleteDirectoryIfEmpty (dirToDelete);
         }
 
-        public static bool DoesUserExist (string userIDStr) {
-            return (MfsDBOperations.DoesUserExist (userIDStr) != 0);
+        public static bool DoesUserExist (string userID) {
+            userID = ProcessUserIDStr (userID);
+
+            return (MfsDBOperations.DoesUserExist (userID) != 0);
         }
 
-        public static bool IsUserNameCompliant (string userIDStr) {
+        public static bool IsUserNameCompliant (string userID) {
+            userID = ProcessUserIDStr (userID);
+
             Regex regex = new Regex (REGEX_STRING);
-            return regex.IsMatch (userIDStr);
+            return regex.IsMatch (userID);
         }
 
         #endregion
 
         #region << Instance-specific Variable Declarations >>
 
-        private string _userIDStr;
+        private string _userID;
         private string _userSpecificPath;
         private string _userFQPath;
         private MfsDBOperations _dbOperations;
@@ -383,33 +399,35 @@ namespace MnemonicFS.MfsCore {
 
         #region << Object Construction >>
 
-        public MfsOperations (string userIDStr, string passwordHash) {
-            ulong uid = MfsDBOperations.DoesUserExist (userIDStr);
+        public MfsOperations (string userID, string passwordHash) {
+            userID = ProcessUserIDStr (userID);
+
+            ulong uid = MfsDBOperations.DoesUserExist (userID);
 
             if (uid == 0) {
                 throw new MfsNonExistentUserException ("User does not exist.");
             }
 
             // If control has reached here, it means that the user exists, so check for password:
-            bool authenticated = MfsDBOperations.AuthenticateUser (userIDStr, passwordHash);
+            bool authenticated = MfsDBOperations.AuthenticateUser (userID, passwordHash);
             if (!authenticated) {
                 throw new MfsAuthenticationException ("Authentication failed.");
             }
 
-            LoadUserValues (userIDStr, passwordHash);
+            LoadUserValues (userID, passwordHash);
         }
 
-        private void LoadUserValues (string userIDStr, string passwordHash) {
-            Debug.Print ("Loading values for user: " + userIDStr);
+        private void LoadUserValues (string userID, string passwordHash) {
+            Debug.Print ("Loading values for user: " + userID);
 
-            _userIDStr = userIDStr;
-            _userSpecificPath = MfsDBOperations.GetUserSpecificPath (userIDStr);
+            _userID = userID;
+            _userSpecificPath = MfsDBOperations.GetUserSpecificPath (userID);
 
             _userFQPath = Config.GetStorageBasePath () + _userSpecificPath;
             Debug.Print ("Got FQ path for user: " + _userFQPath);
 
             Debug.Print ("Creating DBOperations object.");
-            _dbOperations = new MfsDBOperations (userIDStr, _userSpecificPath);
+            _dbOperations = new MfsDBOperations (userID, _userSpecificPath);
 
             _indexer = new LuceneIndexer (_userSpecificPath + @"\LuceneIndex\");
         }
@@ -681,7 +699,7 @@ namespace MnemonicFS.MfsCore {
             }
 
             Debug.Print ("Returning new file id: " + fileID);
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.CREATED, DateTime.Now, fileName, fileNarration);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.CREATED, DateTime.Now, fileName, fileNarration);
 
             return fileID;
         }
@@ -704,7 +722,7 @@ namespace MnemonicFS.MfsCore {
                 throw new MfsStorageCorruptedException ("File storage is corrupted.");
             }
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.ACCESSED_ORIGINAL, DateTime.Now, null, null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.ACCESSED_ORIGINAL, DateTime.Now, null, null);
 
             return MfsStorageDevice.RetrieveByteArrayFromZippedFile (fileWithPath, assumedFileName, password);
         }
@@ -746,7 +764,7 @@ namespace MnemonicFS.MfsCore {
                 MfsStorageDevice.DeleteFile (fileNameAndPath[0], fileNameAndPath[1]);
             }
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.DELETED, DateTime.Now, null, null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.DELETED, DateTime.Now, null, null);
 
             return deletionCount;
         }
@@ -862,7 +880,7 @@ namespace MnemonicFS.MfsCore {
 
             _dbOperations.SetDeletionDateTime (fileID, deletionDateTime);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.DELETION_DATETIME_SET, DateTime.Now, deletionDateTime.ToString (), null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.DELETION_DATETIME_SET, DateTime.Now, deletionDateTime.ToString (), null);
         }
 
         /// <summary>
@@ -888,7 +906,7 @@ namespace MnemonicFS.MfsCore {
 
             bool updated = _dbOperations.UpdateFileName (fileID, newName);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.FILENAME_UPDATED, DateTime.Now, newName, null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.FILENAME_UPDATED, DateTime.Now, newName, null);
 
             return updated;
         }
@@ -905,7 +923,7 @@ namespace MnemonicFS.MfsCore {
 
             bool updated = _dbOperations.UpdateFileNarration (fileID, newNarration);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.FILE_NARRATION_UPDATED, DateTime.Now, newNarration, null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.FILE_NARRATION_UPDATED, DateTime.Now, newNarration, null);
 
             return updated;
         }
@@ -921,7 +939,7 @@ namespace MnemonicFS.MfsCore {
 
             bool updated = _dbOperations.UpdateFileSaveDateTime (fileID, newWhen);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.FILE_SAVEDATETIME_UPDATED, DateTime.Now, newWhen.ToString (), null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.FILE_SAVEDATETIME_UPDATED, DateTime.Now, newWhen.ToString (), null);
 
             return updated;
         }
@@ -937,7 +955,7 @@ namespace MnemonicFS.MfsCore {
 
             bool updated = _dbOperations.UpdateFileDeletionDateTime (fileID, newDeletionDateTime);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.DELETION_DATETIME_UPDATED, DateTime.Now, newDeletionDateTime.ToString (), null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.DELETION_DATETIME_UPDATED, DateTime.Now, newDeletionDateTime.ToString (), null);
 
             return updated;
         }
@@ -951,7 +969,7 @@ namespace MnemonicFS.MfsCore {
 
             _dbOperations.ResetDeletionDateTime (fileID);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.DELETION_DATETIME_RESET, DateTime.Now, null, null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.DELETION_DATETIME_RESET, DateTime.Now, null, null);
         }
 
         private bool IndexFile (string fileName, string fileNarration, byte[] fileData, DateTime when, ulong fileID, int versionNumber) {
@@ -975,12 +993,14 @@ namespace MnemonicFS.MfsCore {
 
         #region << File-logging Operations >>
 
-        public static List<MfsFileLogEntry> RetrieveFileLogs (string userIDStr, ulong fileID) {
-            if (userIDStr == null || userIDStr == string.Empty) {
+        public static List<MfsFileLogEntry> RetrieveFileLogs (string userID, ulong fileID) {
+            if (userID == null || userID == string.Empty) {
                 throw new MfsIllegalArgumentException ("User id may not be null or empty.");
             }
 
-            if (!DoesUserExist (userIDStr)) {
+            userID = ProcessUserIDStr (userID);
+
+            if (!DoesUserExist (userID)) {
                 throw new MfsNonExistentUserException ("User does not exist.");
             }
 
@@ -988,27 +1008,31 @@ namespace MnemonicFS.MfsCore {
                 throw new MfsIllegalArgumentException ("File id cannot be zero.");
             }
 
-            return FileLogger.RetrieveFileLogs (userIDStr, fileID);
+            return FileLogger.RetrieveFileLogs (userID, fileID);
         }
 
-        public static List<MfsFileLogEntry> RetrieveUserFileLogs (string userIDStr) {
-            if (userIDStr == null || userIDStr.Equals (string.Empty)) {
+        public static List<MfsFileLogEntry> RetrieveUserFileLogs (string userID) {
+            if (userID == null || userID.Equals (string.Empty)) {
                 throw new MfsIllegalArgumentException ("User id string cannot be null or empty.");
             }
 
-            if (!DoesUserExist (userIDStr)) {
+            userID = ProcessUserIDStr (userID);
+
+            if (!DoesUserExist (userID)) {
                 throw new MfsNonExistentUserException ("User does not exist.");
             }
 
-            return FileLogger.RetrieveAllFilesLogs (userIDStr);
+            return FileLogger.RetrieveAllFilesLogs (userID);
         }
 
-        public static int DeleteFileLogs (string userIDStr, ulong fileID) {
-            if (userIDStr == null || userIDStr.Equals (string.Empty)) {
+        public static int DeleteFileLogs (string userID, ulong fileID) {
+            if (userID == null || userID.Equals (string.Empty)) {
                 throw new MfsIllegalArgumentException ("User id string cannot be null or empty.");
             }
 
-            if (!DoesUserExist (userIDStr)) {
+            userID = ProcessUserIDStr (userID);
+
+            if (!DoesUserExist (userID)) {
                 throw new MfsNonExistentUserException ("User does not exist.");
             }
 
@@ -1016,19 +1040,21 @@ namespace MnemonicFS.MfsCore {
                 throw new MfsIllegalArgumentException ("File id cannot be zero.");
             }
 
-            return FileLogger.DeleteFileLogs (userIDStr, fileID);
+            return FileLogger.DeleteFileLogs (userID, fileID);
         }
 
-        public static int DeleteUserFileLogs (string userIDStr) {
-            if (userIDStr == null || userIDStr.Equals (string.Empty)) {
+        public static int DeleteUserFileLogs (string userID) {
+            if (userID == null || userID.Equals (string.Empty)) {
                 throw new MfsIllegalArgumentException ("User id string cannot be null or empty.");
             }
 
-            if (!DoesUserExist (userIDStr)) {
+            userID = ProcessUserIDStr (userID);
+
+            if (!DoesUserExist (userID)) {
                 throw new MfsNonExistentUserException ("User does not exist.");
             }
 
-            return FileLogger.DeleteUserLogs (userIDStr);
+            return FileLogger.DeleteUserLogs (userID);
         }
 
         #endregion
@@ -1851,7 +1877,7 @@ namespace MnemonicFS.MfsCore {
 
             _dbOperations.SaveAsNextVersion (fileID, fileHash, comments, fileFQPath, nextVersionNumber);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.NEW_VERSION_CREATED, DateTime.Now, nextVersionNumber.ToString (), null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.NEW_VERSION_CREATED, DateTime.Now, nextVersionNumber.ToString (), null);
 
             return nextVersionNumber;
         }
@@ -1868,7 +1894,7 @@ namespace MnemonicFS.MfsCore {
             string fileNameWithPath;
             _dbOperations.GetFileVersionPath (fileID, currentVersionNumber, out fileNameWithPath);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.ACCESSED_VERSION, DateTime.Now, currentVersionNumber.ToString (), null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.ACCESSED_VERSION, DateTime.Now, currentVersionNumber.ToString (), null);
 
             return MfsStorageDevice.RetrieveFile (fileNameWithPath);
         }
@@ -1893,7 +1919,7 @@ namespace MnemonicFS.MfsCore {
             string fileNameWithPath;
             _dbOperations.GetFileVersionPath (fileID, versionNumber, out fileNameWithPath);
 
-            FileLogger.AddLogEntry (_userIDStr, fileID, FileLogEntryType.ACCESSED_VERSION, DateTime.Now, versionNumber.ToString (), null);
+            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.ACCESSED_VERSION, DateTime.Now, versionNumber.ToString (), null);
 
             return MfsStorageDevice.RetrieveFile (fileNameWithPath);
         }
@@ -2404,6 +2430,96 @@ namespace MnemonicFS.MfsCore {
             }
 
             return opFileIDs;
+        }
+
+        #endregion
+
+        #region << File Bookmarking Operations >>
+
+        public bool BookmarkFile (ulong fileID) {
+            DoFileChecks (fileID);
+
+            return _dbOperations.BookmarkFile (fileID);
+        }
+
+        public List<ulong> GetAllBookmarkedFiles () {
+            return _dbOperations.GetAllBookmarkedFiles ();
+        }
+
+        public bool IsFileBookmarked (ulong fileID) {
+            DoFileChecks (fileID);
+
+            return _dbOperations.IsFileBookmarked (fileID);
+        }
+
+        public int DeleteFileBookmark (ulong fileID) {
+            DoFileChecks (fileID);
+
+            return _dbOperations.DeleteFileBookmark (fileID);
+        }
+
+        public int DeleteAllFileBookmarks () {
+            return _dbOperations.DeleteAllFileBookmarks ();
+        }
+
+        #endregion
+
+        #region << Note Bookmarking Operations >>
+
+        public bool BookmarkNote (ulong noteID) {
+            DoNoteChecks (noteID);
+
+            return _dbOperations.BookmarkNote (noteID);
+        }
+
+        public List<ulong> GetAllBookmarkedNotes () {
+            return _dbOperations.GetAllBookmarkedNotes ();
+        }
+
+        public bool IsNoteBookmarked (ulong noteID) {
+            DoNoteChecks (noteID);
+
+            return _dbOperations.IsNoteBookmarked (noteID);
+        }
+
+        public int DeleteNoteBookmark (ulong noteID) {
+            DoNoteChecks (noteID);
+
+            return _dbOperations.DeleteNoteBookmark (noteID);
+        }
+
+        public int DeleteAllNoteBookmarks () {
+            return _dbOperations.DeleteAllNoteBookmarks ();
+        }
+
+        #endregion
+
+        #region << Url Bookmarking Operations >>
+
+        public bool BookmarkUrl (ulong urlID) {
+            DoUrlChecks (urlID);
+
+            return _dbOperations.BookmarkUrl (urlID);
+        }
+
+        public List<ulong> GetAllBookmarkedUrls () {
+            return _dbOperations.GetAllBookmarkedUrls ();
+        }
+
+        public bool IsUrlBookmarked (ulong urlID) {
+            DoUrlChecks (urlID);
+
+            return _dbOperations.IsUrlBookmarked (urlID);
+        }
+
+        public int DeleteUrlBookmark (ulong urlID) {
+            DoUrlChecks (urlID);
+
+            return _dbOperations.DeleteUrlBookmark (urlID);
+        }
+
+        public int DeleteAllUrlBookmarks () {
+            return _dbOperations.DeleteAllUrlBookmarks ();
         }
 
         #endregion
