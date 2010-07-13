@@ -1133,16 +1133,19 @@ namespace MnemonicFS.MfsCore {
                 string referencedSql1 = "delete from M_Aspects_Files where fkey_FileID=" + fileID;
                 string referencedSql2 = "delete from M_Files_Collections where fkey_FileID=" + fileID;
                 string referencedSql3 = "delete from M_Files_Versions where fkey_FileID=" + fileID;
+                string referencedSql4 = "delete from L_FileBookmarks where fkey_FileID=" + fileID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
                 SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
                 SQLiteCommand myCommand3 = new SQLiteCommand (referencedSql3, cnn);
+                SQLiteCommand myCommand4 = new SQLiteCommand (referencedSql4, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
                 myCommand1.ExecuteNonQuery ();
                 myCommand2.ExecuteNonQuery ();
                 myCommand3.ExecuteNonQuery ();
+                myCommand4.ExecuteNonQuery ();
 
                 return val;
             } catch (Exception e) {
@@ -4272,12 +4275,15 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
 
                 string referencedSql1 = "delete from M_Aspects_Urls where fkey_UrlID=" + urlID;
+                string referencedSql2 = "delete from L_UrlBookmarks where fkey_UrlID=" + urlID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
+                SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
                 myCommand1.ExecuteNonQuery ();
+                myCommand2.ExecuteNonQuery ();
                 
                 return val;
             } catch (Exception e) {
@@ -4379,12 +4385,15 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
 
                 string referencedSql1 = "delete from M_Aspects_Notes where fkey_NoteID=" + noteID;
+                string referencedSql2 = "delete from L_NoteBookmarks where fkey_NoteID=" + noteID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
+                SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
                 myCommand1.ExecuteNonQuery ();
+                myCommand2.ExecuteNonQuery ();
 
                 return val;
             } catch (Exception e) {
@@ -4874,6 +4883,441 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
 
                 return myCommand.ExecuteNonQuery ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        #endregion
+
+        #region << File Bookmarking Operations >>
+
+        internal bool BookmarkFile (ulong fileID) {
+            string sql = "insert into L_FileBookmarks (fkey_FileID) values (" + fileID + ")";
+            Debug.Print ("Bookmark file: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return (myCommand.ExecuteNonQuery () > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal List<ulong> GetAllBookmarkedFiles () {
+            string sql = "select fkey_FileID from L_FileBookmarks";
+            Debug.Print ("Get all file bookmarks: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                List<ulong> allFiles = new List<ulong> ();
+                foreach (DataRow row in dt.Rows) {
+                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    allFiles.Add (fileID);
+                }
+
+                return allFiles;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool IsFileBookmarked (ulong fileID) {
+            string sql = "select fkey_FileID from L_FileBookmarks where fkey_FileID=" + fileID;
+            Debug.Print ("Is file bookmarked: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteFileBookmark (ulong fileID) {
+            string sql = "delete from L_FileBookmarks where fkey_FileID=" + fileID;
+            Debug.Print ("Delete file bookmark: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+                return updatedRows;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteAllFileBookmarks () {
+            string sql = "delete from L_FileBookmarks";
+            Debug.Print ("Delete all file bookmarks: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+                return updatedRows;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        #endregion
+
+        #region << Note Bookmarking Operations >>
+
+        internal bool BookmarkNote (ulong noteID) {
+            string sql = "insert into L_NoteBookmarks (fkey_NoteID) values (" + noteID + ")";
+            Debug.Print ("Bookmark note: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return (myCommand.ExecuteNonQuery () > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal List<ulong> GetAllBookmarkedNotes () {
+            string sql = "select fkey_NoteID from L_NoteBookmarks";
+            Debug.Print ("Get all note bookmarks: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                List<ulong> allFiles = new List<ulong> ();
+                foreach (DataRow row in dt.Rows) {
+                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    allFiles.Add (fileID);
+                }
+
+                return allFiles;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool IsNoteBookmarked (ulong noteID) {
+            string sql = "select fkey_NoteID from L_NoteBookmarks where fkey_NoteID=" + noteID;
+            Debug.Print ("Is note bookmarked: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteNoteBookmark (ulong noteID) {
+            string sql = "delete from L_NoteBookmarks where fkey_NoteID=" + noteID;
+            Debug.Print ("Delete note bookmark: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+                return updatedRows;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteAllNoteBookmarks () {
+            string sql = "delete from L_NoteBookmarks";
+            Debug.Print ("Delete all note bookmarks: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+                return updatedRows;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        #endregion
+
+        #region << Url Bookmarking Operations >>
+
+        internal bool BookmarkUrl (ulong urlID) {
+            string sql = "insert into L_UrlBookmarks (fkey_UrlID) values (" + urlID + ")";
+            Debug.Print ("Bookmark url: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return (myCommand.ExecuteNonQuery () > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal List<ulong> GetAllBookmarkedUrls () {
+            string sql = "select fkey_UrlID from L_UrlBookmarks";
+            Debug.Print ("Get all url bookmarks: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                List<ulong> allFiles = new List<ulong> ();
+                foreach (DataRow row in dt.Rows) {
+                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    allFiles.Add (fileID);
+                }
+
+                return allFiles;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool IsUrlBookmarked (ulong urlID) {
+            string sql = "select fkey_UrlID from L_UrlBookmarks where fkey_UrlID=" + urlID;
+            Debug.Print ("Is url bookmarked: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteUrlBookmark (ulong urlID) {
+            string sql = "delete from L_UrlBookmarks where fkey_UrlID=" + urlID;
+            Debug.Print ("Delete url bookmark: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+                return updatedRows;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteAllUrlBookmarks () {
+            string sql = "delete from L_UrlBookmarks";
+            Debug.Print ("Delete all url bookmarks: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+                return updatedRows;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (e.Message);
