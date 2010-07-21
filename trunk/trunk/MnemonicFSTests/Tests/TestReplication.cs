@@ -51,50 +51,6 @@ namespace MnemonicFS.Tests.Replication {
     public class Tests_ReplicationMethod_ReplicateStorage : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            // First create a few users:
-            int numUsersToCreate = TYPICAL_MULTI_VALUE;
-            List<string> userIDs = new List<string> (numUsersToCreate);
-
-            // We can have a common password for all users.
-            string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            string passwordHash = Hasher.GetSHA1 (password);
-
-            for (int i = 0; i < numUsersToCreate; ++i) {
-                string userID = TestUtils.GetAnyEmailID ();
-                if (MfsOperations.DoesUserExist (userID)) {
-                    --i;
-                    continue;
-                }
-
-                MfsOperations.CreateNewUser (userID, passwordHash);
-                userIDs.Add (userID);
-            }
-
-            // Add a few files each:
-            Dictionary<string, List<ulong>> userFileIDs = new Dictionary<string, List<ulong>> (numUsersToCreate);
-            int numFilesPerUser = TYPICAL_MULTI_VALUE;
-
-            foreach (string userID in userIDs) {
-                MfsOperations mfsOps = new MfsOperations (userID, passwordHash);
-                List<ulong> fileIDs = new List<ulong> (numFilesPerUser);
-
-                for (int i = 0; i < numFilesPerUser; ++i) {
-                    _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-                    DateTime when = DateTime.Now;
-                    ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
-                    fileIDs.Add (fileID);
-                }
-
-                userFileIDs.Add (userID, fileIDs);
-            }
-
-            // Next, replicate the entire storage to the location specified:
-
-            // And check if the files are the same:
-
-            // Finally, delete all users as well as their resources:
-
-            // And also delete storage at location:
         }
     }
 }
