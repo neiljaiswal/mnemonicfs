@@ -83,12 +83,14 @@
     <Compile Include="Tests\TestAspectsNotes.cs" />
     <Compile Include="Tests\TestAspectsUrls.cs" />
     <Compile Include="Tests\TestAspectsVCards.cs" />
+    <Compile Include="Tests\TestBackupOperations.cs" />
     <Compile Include="Tests\TestBookmarkFiles.cs" />
     <Compile Include="Tests\TestBookmarkNotes.cs" />
     <Compile Include="Tests\TestBookmarkUrls.cs" />
     <Compile Include="Tests\TestBookmarkVCards.cs" />
     <Compile Include="Tests\TestBriefcases.cs" />
     <Compile Include="Tests\TestCollections.cs" />
+    <Compile Include="Tests\TestDateTimeFilter.cs" />
     <Compile Include="Tests\TestFileHashing.cs" />
     <Compile Include="Tests\TestFileVersioning.cs" />
     <Compile Include="Tests\TestFiltersCommon.cs" />
@@ -98,7 +100,7 @@
     <Compile Include="Tests\TestMfsOperations.cs" />
     <Compile Include="Tests\TestMfsOperationsBase.cs" />
     <Compile Include="Tests\TestNotes.cs" />
-    <Compile Include="Tests\TestReplication.cs" />
+    <Compile Include="Tests\TestSchemaFreeDocs.cs" />
     <Compile Include="Tests\TestUrls.cs" />
     <Compile Include="Tests\TestUserOperations.cs" />
     <Compile Include="Tests\TestVCards.cs" />

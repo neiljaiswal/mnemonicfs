@@ -53,8 +53,8 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         private const string PROP_MAX_COLLECTION_DESC_LENGTH = "max_collection_desc_length";
         private const string PROP_MAX_URL_LENGTH = "max_url_length";
         private const string PROP_STORAGE_BASE_PATH = "storage_base_path";
-        //private const string PROP_LOG_DIR = "log_dir";
         private const string PROP_MAX_FILEVERSION_COMMENT_LENGTH = "max_fileversion_comment_length";
+        private const string PROP_MAX_SCHEMA_FREE_DOC_NAME_LENGTH = "max_schema_free_doc_name_length";
         private const string PROP_USERNAME_REGEX = "username_regex";
 
         // Properties with default values:
@@ -74,6 +74,8 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         private static int _maxUrlLength = 1024;
 
         private static int _maxFileVersionCommentLength = 1024;
+
+        private static int _maxSchemaFreeDocNameLength = 1024;
 
         private static string _userNameRegex = @"\w+@(\w+\.)+\w+";
 
@@ -136,6 +138,9 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
 
                 "# Max length of Url:\n" +
                 PROP_MAX_URL_LENGTH + "=" + _maxUrlLength + "\n\n" +
+
+                "# Max schema-free document name length:\n" +
+                PROP_MAX_SCHEMA_FREE_DOC_NAME_LENGTH + "=" + _maxSchemaFreeDocNameLength + "\n\n" +
 
                 "# User Name Regex:\n" +
                 PROP_USERNAME_REGEX + "=" + _userNameRegex + "\n\n" +
@@ -277,6 +282,18 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
             }
 
             return _maxFileVersionCommentLength;
+        }
+
+        internal static int GetMaxSchemaFreeDocNameLength () {
+            try {
+                string value = _propertiesFileReader.GetValueForKey (PROP_MAX_SCHEMA_FREE_DOC_NAME_LENGTH);
+                _maxFileVersionCommentLength = Int32.Parse (value);
+                Debug.Print ("Got value for max schema-free document name length: " + _maxSchemaFreeDocNameLength);
+            } catch (Exception) {
+                Trace.TraceError ("Error reading property: " + PROP_MAX_SCHEMA_FREE_DOC_NAME_LENGTH + ". Using default value instead.");
+            }
+
+            return _maxSchemaFreeDocNameLength;
         }
 
         internal static string GetRegexString () {

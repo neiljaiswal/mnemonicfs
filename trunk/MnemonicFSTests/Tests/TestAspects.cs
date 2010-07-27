@@ -236,6 +236,7 @@ namespace MnemonicFS.Tests.Aspects {
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
             string aspectName, aspectDesc;
+
             _mfsOperations.GetAspectNameAndDesc (0, out aspectName, out aspectDesc);
         }
 

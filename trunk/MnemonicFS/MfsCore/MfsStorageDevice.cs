@@ -70,7 +70,7 @@ namespace MnemonicFS.MfsCore {
             Directory.CreateDirectory (Config.GetStorageBasePath ());
         }
 
-        #endregion
+        #endregion << Declarations & Initialization >>
 
         #region << User-creation Operations >>
 
@@ -110,7 +110,7 @@ namespace MnemonicFS.MfsCore {
             return userSpecificPath;
         }
 
-        #endregion
+        #endregion << User-creation Operations >>
 
         #region << File Save / Retrieval Operations >>
 
@@ -198,7 +198,7 @@ namespace MnemonicFS.MfsCore {
                     string contentNameInZip = contentNamesInZip[i];
                     Stream StreamToRead = new MemoryStream (bytesToSave);
                     zip.UseUnicodeAsNecessary = true;
-                    zip.ForceNoCompression = true;
+                    //zip.ForceNoCompression = true;
                     ZipEntry e = zip.AddEntry (contentNameInZip, "/", StreamToRead);
                     if (password != null) {
                         e.Password = password;
@@ -342,7 +342,7 @@ namespace MnemonicFS.MfsCore {
             SaveByteArrayToZippedFile (fileWithPath, byteStream, assumedFileName, passphrase);
         }
 
-        #endregion
+        #endregion << File Save / Retrieval Operations >>
 
         #region << File Deletion Operations >>
 
@@ -430,7 +430,7 @@ namespace MnemonicFS.MfsCore {
             return path;
         }
 
-        #endregion
+        #endregion << File Deletion Operations >>
 
         #region << File Version Operations >>
 
@@ -448,7 +448,7 @@ namespace MnemonicFS.MfsCore {
             File.WriteAllBytes (fileWithPath, fileData);
         }
 
-        #endregion
+        #endregion << File Version Operations >>
 
         #region << Archiving Operations >>
 
@@ -462,6 +462,6 @@ namespace MnemonicFS.MfsCore {
             SaveByteArraysToZippedFile (fileNameWithPath, filesData, fileNames, password);
         }
 
-        #endregion
+        #endregion << Archiving Operations >>
     }
 }

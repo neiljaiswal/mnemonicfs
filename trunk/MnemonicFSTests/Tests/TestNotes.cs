@@ -41,7 +41,7 @@ using MnemonicFS.MfsExceptions;
 
 namespace MnemonicFS.Tests.Notes {
     [TestFixture]
-    public class TestNotes_NotesMethod_Creation : TestMfsOperationsBase {
+    public class Tests_NotesMethod_Creation : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
@@ -71,7 +71,7 @@ namespace MnemonicFS.Tests.Notes {
     }
 
     [TestFixture]
-    public class TestNotes_NotesMethod_AddNote : TestMfsOperationsBase {
+    public class Tests_NotesMethod_AddNote : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
@@ -128,7 +128,36 @@ namespace MnemonicFS.Tests.Notes {
     }
 
     [TestFixture]
-    public class TestNotes_NotesMethod_GetNote : TestMfsOperationsBase {
+    public class Tests_NotesMethod_DeleteNote : TestMfsOperationsBase {
+        [Test]
+        public void Test_SanityCheck () {
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
+            DateTime when = DateTime.Now.AddYears (-1);
+            MfsNote note = new MfsNote (noteContent, when);
+
+            ulong noteID = _mfsOperations.AddNote (note);
+
+            int numNotesDeleted = _mfsOperations.DeleteNote (noteID);
+            Assert.AreEqual (1, numNotesDeleted, "Note was not deleted.");
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsIllegalArgumentException))]
+        public void Test_NoteIDZero_Illegal () {
+            _mfsOperations.DeleteNote (0);
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsNonExistentResourceException))]
+        public void Test_NonExistentNoteID_Illegal () {
+            ulong veryLargeNoteID = UInt64.MaxValue;
+
+            _mfsOperations.DeleteNote (veryLargeNoteID);
+        }
+    }
+
+    [TestFixture]
+    public class Tests_NotesMethod_GetNote : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
@@ -162,7 +191,7 @@ namespace MnemonicFS.Tests.Notes {
     }
 
     [TestFixture]
-    public class TestNotes_NotesMethod_GetNoteDate : TestMfsOperationsBase {
+    public class Tests_NotesMethod_GetNoteDate : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
@@ -181,7 +210,7 @@ namespace MnemonicFS.Tests.Notes {
     }
 
     [TestFixture]
-    public class TestNotes_NotesMethod_GetNoteDateTime : TestMfsOperationsBase {
+    public class Tests_NotesMethod_GetNoteDateTime : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);

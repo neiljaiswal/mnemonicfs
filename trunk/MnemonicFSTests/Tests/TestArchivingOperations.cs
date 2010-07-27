@@ -68,7 +68,7 @@ namespace MnemonicFS.Tests.Archiving {
             ulong fileID3 = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
             _mfsOperations.ApplyAspectToFile (aspectID, fileID3);
 
-            string outFilePath = @"C:\";
+            string outFilePath = FILE_SYSTEM_LOCATION;
             string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
             _mfsOperations.ArchiveFilesInGrouping (GroupingType.ASPECT, aspectID, outFilePath, archiveName, null);
 

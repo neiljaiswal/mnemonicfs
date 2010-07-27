@@ -35,20 +35,13 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using MnemonicFS.Tests.Base;
-using MnemonicFS.MfsCore;
 using MnemonicFS.Tests.Utils;
-using MnemonicFS.MfsUtils.MfsCrypto;
+using MnemonicFS.MfsExceptions;
+using MnemonicFS.MfsCore;
 
-namespace MnemonicFS.Tests.Replication {
+namespace MnemonicFS.Tests.DateTimeFilter {
     [TestFixture]
-    public class Tests_ReplicationMethod_StorageDiff : TestMfsOperationsBase {
-        [Test]
-        public void Test_SanityCheck () {
-        }
-    }
-
-    [TestFixture]
-    public class Tests_ReplicationMethod_ReplicateStorage : TestMfsOperationsBase {
+    public class TestDateTimeFilter : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
         }

@@ -97,7 +97,7 @@ namespace MnemonicFS.MfsCore {
             return "data source=" + Config.GetStorageBasePath () + BaseSystem.GetSystemDBFileName () + ";Read Only=True;Password=" + BaseSystem.GetSystemDBPassword ();
         }
 
-        #endregion
+        #endregion << Constants & Class Init Code >>
 
         #region << User-related Operations >>
 
@@ -205,6 +205,34 @@ namespace MnemonicFS.MfsCore {
             }
 
             return users;
+        }
+
+        internal static string GetUserPasswordHash (string userID) {
+            string sql = "select PasswordHash from L_Users where UserIDStr=@userIDStr";
+            Debug.Print ("Get user password hash: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (SYSTEMDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@userIDStr", userID);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return dt.Rows[0][0].ToString ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
         }
 
         internal static int UpdateUserPassword (string userIDStr, string newPasswordHash) {
@@ -357,7 +385,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << User-related Operations >>
 
         #region << User Instantiation Methods & Variables >>
 
@@ -431,7 +459,7 @@ namespace MnemonicFS.MfsCore {
             return "data source=" + Config.GetStorageBasePath () + _userSpecificPath + BaseSystem.GetUserDBFileName () + ";Read Only=True;Password=" + BaseSystem.GetUserDBPassword ();
         }
 
-        #endregion
+        #endregion << User Instantiation Methods & Variables >>
 
         #region << Class-level Storage Operations >>
 
@@ -582,7 +610,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Class-level Storage Operations >>
 
         #region << File-retention Operations >>
 
@@ -627,7 +655,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << File-retention Operations >>
 
         #region << User Details-related Operations >>
 
@@ -660,7 +688,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << User Details-related Operations >>
 
         #region << File Meta-data Save / Deletion / Retrieval / Updation Operations >>
 
@@ -1439,7 +1467,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << File Meta-data Save / Deletion / Retrieval / Updation Operations >>
 
         #region << File Retrieval in Date/Time Ranges >>
 
@@ -1964,7 +1992,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << File Retrieval in Date/Time Ranges >>
 
         #region << Aspect-related Operations >>
 
@@ -2058,8 +2086,8 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allAspects = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong briefcaseID = ulong.Parse (row[0].ToString ());
-                    allAspects.Add (briefcaseID);
+                    ulong aspectID = ulong.Parse (row[0].ToString ());
+                    allAspects.Add (aspectID);
                 }
 
                 return allAspects;
@@ -2310,7 +2338,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Aspect-related Operations >>
 
         #region << Aspect Group-related Operations >>
 
@@ -2539,7 +2567,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Aspect Group-related Operations >>
 
         #region << File Version-related Operations >>
 
@@ -2819,7 +2847,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << File Version-related Operations >>
 
         #region << Files-Aspects Operations >>
 
@@ -3058,7 +3086,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Files-Aspects Operations >>
 
         #region << Briefcase-related Operations >>
 
@@ -3404,7 +3432,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Briefcase-related Operations >>
 
         #region << Files-Briefcases Addition / Removal Operations >>
 
@@ -3542,7 +3570,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Files-Briefcases Addition / Removal Operations >>
 
         #region << Collection-related Operations >>
 
@@ -3888,7 +3916,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Collection-related Operations >>
 
         #region << Files-Collections Addition / Removal Operations >>
 
@@ -4089,7 +4117,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Files-Collections Addition / Removal Operations >>
 
         #region << Url-related Operations >>
 
@@ -4325,7 +4353,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Url-related Operations >>
 
         #region << Note-related Operations >>
 
@@ -4441,7 +4469,7 @@ namespace MnemonicFS.MfsCore {
 
         internal DateTime GetNoteDateTime (ulong noteID) {
             string sql = "select WhenDateTime from L_Notes where key_NoteID=" + noteID;
-            Debug.Print ("Get note save date: " + sql);
+            Debug.Print ("Get note save date/time: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -4455,7 +4483,7 @@ namespace MnemonicFS.MfsCore {
                 dt.Load (reader);
 
                 string dtTmStr = dt.Rows[0][0].ToString ();
-                Debug.Print ("Got note save date: " + dtTmStr);
+                Debug.Print ("Got note save date/time: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
                 return (DateTime.Parse (dtTmStr));
             } catch (Exception e) {
@@ -4494,7 +4522,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Note-related Operations >>
 
         #region << Urls-Aspects Operations >>
 
@@ -4695,7 +4723,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Urls-Aspects Operations >>
 
         #region << Notes-Aspects Operations >>
 
@@ -4896,7 +4924,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Notes-Aspects Operations >>
 
         #region << File Bookmarking Operations >>
 
@@ -5041,7 +5069,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << File Bookmarking Operations >>
 
         #region << Note Bookmarking Operations >>
 
@@ -5186,7 +5214,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Note Bookmarking Operations >>
 
         #region << Url Bookmarking Operations >>
 
@@ -5331,6 +5359,469 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        #endregion << Url Bookmarking Operations >>
+
+        #region << Schema Free Document-related Operations >>
+
+        internal ulong CreateSfd (string docName, DateTime when) {
+            string insertDateTime = StringUtils.GetAsZeroPaddedFourCharString (when.Year) + "-"
+                                    + StringUtils.GetAsZeroPaddedTwoCharString (when.Month) + "-"
+                                    + StringUtils.GetAsZeroPaddedTwoCharString (when.Day) + " "
+                                    + StringUtils.GetAsZeroPaddedTwoCharString (when.Hour) + ":"
+                                    + StringUtils.GetAsZeroPaddedTwoCharString (when.Minute) + ":"
+                                    + StringUtils.GetAsZeroPaddedTwoCharString (when.Second);
+
+            string sql = "insert into L_SchemaFreeDocuments (DocName, WhenDateTime) values (@docName, '" + insertDateTime + "'); "
+                            + "select last_insert_rowid() from L_SchemaFreeDocuments";
+            Debug.Print ("Create schema-free document: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@docName", docName);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteSfd (ulong docID) {
+            string sql = "delete from L_SchemaFreeDocuments where key_DocID=" + docID;
+            Debug.Print ("Delete schema-free doc: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                string referencedSql1 = "delete from L_SchemaFreeDocuments_Properties where fkey_DocID=" + docID;
+
+                SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
+
+                int val = myCommand.ExecuteNonQuery ();
+
+                myCommand1.ExecuteNonQuery ();
+
+                return val;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteAllSfds () {
+            string sql = "delete from L_SchemaFreeDocuments";
+            Debug.Print ("Delete all schema-free documents: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                int val = myCommand.ExecuteNonQuery ();
+
+                string referencedQuery1 = "delete from L_SchemaFreeDocuments_Properties";
+                SQLiteCommand myCommand1 = new SQLiteCommand (referencedQuery1, cnn);
+                myCommand1.ExecuteNonQuery ();
+
+                return val;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool DoesSfdExist (ulong docID) {
+            string sql = "select key_DocID from L_SchemaFreeDocuments where key_DocID=" + docID;
+            Debug.Print ("Does schema-free doc exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool DoesSfdExist (string docName) {
+            string sql = "select key_DocID from L_SchemaFreeDocuments where DocName=@docName";
+            Debug.Print ("Does schema-free doc exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@docName", docName);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal void GetSfdName (ulong docID, out string docName) {
+            string sql = "select DocName from L_SchemaFreeDocuments where key_DocID=" + docID;
+            Debug.Print ("Get schema-free document name: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                docName = dt.Rows[0][0].ToString ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal ulong GetSfdIDFromName (string docName) {
+            string sql = "select key_DocID from L_SchemaFreeDocuments where DocName=@docName";
+            Debug.Print ("Get schema-free document ID: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@docName", docName);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return UInt64.Parse ((dt.Rows[0][0]).ToString ());
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal DateTime GetSfdSaveDateTime (ulong docID) {
+            string sql = "select WhenDateTime from L_SchemaFreeDocuments where key_DocID=" + docID;
+            Debug.Print ("Get schema-free document save date: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                string dtTmStr = dt.Rows[0][0].ToString ();
+                Debug.Print ("Got schema-free document save date/time: " + dtTmStr);
+                Debug.Print ("Now parsing it to get DateTime object.");
+                return (DateTime.Parse (dtTmStr));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal List<ulong> GetAllSfds () {
+            string sql = "select key_DocID from L_SchemaFreeDocuments";
+            Debug.Print ("Get all schema-free documents: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                List<ulong> allDocs = new List<ulong> ();
+                foreach (DataRow row in dt.Rows) {
+                    ulong docID = ulong.Parse (row[0].ToString ());
+                    allDocs.Add (docID);
+                }
+
+                return allDocs;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal void AddPropertyToSfd (ulong docID, string key, string value) {
+            string sql = "insert into L_SchemaFreeDocuments_Properties (fkey_DocID, Key, Value) values (" + docID + ", @key, @value)";
+            Debug.Print ("Add property to schema-free document: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@key", key);
+                myCommand.Parameters.AddWithValue ("@value", value);
+
+                myCommand.ExecuteNonQuery ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool DoesSfdHaveKey (ulong docID, string key) {
+            string sql = "select key_EntryID from L_SchemaFreeDocuments_Properties where fkey_DocID=" + docID + " and Key=@key";
+            Debug.Print ("Does schema-free document have key: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@key", key);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal string GetValueForKeyInSfd (ulong docID, string key) {
+            string sql = "select Value from L_SchemaFreeDocuments_Properties where fkey_DocID=" + docID + " and Key=@key";
+            Debug.Print ("Get value for key from schema-free document: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@key", key);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return dt.Rows[0][0].ToString ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool UpdateValueForKeyInSfd (ulong docID, string key, string newValue) {
+            string sql = "update L_SchemaFreeDocuments_Properties set Value=@newValue where fkey_DocID=" + docID + " and Key=@key";
+            Debug.Print ("Update value for key: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@newValue", newValue);
+                myCommand.Parameters.AddWithValue ("@key", key);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+
+                return (updatedRows > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteKeyInSfd (ulong docID, string key) {
+            string sql = "delete from L_SchemaFreeDocuments_Properties where fkey_DocID=" + docID + " and Key=@key";
+            Debug.Print ("Remove url: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@key", key);
+
+                return myCommand.ExecuteNonQuery ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal List<string> GetAllKeysInSfd (ulong docID) {
+            string sql = "select Key from L_SchemaFreeDocuments_Properties where fkey_DocID=" + docID;
+            Debug.Print ("Get all keys in schema-free document: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                List<string> allKeys = new List<string> ();
+                foreach (DataRow row in dt.Rows) {
+                    string kID = row[0].ToString ();
+                    allKeys.Add (kID);
+                }
+
+                return allKeys;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        #endregion << Schema Free Document-related Operations >>
+
+        #region << Schema Free Document Version-related Operations >>
+
+        // TODO
+
+        #endregion << Schema Free Document Version-related Operations >>
     }
 }

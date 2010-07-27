@@ -54,7 +54,8 @@ namespace MnemonicFS.MfsCore {
         BRIEFCASE_DESC,
         COLLECTION_NAME,
         COLLECTION_DESC,
-        VERSION_COMMENT
+        VERSION_COMMENT,
+        SCHEMA_FREE_DOC_NAME
     };
 
     public enum GroupingType {
@@ -90,13 +91,16 @@ namespace MnemonicFS.MfsCore {
 
         private static int MAX_FILEVERSIONCOMMENT_LENGTH = Config.GetMaxFileVersionCommentLength ();
 
+        private static int MAX_SCHEMA_FREE_DOC_NAME_LENGTH = Config.GetMaxSchemaFreeDocNameLength ();
+
         private static string REGEX_STRING = Config.GetRegexString ();
 
         private static ulong GLOBAL_BRIEFCASE_ID = 1;
 
-        #endregion
+        #endregion << Constants Declarations >>
 
         #region << Property Getters >>
+
         public static int MaxFileNameLength {
             get {
                 return MAX_FILENAME_LENGTH;
@@ -169,9 +173,16 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion
+        public static int MaxSchemaFreeDocNameLength {
+            get {
+                return MAX_SCHEMA_FREE_DOC_NAME_LENGTH;
+            }
+        }
+
+        #endregion << Property Getters >>
 
         #region << Bare Bytestream Storage / Retrieval Operations >>
+
         /// <summary>
         /// This is a static method for user-independent operation that can done by the client utility
         /// for saving a byte stream to the storage. This method is especially useful if the client would
@@ -267,7 +278,7 @@ namespace MnemonicFS.MfsCore {
             return MfsDBOperations.DoesByteStreamExist (byteStreamID);
         }
 
-        #endregion
+        #endregion << Bare Bytestream Storage / Retrieval Operations >>
 
         #region << Static Constructor & User-related Operations >>
 
@@ -385,7 +396,7 @@ namespace MnemonicFS.MfsCore {
             return regex.IsMatch (userID);
         }
 
-        #endregion
+        #endregion << Static Constructor & User-related Operations >>
 
         #region << Instance-specific Variable Declarations >>
 
@@ -395,7 +406,7 @@ namespace MnemonicFS.MfsCore {
         private MfsDBOperations _dbOperations;
         private LuceneIndexer _indexer;
 
-        #endregion
+        #endregion << Instance-specific Variable Declarations >>
 
         #region << Object Construction >>
 
@@ -413,6 +424,19 @@ namespace MnemonicFS.MfsCore {
             if (!authenticated) {
                 throw new MfsAuthenticationException ("Authentication failed.");
             }
+
+            LoadUserValues (userID, passwordHash);
+        }
+
+        internal MfsOperations (string userID) {
+            userID = ProcessUserIDStr (userID);
+
+            ulong uid = MfsDBOperations.DoesUserExist (userID);
+            if (uid == 0) {
+                throw new MfsNonExistentUserException ("User does not exist.");
+            }
+
+            string passwordHash = MfsDBOperations.GetUserPasswordHash (userID);
 
             LoadUserValues (userID, passwordHash);
         }
@@ -436,7 +460,7 @@ namespace MnemonicFS.MfsCore {
             _dbOperations.GetUserName (out fName, out lName);
         }
 
-        #endregion
+        #endregion << Object Construction >>
 
         #region << Client-input Check Methods >>
 
@@ -534,6 +558,24 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
+        private void DoSFDChecks (ulong docID) {
+            if (docID == 0) {
+                throw new MfsIllegalArgumentException ("Schema-free document id cannot be zero.");
+            }
+
+            if (!_dbOperations.DoesSfdExist (docID)) {
+                throw new MfsNonExistentResourceException ("Non-existent schema-free document.");
+            }
+        }
+
+        private void DoSchemaFreeDocChecks (string docName) {
+            if (docName == null || docName.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Schema-free document name cannot be null or empty.");
+            }
+
+            // NO! Don't check for schema-free document existence here.
+        }
+
         private static void ValidateString (string str, ValidationCheckType checkType) {
             switch (checkType) {
                 case ValidationCheckType.FILE_NAME:
@@ -607,6 +649,14 @@ namespace MnemonicFS.MfsCore {
                             );
                     }
                     break;
+
+                case ValidationCheckType.SCHEMA_FREE_DOC_NAME:
+                    if (str == null || str.Length > MAX_SCHEMA_FREE_DOC_NAME_LENGTH) {
+                        throw new MfsIllegalArgumentException (
+                                string.Format ("Schema-free document name cannot be null or greater than {0} chars.", MAX_SCHEMA_FREE_DOC_NAME_LENGTH)
+                            );
+                    }
+                    break;
             }
         }
 
@@ -651,7 +701,7 @@ namespace MnemonicFS.MfsCore {
             return true;
         }
 
-        #endregion
+        #endregion << Client-input Check Methods >>
 
         #region << File Save / Retrieval / Deletion Instance Operations >>
 
@@ -989,7 +1039,7 @@ namespace MnemonicFS.MfsCore {
             return true;
         }
 
-        #endregion
+        #endregion << File Save / Retrieval / Deletion Instance Operations >>
 
         #region << File-logging Operations >>
 
@@ -1057,7 +1107,7 @@ namespace MnemonicFS.MfsCore {
             return FileLogger.DeleteUserLogs (userID);
         }
 
-        #endregion
+        #endregion << File-logging Operations >>
 
         #region << File Retrieval in Date/Time Ranges >>
 
@@ -1113,9 +1163,9 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.GetFilesAfterAndOnDateTime (afterOnDateTime);
         }
 
-        #endregion
+        #endregion << File Retrieval in Date/Time Ranges >>
 
-        #region << Aspects-related Operations >>
+        #region << Aspect-related Operations >>
 
         /// <summary>
         /// This method creates a new aspect within the system.
@@ -1227,7 +1277,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.DeleteAllAspectsInSystem ();
         }
 
-        #endregion
+        #endregion << Aspect-related Operations >>
 
         #region << Aspect Group-related Operations >>
 
@@ -1299,7 +1349,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.DeleteAspectGroup (aspectGroupID);
         }
 
-        #endregion
+        #endregion << Aspect Group-related Operations >>
 
         #region << Aspects-Files Operations >>
 
@@ -1443,9 +1493,10 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.GetFilesAppliedWithAspect (aspectID);
         }
 
-        #endregion
+        #endregion << Aspects-Files Operations >>
 
         #region << Briefcase-related Operations >>
+
         /// <summary>
         /// This method creates a new briefcase within the system.
         /// </summary>
@@ -1559,9 +1610,10 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.DeleteAllBriefcasesInSystem ();
         }
 
-        #endregion
+        #endregion << Briefcase-related Operations >>
 
         #region << Briefcases-Files Operations >>
+
         /// <summary>
         /// This method returns the briefcase id that contains a file.
         /// </summary>
@@ -1608,7 +1660,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.GetFilesInBriefcase (briefcaseID);
         }
 
-        #endregion
+        #endregion << Briefcases-Files Operations >>
 
         #region << Collection-related Operations >>
 
@@ -1722,7 +1774,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.DeleteAllCollectionsInSystem ();
         }
 
-        #endregion
+        #endregion << Collection-related Operations >>
 
         #region << Collections-Files Operations >>
 
@@ -1816,7 +1868,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.RemoveAllFilesFromCollection (collectionID);
         }
 
-        #endregion
+        #endregion << Collections-Files Operations >>
 
         #region << File Version-related Operations >>
 
@@ -1971,7 +2023,7 @@ namespace MnemonicFS.MfsCore {
             fileData2 = GetFileVersion (fileID, versionNumber2);
         }
 
-        #endregion
+        #endregion << File Version-related Operations >>
 
         #region << Url-related Operations >>
 
@@ -2023,7 +2075,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.DoesUrlExist (urlID);
         }
 
-        #endregion
+        #endregion << Url-related Operations >>
 
         #region << Aspects-Urls Operations >>
 
@@ -2113,7 +2165,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.GetUrlsAppliedWithAspect (aspectID);
         }
 
-        #endregion
+        #endregion << Aspects-Urls Operations >>
 
         #region << Note-related Operations >>
 
@@ -2126,6 +2178,8 @@ namespace MnemonicFS.MfsCore {
         }
 
         public int DeleteNote (ulong noteID) {
+            DoNoteChecks (noteID);
+
             return _dbOperations.DeleteNote (noteID);
         }
 
@@ -2139,7 +2193,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.GetNoteDateTime (noteID);
         }
 
-        #endregion
+        #endregion << Note-related Operations >>
 
         #region << Aspects-Notes Operations >>
 
@@ -2229,7 +2283,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.UnapplyAspectFromAllNotes (aspectID);
         }
 
-        #endregion
+        #endregion << Aspects-Notes Operations >>
 
         #region << Archiving Operations >>
 
@@ -2267,7 +2321,7 @@ namespace MnemonicFS.MfsCore {
             MfsStorageDevice.ArchiveFiles (filesData, fileNames, opDirPath, opArchiveName, password);
         }
 
-        #endregion
+        #endregion << Archiving Operations >>
 
         #region << General Filter Methods >>
 
@@ -2386,7 +2440,7 @@ namespace MnemonicFS.MfsCore {
             return exoredList;
         }
 
-        #endregion
+        #endregion << General Filter Methods >>
 
         #region << Aspect Filter Operations >>
 
@@ -2432,7 +2486,7 @@ namespace MnemonicFS.MfsCore {
             return opFileIDs;
         }
 
-        #endregion
+        #endregion << Aspect Filter Operations >>
 
         #region << File Bookmarking Operations >>
 
@@ -2462,7 +2516,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.DeleteAllFileBookmarks ();
         }
 
-        #endregion
+        #endregion << File Bookmarking Operations >>
 
         #region << Note Bookmarking Operations >>
 
@@ -2492,7 +2546,7 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.DeleteAllNoteBookmarks ();
         }
 
-        #endregion
+        #endregion << Note Bookmarking Operations >>
 
         #region << Url Bookmarking Operations >>
 
@@ -2522,6 +2576,166 @@ namespace MnemonicFS.MfsCore {
             return _dbOperations.DeleteAllUrlBookmarks ();
         }
 
-        #endregion
+        #endregion << Url Bookmarking Operations >>
+
+        #region << Schema Free Document-related Operations >>
+
+        public ulong CreateSfd (string docName, DateTime when) {
+            ValidateString (docName, ValidationCheckType.SCHEMA_FREE_DOC_NAME);
+            DoSchemaFreeDocChecks (docName);
+            if (DoesSfdExist (docName) == true) {
+                throw new MfsDuplicateNameException ("Schema-free document name already exists.");
+            }
+
+            return _dbOperations.CreateSfd (docName, when);
+        }
+
+        public int DeleteSfd (ulong docID) {
+            DoSFDChecks (docID);
+
+            return _dbOperations.DeleteSfd (docID);
+        }
+
+        public int DeleteAllSfds () {
+            return _dbOperations.DeleteAllSfds ();
+        }
+
+        public bool DoesSfdExist (ulong docID) {
+            if (docID == 0) {
+                throw new MfsIllegalArgumentException ("Schema-free document id cannot be zero.");
+            }
+
+            return _dbOperations.DoesSfdExist (docID);
+        }
+
+        public bool DoesSfdExist (string docName) {
+            DoSchemaFreeDocChecks (docName);
+
+            return _dbOperations.DoesSfdExist (docName);
+        }
+
+        public void GetSfdName (ulong docID, out string docName) {
+            DoSFDChecks (docID);
+
+            _dbOperations.GetSfdName (docID, out docName);
+        }
+
+        public ulong GetSfdIDFromName (string docName) {
+            DoSchemaFreeDocChecks (docName);
+            if (!DoesSfdExist (docName)) {
+                throw new MfsNonExistentResourceException ("Schema-free document name does not exist.");
+            }
+
+            return _dbOperations.GetSfdIDFromName (docName);
+        }
+
+        public DateTime GetSfdSaveDateTime (ulong docID) {
+            DoSFDChecks (docID);
+
+            return _dbOperations.GetSfdSaveDateTime (docID);
+        }
+
+        public List<ulong> GetAllSfds () {
+            return _dbOperations.GetAllSfds ();
+        }
+
+        public void AddPropertyToSfd (ulong docID, string key, string value) {
+            DoSFDChecks (docID);
+            if (key == null || key.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Key cannot be null or empty.");
+            }
+            if (value == null || value.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Value cannot be null or empty.");
+            }
+            if (_dbOperations.DoesSfdHaveKey (docID, key)) {
+                throw new MfsDuplicateNameException ("Document already has a key by that name.");
+            }
+
+            _dbOperations.AddPropertyToSfd (docID, key, value);
+        }
+
+        public void AddPropertiesToSfd (ulong docID, Dictionary<string, string> properties) {
+            DoSFDChecks (docID);
+            HashSet<string> allKeys = new HashSet<string> (properties.Keys);
+            foreach (string key in allKeys) {
+                if (key == null || key.Equals (string.Empty)) {
+                    throw new MfsIllegalArgumentException ("Key cannot be null or empty.");
+                }
+                string value = properties[key];
+                if (value == null || value.Equals (string.Empty)) {
+                    throw new MfsIllegalArgumentException ("Value cannot be null or empty.");
+                }
+                if (_dbOperations.DoesSfdHaveKey (docID, key)) {
+                    throw new MfsDuplicateNameException ("Document already has a key by that name.");
+                }
+            }
+
+            foreach (string key in allKeys) {
+                string value = properties[key];
+                _dbOperations.AddPropertyToSfd (docID, key, value);
+            }
+        }
+
+        public bool DoesSfdHaveKey (ulong docID, string key) {
+            DoSFDChecks (docID);
+            if (key == null || key.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Key cannot be null or empty.");
+            }
+
+            return _dbOperations.DoesSfdHaveKey (docID, key);
+        }
+
+        public string GetValueForKeyInSfd (ulong docID, string key) {
+            DoSFDChecks (docID);
+            if (key == null || key.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Key cannot be null or empty.");
+            }
+            if (!_dbOperations.DoesSfdHaveKey (docID, key)) {
+                throw new MfsNonExistentResourceException ("Key does not exist in schema-free document.");
+            }
+
+            return _dbOperations.GetValueForKeyInSfd (docID, key);
+        }
+
+        public bool UpdateValueForKeyInSfd (ulong docID, string key, string newValue) {
+            DoSFDChecks (docID);
+            if (key == null || key.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Key cannot be null or empty.");
+            }
+            if (newValue == null || newValue.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Value cannot be null or empty.");
+            }
+            if (!_dbOperations.DoesSfdHaveKey (docID, key)) {
+                throw new MfsNonExistentResourceException ("Key does not exist in schema-free document.");
+            }
+
+            return _dbOperations.UpdateValueForKeyInSfd (docID, key, newValue);
+        }
+
+        public int DeleteKeyInSfd (ulong docID, string key) {
+            DoSFDChecks (docID);
+            if (key == null || key.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Key cannot be null or empty.");
+            }
+            if (!_dbOperations.DoesSfdHaveKey (docID, key)) {
+                throw new MfsNonExistentResourceException ("Key does not exist in schema-free document.");
+            }
+
+            return _dbOperations.DeleteKeyInSfd (docID, key);
+        }
+
+        public List<string> GetAllKeysInSfd (ulong docID) {
+            DoSFDChecks (docID);
+
+            return _dbOperations.GetAllKeysInSfd (docID);
+        }
+
+        #endregion << Schema Free Document-related Operations >>
+
+        #region << Schema Free Document Version-related Operations >>
+
+        // TODO
+
+        #endregion << Schema Free Document Version-related Operations >>
     }
 }

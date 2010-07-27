@@ -47,6 +47,8 @@ namespace MnemonicFS.Tests.Base {
     }
 
     public class TestMfsOperationsBase {
+        #region << Typical Values >>
+
         protected const int TYPICAL_WORD_SIZE = 5; // characters per word;
         protected const int TYPICAL_SENTENCE_SIZE = 5; // words per sentence;
 
@@ -60,6 +62,12 @@ namespace MnemonicFS.Tests.Base {
 
         protected const int SINGLE_VALUE = 1;
         protected const int LARGE_NUMBER_OF_USERS = 70;
+
+        protected const string FILE_SYSTEM_LOCATION = @"C:\";
+
+        #endregion << Typical Values >>
+
+        #region << Instance data used across a test suite >>
 
         protected MfsOperations _mfsOperations;
         protected string _userID;
@@ -76,6 +84,10 @@ namespace MnemonicFS.Tests.Base {
 
         protected string _collectionName;
         protected string _collectionDesc;
+
+        protected string _schemaFreeDocName;
+
+        #endregion << Instance data used across a test suite >>
 
         [SetUp]
         protected void SetUp () {
@@ -99,6 +111,10 @@ namespace MnemonicFS.Tests.Base {
                 _collectionName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 _collectionDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             } while (_mfsOperations.DoesCollectionExist (_collectionName));
+
+            do {
+                _schemaFreeDocName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            } while (_mfsOperations.DoesSfdExist (_schemaFreeDocName));
         }
 
         [TearDown]
@@ -138,42 +154,38 @@ namespace MnemonicFS.Tests.Base {
         }
 
         protected static ulong CreateUniqueAspect (ref MfsOperations mfsOperations, out string aspectName, out string aspectDesc) {
-            ulong aspectID = 0;
-            
             do {
                 aspectName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 aspectDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             } while (mfsOperations.DoesAspectExist (aspectName));
 
-            aspectID = mfsOperations.CreateAspect (aspectName, aspectDesc);
-
-            return aspectID;
+            return mfsOperations.CreateAspect (aspectName, aspectDesc);
         }
 
         protected static ulong CreateUniqueBriefcase (ref MfsOperations mfsOperations, out string briefcaseName, out string briefcaseDesc) {
-            ulong briefcaseID = 0;
-            
             do {
                 briefcaseName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 briefcaseDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             } while (mfsOperations.DoesBriefcaseExist (briefcaseName));
 
-            briefcaseID = mfsOperations.CreateBriefcase (briefcaseName, briefcaseDesc);
-
-            return briefcaseID;
+            return mfsOperations.CreateBriefcase (briefcaseName, briefcaseDesc);
         }
 
         protected static ulong CreateUniqueCollection (ref MfsOperations mfsOperations, out string collectionName, out string collectionDesc) {
-            ulong collectionID = 0;
-            
             do {
                 collectionName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 collectionDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             } while (mfsOperations.DoesCollectionExist (collectionName));
 
-            collectionID = mfsOperations.CreateCollection (collectionName, collectionDesc);
+            return mfsOperations.CreateCollection (collectionName, collectionDesc);
+        }
 
-            return collectionID;
+        protected static ulong CreateUniqueSchemaFreeDocument (ref MfsOperations mfsOperations, out string schemaFreeDocName, DateTime when) {
+            do {
+                schemaFreeDocName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            } while (mfsOperations.DoesSfdExist (schemaFreeDocName));
+
+            return mfsOperations.CreateSfd (schemaFreeDocName, when);
         }
 
         protected static List<ulong> CreateUniqueNAspects (ref MfsOperations mfsOperations, int numAspects) {
@@ -210,6 +222,17 @@ namespace MnemonicFS.Tests.Base {
             }
 
             return collectionList;
+        }
+
+        protected static List<ulong> CreateUniqueNSchemaFreeDocuments (ref MfsOperations mfsOperations, int numSchemaFreeDocuments, DateTime when) {
+            List<ulong> schemaFreeDocumentList = new List<ulong> ();
+
+            for (int i = 0; i < numSchemaFreeDocuments; ++i) {
+                string schemaFreeDocumentName;
+                schemaFreeDocumentList.Add (CreateUniqueSchemaFreeDocument (ref mfsOperations, out schemaFreeDocumentName, when));
+            }
+
+            return schemaFreeDocumentList;
         }
 
         protected static MfsVCard CreateVCard () {

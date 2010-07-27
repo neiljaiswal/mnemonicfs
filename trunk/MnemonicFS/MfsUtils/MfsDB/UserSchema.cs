@@ -162,6 +162,20 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 CREATE TABLE [L_VCardBookmarks] (
                 [fkey_VCardID] INTEGER NOT NULL
                 );
+
+                CREATE TABLE [L_SchemaFreeDocuments] (
+                [key_DocID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [DocName] NVARCHAR(1024) DEFAULT NULL,
+                [WhenDateTime] TIMESTAMP NOT NULL
+                );
+
+                CREATE TABLE [L_SchemaFreeDocuments_Properties] (
+                [key_EntryID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [fkey_DocID] INTEGER NOT NULL,
+                [VersionNumber] INTEGER NOT NULL DEFAULT (0),
+                [Key] NVARCHAR(128) NOT NULL,
+                [Value] NVARCHAR(128) NOT NULL
+                );
             ";
         }
     }
