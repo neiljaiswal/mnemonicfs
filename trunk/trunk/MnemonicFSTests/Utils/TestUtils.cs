@@ -127,6 +127,21 @@ namespace MnemonicFS.Tests.Utils {
             return opStr;
         }
 
+        public static List<string> GetUniqueNStrings (int numStrings, int length) {
+            List<string> listStrings = new List<string> (numStrings);
+
+            for (int i = 0; i < numStrings; ++i) {
+                string str = GetRandomString (length);
+                if (listStrings.Contains (str)) {
+                    --i;
+                    continue;
+                }
+                listStrings.Add (str);
+            }
+
+            return listStrings;
+        }
+
         internal static string GetAnyEmailID () {
             return GetAWord (5) + "@" + GetAWord (5) + ".org";
         }

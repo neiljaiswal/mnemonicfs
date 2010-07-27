@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MfsCore\MfsBackupManager.cs" />
     <Compile Include="MfsCore\MfsFileLogEntry.cs" />
     <Compile Include="MfsCore\MfsDBOperations.cs" />
     <Compile Include="MfsCore\MfsNote.cs" />

@@ -1,0 +1,112 @@
+﻿/**
+ * Copyright © 2009, Najeeb Shaikh
+ * All rights reserved.
+ * http://www.mnemonicfs.org
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * - Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 
+ * - Neither the name of the MnemonicFS Team, nor the names of its
+ * contributors may be used to endorse or promote products
+ * derived from this software without specific prior written
+ * permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ **/
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using NUnit.Framework;
+using MnemonicFS.Tests.Base;
+using MnemonicFS.MfsCore;
+using MnemonicFS.Tests.Utils;
+using MnemonicFS.MfsUtils.MfsCrypto;
+using System.IO;
+
+namespace MnemonicFS.Tests.Backup {
+    [TestFixture]
+    public class Tests_BackupMethod_CreateUserBackupArchive : TestMfsOperationsBase {
+        [Test]
+        public void Test_SanityCheck () {
+            // Create a few aspects:
+            List<ulong> aspectsList = new List<ulong> (TYPICAL_MULTI_VALUE);
+            string aspectDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
+                string aspectName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+
+                if (_mfsOperations.DoesAspectExist (aspectName)) {
+                    --i;
+                    continue;
+                }
+
+                ulong aspectID = _mfsOperations.CreateAspect (aspectName, aspectDesc);
+                aspectsList.Add (aspectID);
+            }
+
+            // Add some files:
+            List<ulong> filesList = new List<ulong> (TYPICAL_MULTI_VALUE);
+            for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
+                _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+                DateTime when = DateTime.Now;
+                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                filesList.Add (fileID);
+            }
+
+            // Also map some of the files to some of the aspects:
+            for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
+                _mfsOperations.ApplyAspectToFile (aspectsList[i], filesList[i]);
+            }
+
+            // Now do a backup:
+            // First specify the location where the backup file should be saved:
+            string backupLocation = FILE_SYSTEM_LOCATION;
+            string backupFileName = "some_name";
+            bool backupSuccess = MfsBackupManager.CreateUserBackupFile (_userID, backupLocation, backupFileName);
+
+            Assert.That (File.Exists (backupLocation + backupFileName), "Backup file does not exist.");
+
+            // Test clean-up:
+            // Lastly, delete all user data:
+            File.Delete (backupLocation + backupFileName);
+
+            foreach (ulong aspectID in aspectsList) {
+                _mfsOperations.DeleteAspect (aspectID);
+            }
+
+            foreach (ulong fileID in filesList) {
+                _mfsOperations.DeleteFile (fileID);
+            }
+        }
+    }
+
+    [TestFixture]
+    public class Tests_BackupMethod_UpdateUserArchive : TestMfsOperationsBase {
+        [Test]
+        public void Test_SanityCheck () {
+        }
+    }
+
+    [TestFixture]
+    public class Tests_BackupMethod_RestoreFromUserArchive : TestMfsOperationsBase {
+        [Test]
+        public void Test_SanityCheck () {
+        }
+    }
+}
