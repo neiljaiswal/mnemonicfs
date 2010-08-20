@@ -89,6 +89,7 @@
     <Compile Include="MfsCore\MfsOperations.cs" />
     <Compile Include="MfsCore\MfsStorageDevice.cs" />
     <Compile Include="MfsCore\MfsVCard.cs" />
+    <Compile Include="MfsExceptions\BadContentException.cs" />
     <Compile Include="MfsExceptions\MfsAuthenticationException.cs" />
     <Compile Include="MfsExceptions\MfsDBException.cs" />
     <Compile Include="MfsExceptions\MfsDuplicateNameException.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="MfsExceptions\MfsNonExistentResourceException.cs" />
     <Compile Include="MfsExceptions\MfsNonExistentUserException.cs" />
     <Compile Include="MfsExceptions\MfsStorageCorruptedException.cs" />
+    <Compile Include="MfsUtils\MfsCrypto\EncryptorDecryptor.cs" />
     <Compile Include="MfsUtils\MfsIndexing\LuceneIndexer.cs" />
     <Compile Include="MfsUtils\MfsDB\LogSchema.cs" />
     <Compile Include="MfsUtils\MfsLogging\FileLogger.cs" />

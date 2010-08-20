@@ -63,7 +63,13 @@ namespace MnemonicFS.Tests.Base {
         protected const int SINGLE_VALUE = 1;
         protected const int LARGE_NUMBER_OF_USERS = 70;
 
+        protected const int NUM_MS_TO_SLEEP = 10; // milli-seconds
+
         protected const string FILE_SYSTEM_LOCATION = @"C:\";
+
+        protected const string PDF_FILE_EXTENSION = "pdf";
+        protected const string MSDOC_FILE_EXTENSION = "doc";
+        protected const string MSEXCEL_FILE_EXTENSION = "xls";
 
         #endregion << Typical Values >>
 

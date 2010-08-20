@@ -41,6 +41,7 @@ using MnemonicFS.MfsUtils.MfsSystem;
 using MnemonicFS.MfsUtils.MfsCrypto;
 using MnemonicFS.MfsUtils.MfsStrings;
 using MnemonicFS.MfsUtils.MfsConfig;
+using MnemonicFS.MfsExceptions;
 
 namespace MnemonicFS.MfsCore {
     /// <summary>
@@ -213,7 +214,7 @@ namespace MnemonicFS.MfsCore {
             using (ZipFile zip = ZipFile.Read (srcZipFileWithPath)) {
                 ZipEntry e = zip[contentNameInZip];
                 if (e == null) {
-                    throw new Exception ("Illegal content!");
+                    throw new BadContentException ("Illegal content!");
                 }
                 stream = new MemoryStream ((int) e.UncompressedSize);
                 e.ExtractWithPassword (stream, password);

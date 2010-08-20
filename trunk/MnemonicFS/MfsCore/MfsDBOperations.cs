@@ -749,6 +749,169 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
+        internal bool IndexFileExtension (ulong fileID, string fileExtension) {
+            ulong fileExtensionID = AddFileExtensionIfNotExists (fileExtension);
+
+            string sql = "insert into M_Files_Extensions (fkey_FileID, fkey_ExtensionID) values (" + fileID + ", " + fileExtensionID + ")";
+            Debug.Print ("Index file extension: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return (myCommand.ExecuteNonQuery () > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal ulong AddFileExtensionIfNotExists (string fileExtension) {
+            if (!DoesFileExtensionExist (fileExtension)) {
+                return AddFileExtension (fileExtension);
+            }
+
+            return GetFileExtensionID (fileExtension);
+        }
+
+        internal bool DoesFileExtensionExist (string fileExtension) {
+            // First check to see if file extension does not already exist:
+            string sql = "select key_fileExtensionID from L_FileExtensions where FileExtension=@fileExtension";
+            Debug.Print ("Does file extension exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@fileExtension", fileExtension);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return dt.Rows.Count > 0;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        private ulong GetFileExtensionID (string fileExtension) {
+            string sql = "select key_fileExtensionID from L_FileExtensions where FileExtension=@fileExtension";
+            Debug.Print ("Get file extension id: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@fileExtension", fileExtension);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return dt.Rows.Count > 0 ? UInt64.Parse ((dt.Rows[0][0]).ToString ()) : 0;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        private ulong AddFileExtension (string fileExtension) {
+            string sql = "insert into L_FileExtensions (FileExtension) values (@fileExtension); "
+                            + "select last_insert_rowid() from L_FileExtensions";
+            Debug.Print ("Add File Extension: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@fileExtension", fileExtension);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal List<ulong> GetFilesWithExtension (string fileExtension) {
+            ulong fileExtensionID = GetFileExtensionID (fileExtension);
+            if (fileExtensionID == 0) {
+                return new List<ulong> ();
+            }
+
+            string sql = "select fkey_FileID from M_Files_Extensions where fkey_ExtensionID=" + fileExtensionID;
+            Debug.Print ("Get files with extension: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                List<ulong> allFiles = new List<ulong> ();
+                foreach (DataRow row in dt.Rows) {
+                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    allFiles.Add (fileID);
+                }
+
+                return allFiles;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
         /// <summary>
         /// This method returns the name of a file stored on the system.
         /// </summary>
@@ -1162,11 +1325,13 @@ namespace MnemonicFS.MfsCore {
                 string referencedSql2 = "delete from M_Files_Collections where fkey_FileID=" + fileID;
                 string referencedSql3 = "delete from M_Files_Versions where fkey_FileID=" + fileID;
                 string referencedSql4 = "delete from L_FileBookmarks where fkey_FileID=" + fileID;
+                string referencedSql5 = "delete from M_Files_Extensions where fkey_FileID=" + fileID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
                 SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
                 SQLiteCommand myCommand3 = new SQLiteCommand (referencedSql3, cnn);
                 SQLiteCommand myCommand4 = new SQLiteCommand (referencedSql4, cnn);
+                SQLiteCommand myCommand5 = new SQLiteCommand (referencedSql5, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
@@ -1174,6 +1339,7 @@ namespace MnemonicFS.MfsCore {
                 myCommand2.ExecuteNonQuery ();
                 myCommand3.ExecuteNonQuery ();
                 myCommand4.ExecuteNonQuery ();
+                myCommand5.ExecuteNonQuery ();
 
                 return val;
             } catch (Exception e) {

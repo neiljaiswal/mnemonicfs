@@ -39,9 +39,12 @@ using MnemonicFS.MfsUtils.MfsCrypto;
 using MnemonicFS.MfsUtils.MfsConfig;
 using Ionic.Zip;
 using MnemonicFS.MfsUtils.MfsStrings;
+using System.Threading;
 
 namespace MnemonicFS.MfsCore {
     public class MfsBackupManager {
+        public delegate void OnBackupTaskDone (bool successStatus);
+
         private const string PATH_PREFIX = "@";
 
         /// <summary>
@@ -50,63 +53,26 @@ namespace MnemonicFS.MfsCore {
         /// the client program.
         /// </summary>
         /// <param name="userID">Id of the user whos data has to be backed up.</param>
-        /// <param name="backupLocation">Location in the file system where the data has to be backed up.</param>
-        /// <param name="backupFileName">Name of the file in which the data has been backed up.</param>
-        /// <returns>A boolean value that indicates whether the operation was successful or not.</returns>
-        public static bool CreateUserBackupFile (string userID, string backupLocation, string backupFileName) {
-            if (!backupLocation.EndsWith (BaseSystem.GetFileSystemSeparator ())) {
-                backupLocation += BaseSystem.GetFileSystemSeparator ();
-            }
-            string destZipFileWithPath = backupLocation + backupFileName;
+        /// <param name="backupFileNameWithPath">Location in the file system where the data has to be backed up.</param>
+        /// <param name="backupTaskDone">Delegate specified by the caller using which it is informed if the backup task was
+        /// successful or not.</param>
+        public static void CreateUserBackupArchive (string userID, string backupFileNameWithPath, OnBackupTaskDone backupTaskDone) {
+            Thread taskThread = new Thread (() => {
+                DoBackupTasks (userID, backupFileNameWithPath, backupTaskDone);
+            });
 
-            /*string tempDir = Config.GetStorageBasePath () + @"tmp\";
-            if (Directory.Exists (tempDir)) {
-                Directory.Delete (tempDir);
-            }
-            Directory.CreateDirectory (tempDir);*/
+            taskThread.Start ();
+        }
 
-            // TODO:
+        private static void DoBackupTasks (string userID, string backupFileNameWithPath, OnBackupTaskDone backupTaskDone) {
             // tmp:
-            using (FileStream fs = File.Create (destZipFileWithPath)) {
+            using (FileStream fs = File.Create (backupFileNameWithPath)) {
                 // Delete this block later! This is used just to pass the test.
             }
 
-            // First (for this user) create meta-data file for backing up to archive:
-            StringBuilder metadata = new StringBuilder ();
+            // TODO
 
-            // Get all user details:
-            //// Save to in-memory string as xml:
-
-            // Get a list of all the aspects and each aspect's details:
-            //// Save to in-memory string as xml:
-
-            // Get a list of all aspect groups and each aspect group's details:
-            //// Save to in-memory string as xml:
-
-            // Get a list of all briefcases and each briefcase's details:
-            //// Save to in-memory string as xml:
-
-            // Get a list of all collections and each collection's details:
-            //// Save to in-memory string as xml:
-
-            // Get a list of all files and each file's details:
-            //// Save to in-memory string as xml:
-
-            // Get a list of all file versions and each file version's details:
-            //// Save to in-memory string as xml:
-
-            // Get a list of all file-aspect mappings and each mapping's details:
-            //// Save to in-memory string as xml:
-
-            // TODO: More
-
-            // Save this metadata string to archive:
-            SaveMetaDataToArchive (destZipFileWithPath, metadata.ToString ());
-
-            // Before exiting, delete tmp directory:
-            //Directory.Delete (tempDir);
-
-            return true;
+            backupTaskDone (true);
         }
 
         private static void SaveMetaDataToArchive (string destZipFileWithPath, string metadata) {
