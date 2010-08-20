@@ -80,7 +80,6 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         private static string _userNameRegex = @"\w+@(\w+\.)+\w+";
 
         private static string _basePath = @"C:\storage\";
-        //private static string _logDir = @"C:\logs\";
 
         private static PropertiesFileReader _propertiesFileReader;
 

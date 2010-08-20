@@ -53,6 +53,16 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [DeletionDateTime] TIMESTAMP DEFAULT NULL
                 );
 
+                CREATE TABLE [L_FileExtensions] (
+                [key_fileExtensionID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [FileExtension] NVARCHAR(16) NOT NULL
+                );
+
+                CREATE TABLE [M_Files_Extensions] (
+                [fkey_FileID] INTEGER NOT NULL,
+                [fkey_ExtensionID] INTEGER NOT NULL
+                );
+
                 CREATE TABLE [M_Files_Versions] (
                 [fkey_FileID] INTEGER NOT NULL,
                 [VersionNumber] INTEGER NOT NULL,

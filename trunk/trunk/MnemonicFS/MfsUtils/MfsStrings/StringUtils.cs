@@ -159,5 +159,10 @@ namespace MnemonicFS.MfsUtils.MfsStrings {
             System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding ();
             return encoding.GetString (bytes);
         }
+
+        public static string GetFileExtension (string fileName) {
+            int dotIndex = fileName.LastIndexOf ('.');
+            return fileName.Substring (dotIndex + 1);
+        }
     }
 }

@@ -39,6 +39,7 @@ using MnemonicFS.MfsCore;
 using MnemonicFS.Tests.Utils;
 using MnemonicFS.MfsUtils.MfsCrypto;
 using System.IO;
+using System.Threading;
 
 namespace MnemonicFS.Tests.Backup {
     [TestFixture]
@@ -74,17 +75,42 @@ namespace MnemonicFS.Tests.Backup {
                 _mfsOperations.ApplyAspectToFile (aspectsList[i], filesList[i]);
             }
 
-            // Now do a backup:
+            // Prepare to do a backup:
+
             // First specify the location where the backup file should be saved:
-            string backupLocation = FILE_SYSTEM_LOCATION;
-            string backupFileName = "some_name";
-            bool backupSuccess = MfsBackupManager.CreateUserBackupFile (_userID, backupLocation, backupFileName);
+            string backupFileNameWithPath = null;
+            // We don't want to end up over-writing an existing file:
+            while (true) {
+                backupFileNameWithPath = FILE_SYSTEM_LOCATION + @"\" + TestUtils.GetAnyFileName ();
+                if (!File.Exists (backupFileNameWithPath)) {
+                    break;
+                }
+            }
 
-            Assert.That (File.Exists (backupLocation + backupFileName), "Backup file does not exist.");
+            // The method uses a delegate to inform the client of task completion:
+            bool taskSuccess = true;
+            bool taskDone = false;
+            MfsBackupManager.OnBackupTaskDone backupTaskDone = (bool taskStatus) => {
+                taskSuccess = taskStatus;
+                taskDone = true;
+            };
 
-            // Test clean-up:
-            // Lastly, delete all user data:
-            File.Delete (backupLocation + backupFileName);
+            // And start the actual backup task:
+            MfsBackupManager.CreateUserBackupArchive (_userID, backupFileNameWithPath, backupTaskDone);
+
+            // We cannot move forward unless the MfsBackupManager class informs us of success:
+            while (!taskDone) {
+                Thread.Sleep (NUM_MS_TO_SLEEP);
+            }
+
+            // Finally check the results:
+            Assert.IsTrue (taskSuccess, "Task not completed successfully.");
+            Assert.That (File.Exists (backupFileNameWithPath), "Backup file does not exist.");
+
+            // Finally, do the clean up, post-test:
+
+            // Delete user backup file:
+            File.Delete (backupFileNameWithPath);
 
             foreach (ulong aspectID in aspectsList) {
                 _mfsOperations.DeleteAspect (aspectID);

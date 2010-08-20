@@ -91,6 +91,7 @@
     <Compile Include="Tests\TestBriefcases.cs" />
     <Compile Include="Tests\TestCollections.cs" />
     <Compile Include="Tests\TestDateTimeFilter.cs" />
+    <Compile Include="Tests\TestExtensionIndex.cs" />
     <Compile Include="Tests\TestFileHashing.cs" />
     <Compile Include="Tests\TestFileVersioning.cs" />
     <Compile Include="Tests\TestFiltersCommon.cs" />
