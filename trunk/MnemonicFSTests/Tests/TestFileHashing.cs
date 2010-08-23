@@ -51,7 +51,7 @@ namespace MnemonicFS.Tests.FileHashing {
             // First calculate the file's hash:
             string fileHash = TestUtils.GetFileHash (_fileData);
 
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string fileHashReturned = _mfsOperations.GetFileHash (fileID);
             Assert.AreEqual (fileHash, fileHashReturned, "File hash returned is incorrect.");
@@ -80,7 +80,7 @@ namespace MnemonicFS.Tests.FileHashing {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             byte[] fileDataNewVersion = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             string someComment = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
@@ -115,7 +115,7 @@ namespace MnemonicFS.Tests.FileHashing {
         public void Test_NegativeVersionID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int negativeFileVersionID = Int32.MinValue;
 
@@ -131,7 +131,7 @@ namespace MnemonicFS.Tests.FileHashing {
         public void Test_NonExistentVersionID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int veryLargeFileVersionID = Int32.MaxValue;
 
@@ -154,24 +154,24 @@ namespace MnemonicFS.Tests.FileHashing {
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             _fileName = TestUtils.GetAnyFileName ();
             _fileNarration = TestUtils.GetASentence (TYPICAL_WORD_SIZE, TYPICAL_SENTENCE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName, _fileNarration, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, fileData1, when, false);
 
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             _fileName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             _fileNarration = TestUtils.GetASentence (TYPICAL_WORD_SIZE, TYPICAL_SENTENCE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName, _fileNarration, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, fileData2, when, false);
 
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             _fileName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             _fileNarration = TestUtils.GetASentence (TYPICAL_WORD_SIZE, TYPICAL_SENTENCE_SIZE);
-            ulong fileID3 = _mfsOperations.SaveFile (_fileName, _fileNarration, fileData3, when, false);
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, fileData3, when, false);
 
             // We will next save fileData2 with a different file name and narration, and the system should
             // be able to detect that the files are the same. It will return a heuristics score indicating
             // the extent to which the files are similar:
             _fileName = TestUtils.GetAnyFileName () + SINGLE_CHAR_STR;
             _fileNarration = TestUtils.GetASentence (TYPICAL_WORD_SIZE + SINGLE_VALUE, TYPICAL_SENTENCE_SIZE);
-            ulong fileID4 = _mfsOperations.SaveFile (_fileName, _fileNarration, fileData2, when, false);
+            ulong fileID4 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, fileData2, when, false);
 
             Dictionary<ulong, double> filesScores = null;
 
@@ -219,10 +219,10 @@ namespace MnemonicFS.Tests.FileHashing {
             DateTime when = DateTime.Now;
 
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName, _fileNarration, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, fileData1, when, false);
 
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName, _fileNarration, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, fileData2, when, false);
 
             Dictionary<ulong, double> filesScores = null;
 
@@ -241,11 +241,11 @@ namespace MnemonicFS.Tests.FileHashing {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // To guarantee that file name is different, we append a character to it:
             _fileName += SINGLE_CHAR_STR;
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             Dictionary<ulong, double> filesScores = null;
 
@@ -266,11 +266,11 @@ namespace MnemonicFS.Tests.FileHashing {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // To guarantee that file narration is different, we append a character to it:
             _fileNarration += SINGLE_CHAR_STR;
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             Dictionary<ulong, double> filesScores = null;
 
@@ -291,8 +291,8 @@ namespace MnemonicFS.Tests.FileHashing {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             Dictionary<ulong, double> filesScores = null;
 

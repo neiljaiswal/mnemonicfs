@@ -58,17 +58,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
-            ulong fileID3 = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
@@ -126,17 +126,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
-            ulong fileID3 = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
@@ -201,17 +201,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
-            ulong fileID3 = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to all three files:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
@@ -275,17 +275,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
-            ulong fileID3 = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply only one aspect to each of the files:
             _mfsOperations.ApplyAspectToFile (aspectID3, fileID1);
@@ -338,17 +338,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
-            ulong fileID3 = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply two aspects to first file:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
@@ -409,17 +409,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
-            ulong fileID3 = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
@@ -487,17 +487,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
-            ulong fileID3 = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply two aspects to first file:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);

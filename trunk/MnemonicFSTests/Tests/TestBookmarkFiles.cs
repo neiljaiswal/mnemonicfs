@@ -52,7 +52,7 @@ namespace MnemonicFS.Tests.Bookmarks.Files {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
                 fileIDs.Add (fileID);
 
                 // Of these files, we add bookmarks to only a few, for example all even-numbered file IDs:
@@ -97,7 +97,7 @@ namespace MnemonicFS.Tests.Bookmarks.Files {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
                 fileIDs.Add (fileID);
 
                 if (fileID % 2 == 0) {
@@ -119,7 +119,7 @@ namespace MnemonicFS.Tests.Bookmarks.Files {
         public void Test_FileDeleteShouldDeleteBookmark () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             _mfsOperations.BookmarkFile (fileID);
 
@@ -140,7 +140,7 @@ namespace MnemonicFS.Tests.Bookmarks.Files {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             bool isBookmarked = _mfsOperations.IsFileBookmarked (fileID);
             Assert.IsFalse (isBookmarked, "File is shown as bookmarked even though it isn't.");
@@ -181,7 +181,7 @@ namespace MnemonicFS.Tests.Bookmarks.Files {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
                 fileIDs.Add (fileID);
                 
                 // Bookmark each file:
@@ -226,7 +226,7 @@ namespace MnemonicFS.Tests.Bookmarks.Files {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
                 fileIDs.Add (fileID);
 
                 _mfsOperations.BookmarkFile (fileID);

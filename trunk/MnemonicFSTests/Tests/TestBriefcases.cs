@@ -556,8 +556,8 @@ namespace MnemonicFS.Tests.Briefcases {
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             _mfsOperations.MoveFileToBriefcase (fileID1, briefcaseID1);
             _mfsOperations.MoveFileToBriefcase (fileID2, briefcaseID2);
@@ -591,7 +591,7 @@ namespace MnemonicFS.Tests.Briefcases {
         public void Test_NewFileShouldBeInGlobalBriefcaseByDefault_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong briefcaseID = _mfsOperations.GetContainingBriefcase (fileID);
             Assert.AreEqual (MfsOperations.GlobalBriefcase, briefcaseID, "Freshly added briefcase is not in global briefcase by default.");
@@ -609,7 +609,7 @@ namespace MnemonicFS.Tests.Briefcases {
         public void Test_FileShouldBeMovedBackToGlobalBriefcase_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
 
@@ -631,7 +631,7 @@ namespace MnemonicFS.Tests.Briefcases {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
 
@@ -666,7 +666,7 @@ namespace MnemonicFS.Tests.Briefcases {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong briefcaseID1 = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
 
@@ -719,7 +719,7 @@ namespace MnemonicFS.Tests.Briefcases {
         public void Test_BriefcaseIDZero_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.MoveFileToBriefcase (fileID, 0);
@@ -733,7 +733,7 @@ namespace MnemonicFS.Tests.Briefcases {
         public void Test_NonExistentBriefcaseID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeBriefcaseID = UInt64.MaxValue;
 
@@ -757,7 +757,7 @@ namespace MnemonicFS.Tests.Briefcases {
             int numFilesToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> fileIDs = new List<ulong> ();
             for (int i = 0; i < numFilesToCreate; ++i) {
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
                 _mfsOperations.MoveFileToBriefcase (fileID, briefcaseID);
                 fileIDs.Add (fileID);
             }
@@ -800,7 +800,7 @@ namespace MnemonicFS.Tests.Briefcases {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
 

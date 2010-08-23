@@ -49,19 +49,19 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (-1); // one year in the past
-            ulong fileIDPast = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileIDPast = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             when = DateTime.Now;
-            ulong fileIDCurrent = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileIDCurrent = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             when = DateTime.Now.AddYears (+1); // one year in the future
-            ulong fileIDFuture = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Presume we are looking for all files *not* within a 6 month time radius from now.
 
@@ -101,19 +101,19 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (-1); // one year in the past
-            ulong fileIDPast = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileIDPast = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             when = DateTime.Now;
-            ulong fileIDCurrent = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileIDCurrent = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             when = DateTime.Now.AddYears (+1); // one year in the future
-            ulong fileIDFuture = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
@@ -164,19 +164,19 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (-1); // one year in the past
-            ulong fileIDPast = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileIDPast = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             when = DateTime.Now;
-            ulong fileIDCurrent = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileIDCurrent = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             when = DateTime.Now.AddYears (+1); // one year in the future
-            ulong fileIDFuture = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
@@ -229,19 +229,19 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (-1); // one year in the past
-            ulong fileIDPast = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileIDPast = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             when = DateTime.Now;
-            ulong fileIDCurrent = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileIDCurrent = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             when = DateTime.Now.AddYears (+1); // one year in the future
-            ulong fileIDFuture = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
@@ -297,19 +297,19 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (-1); // one year in the past
-            ulong fileIDPast = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileIDPast = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             when = DateTime.Now;
-            ulong fileIDCurrent = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, when, false);
+            ulong fileIDCurrent = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             when = DateTime.Now.AddYears (+1); // one year in the future
-            ulong fileIDFuture = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
@@ -361,19 +361,19 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (-1); // one year in the past
-            ulong fileIDPast = _mfsOperations.SaveFile (fileName1, fileNarration1, fileData1, when, false);
+            ulong fileIDPast = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             DateTime whenNow = DateTime.Now;
-            ulong fileIDCurrent = _mfsOperations.SaveFile (fileName2, fileNarration2, fileData2, whenNow, false);
+            ulong fileIDCurrent = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, whenNow, false);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             when = DateTime.Now.AddYears (+1); // one year in the future
-            ulong fileIDFuture = _mfsOperations.SaveFile (fileName3, fileNarration3, fileData3, when, false);
+            ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
             _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
@@ -416,7 +416,7 @@ namespace MnemonicFS.Tests.Filters.Pipes {
                 string fileName = TestUtils.GetAnyFileName ();
                 string fileNarration = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 byte[] fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-                ulong fileID = _mfsOperations.SaveFile (fileName, fileNarration, fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, fileNarration, fileData, when, false);
                 fileIDs.Add (fileID);
             }
             

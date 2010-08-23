@@ -556,7 +556,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
 
@@ -584,7 +584,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_CollectionIDZero_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.AddFileToCollection (fileID, 0);
@@ -612,7 +612,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_NonExistentCollectionID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
@@ -630,7 +630,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck_InCollection () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
 
@@ -647,7 +647,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck_NotInCollection () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
 
@@ -675,7 +675,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_CollectionIDZero_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.IsFileInCollection (fileID, 0);
@@ -703,7 +703,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_NonExistentCollectionID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
@@ -721,7 +721,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
 
@@ -754,7 +754,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_CollectionIDZero_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.RemoveFileFromCollection (fileID, 0);
@@ -782,7 +782,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_NonExistentCollectionID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
@@ -800,7 +800,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numCollectionsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> collectionIDs = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
@@ -852,7 +852,7 @@ namespace MnemonicFS.Tests.Collections {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 _mfsOperations.AddFileToCollection (fileID, collectionID);
 
@@ -898,7 +898,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numCollectionsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> collectionIDs = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
@@ -928,7 +928,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_NullCollectionList_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.AddFileToCollections (fileID, null);
@@ -942,7 +942,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_EmptyCollectionList_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.AddFileToCollections (fileID, new List<ulong> ());
@@ -981,7 +981,7 @@ namespace MnemonicFS.Tests.Collections {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }
@@ -1040,7 +1040,7 @@ namespace MnemonicFS.Tests.Collections {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }
@@ -1104,7 +1104,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_NullCollectionList_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<ulong> fileIDs = new List<ulong> ();
             fileIDs.Add (fileID);
@@ -1121,7 +1121,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_EmptyCollectionList_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<ulong> fileIDs = new List<ulong> ();
             fileIDs.Add (fileID);
@@ -1140,7 +1140,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numCollectionsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> collectionIDs = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
@@ -1187,7 +1187,7 @@ namespace MnemonicFS.Tests.Collections {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }

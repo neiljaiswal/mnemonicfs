@@ -51,14 +51,14 @@ namespace MnemonicFS.Tests.ExtensionIndex {
             DateTime when = DateTime.Now;
 
             // Add three different file with various extensions:
-            string _fileName1 = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + PDF_FILE_EXTENSION;
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName1, _fileNarration, _fileData, when, false);
+            string fileName1 = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + PDF_FILE_EXTENSION;
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, _fileNarration, _fileData, when, false);
 
-            string _fileName2 = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + MSDOC_FILE_EXTENSION;
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName2, _fileNarration, _fileData, when, false);
+            string fileName2 = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + MSDOC_FILE_EXTENSION;
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, _fileNarration, _fileData, when, false);
 
-            string _fileName3 = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + PDF_FILE_EXTENSION;
-            ulong fileID3 = _mfsOperations.SaveFile (_fileName3, _fileNarration, _fileData, when, false);
+            string fileName3 = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + PDF_FILE_EXTENSION;
+            ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, _fileNarration, _fileData, when, false);
 
             List<ulong> fileIDs1 = _mfsOperations.GetFilesWithExtension (PDF_FILE_EXTENSION);
             Assert.AreEqual (2, fileIDs1.Count, "Did not return the actual number of files with extension.");
@@ -82,8 +82,8 @@ namespace MnemonicFS.Tests.ExtensionIndex {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
 
-            string _fileName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + PDF_FILE_EXTENSION;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            string fileName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + PDF_FILE_EXTENSION;
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
             List<ulong> fileIDs = _mfsOperations.GetFilesWithExtension (PDF_FILE_EXTENSION);
             Assert.That (fileIDs.Contains (fileID), "Returned file list does not contain expected file.");
