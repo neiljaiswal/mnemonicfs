@@ -46,7 +46,7 @@ namespace MnemonicFS.Tests.Logging {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<MfsFileLogEntry> fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (1, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
@@ -64,7 +64,7 @@ namespace MnemonicFS.Tests.Logging {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<MfsFileLogEntry> fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (1, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
@@ -82,7 +82,7 @@ namespace MnemonicFS.Tests.Logging {
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 MfsOperations.RetrieveFileLogs (nullUserID, fileID);
@@ -98,7 +98,7 @@ namespace MnemonicFS.Tests.Logging {
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 MfsOperations.RetrieveFileLogs (emptyUserID, fileID);
@@ -114,7 +114,7 @@ namespace MnemonicFS.Tests.Logging {
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 MfsOperations.RetrieveFileLogs (nonExistentUserID, fileID);
@@ -137,10 +137,10 @@ namespace MnemonicFS.Tests.Logging {
             DateTime when = DateTime.Now;
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<MfsFileLogEntry> allFilesLogEntries = MfsOperations.RetrieveUserFileLogs (_userID);
             Assert.AreEqual (2, allFilesLogEntries.Count, "Incorrect number of file log entries returned for user.");
@@ -177,7 +177,7 @@ namespace MnemonicFS.Tests.Logging {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<MfsFileLogEntry> fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (1, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
@@ -201,7 +201,7 @@ namespace MnemonicFS.Tests.Logging {
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 MfsOperations.DeleteFileLogs (nullUserID, fileID);
@@ -217,7 +217,7 @@ namespace MnemonicFS.Tests.Logging {
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 MfsOperations.DeleteFileLogs (emptyUserID, fileID);
@@ -233,7 +233,7 @@ namespace MnemonicFS.Tests.Logging {
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 MfsOperations.DeleteFileLogs (nonExistentUserID, fileID);
@@ -256,10 +256,10 @@ namespace MnemonicFS.Tests.Logging {
             DateTime when = DateTime.Now;
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID1 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID1 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
-            ulong fileID2 = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<MfsFileLogEntry> allFilesLogEntries = MfsOperations.RetrieveUserFileLogs (_userID);
             Assert.AreEqual (2, allFilesLogEntries.Count, "Incorrect number of file log entries returned for user.");

@@ -37,6 +37,7 @@ using NUnit.Framework;
 using MnemonicFS.MfsCore;
 using MnemonicFS.Tests.Utils;
 using MnemonicFS.MfsUtils.MfsCrypto;
+using System.Threading;
 
 namespace MnemonicFS.Tests.Base {
     public enum FileSize {
@@ -63,7 +64,7 @@ namespace MnemonicFS.Tests.Base {
         protected const int SINGLE_VALUE = 1;
         protected const int LARGE_NUMBER_OF_USERS = 70;
 
-        protected const int NUM_MS_TO_SLEEP = 10; // milli-seconds
+        protected const int NUM_MS_TO_SLEEP = 1; // milli-seconds
 
         protected const string FILE_SYSTEM_LOCATION = @"C:\";
 
@@ -92,6 +93,8 @@ namespace MnemonicFS.Tests.Base {
         protected string _collectionDesc;
 
         protected string _schemaFreeDocName;
+
+        protected delegate bool MethodCreateUserBackupArchive (string userID, string backupFileNameWithPath);
 
         #endregion << Instance data used across a test suite >>
 
@@ -254,6 +257,17 @@ namespace MnemonicFS.Tests.Base {
             } while (MfsOperations.DoesUserExist (userID));
 
             return userID;
+        }
+
+        private delegate ulong MethodSaveFile (string fileName, string fileNarration, byte[] fileData, DateTime when, bool indexFile);
+
+        protected static ulong SaveFileToMfs (ref MfsOperations mfsOps, string fileName, string fileNarration, byte[] fileData, DateTime when, bool indexFile) {
+            MethodSaveFile method = mfsOps.SaveFile;
+            IAsyncResult res = method.BeginInvoke (fileName, fileNarration, fileData, when, indexFile, null, null);
+            // [delegate].EndInvoke (IAsyncResult) is blocking:
+            ulong fileID = method.EndInvoke (res);
+
+            return fileID;
         }
     }
 }

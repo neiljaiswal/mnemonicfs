@@ -39,6 +39,7 @@ using MnemonicFS.MfsUtils;
 using MnemonicFS.MfsExceptions;
 using MnemonicFS.Tests.Utils;
 using MnemonicFS.Tests.Base;
+using System.Threading;
 
 namespace MnemonicFS.Tests.FileSaveRetrieval {
     [TestFixture]
@@ -57,7 +58,9 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
+
             Assert.That (fileID > 0, "Returned zero as file id.");
 
             _mfsOperations.DeleteFile (fileID);
@@ -67,7 +70,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_PositiveIntegerReturnValue_SanityTest () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
             Assert.That (fileID > 0, "Returned zero as file id.");
 
             _mfsOperations.DeleteFile (fileID);
@@ -77,7 +80,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_CurrentDateTime_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime dateTime = _mfsOperations.GetFileSaveDateTime (fileID);
             Assert.That (when.Year == dateTime.Year &&
@@ -95,7 +98,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_BackDate1Year_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (-1);
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime dateTime = _mfsOperations.GetFileSaveDateTime (fileID);
             Assert.That (dateTime.Year == when.Year, "Year saved for file during backdate operation was incorrect.");
@@ -109,7 +112,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_BackDate1Month_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddMonths (-1);
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime dateTime = _mfsOperations.GetFileSaveDateTime (fileID);
             Assert.That (dateTime.Year == when.Year, "Year saved for file during backdate operation was incorrect.");
@@ -123,7 +126,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_BackDate1Day_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddDays (-1);
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime dateTime = _mfsOperations.GetFileSaveDateTime (fileID);
             Assert.That (dateTime.Year == when.Year, "Year saved for file during backdate operation was incorrect.");
@@ -137,7 +140,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_BackDateTime1Hour_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddHours (-1);
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime dateTime = _mfsOperations.GetFileSaveDateTime (fileID);
             Assert.That (dateTime.Year == when.Year, "Year saved for file during backdate operation was incorrect.");
@@ -154,7 +157,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_BackDateTime1Minute_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddMinutes (-1);
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime dateTime = _mfsOperations.GetFileSaveDateTime (fileID);
             Assert.That (dateTime.Year == when.Year, "Year saved for file during backdate operation was incorrect.");
@@ -171,7 +174,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_BackDateTime1Second_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddSeconds (-1);
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime dateTime = _mfsOperations.GetFileSaveDateTime (fileID);
             Assert.That (dateTime.Year == when.Year, "Year saved for file during backdate operation was incorrect.");
@@ -192,7 +195,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
 
             string nullFileName = null;
 
-            _mfsOperations.SaveFile (nullFileName, _fileNarration, _fileData, when, false);
+            SaveFileToMfs (ref _mfsOperations, nullFileName, _fileNarration, _fileData, when, false);
         }
 
         [Test]
@@ -203,7 +206,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
 
             string emptyFileName = string.Empty;
 
-            _mfsOperations.SaveFile (emptyFileName, _fileNarration, _fileData, when, false);
+            SaveFileToMfs (ref _mfsOperations, emptyFileName, _fileNarration, _fileData, when, false);
         }
 
         [Test]
@@ -213,7 +216,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
 
             string longFileName = TestUtils.GetAWord (MfsOperations.MaxFileNameLength);
 
-            ulong fileID = _mfsOperations.SaveFile (longFileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, longFileName, _fileNarration, _fileData, when, false);
             Assert.That (fileID > 0, "Failed to save file though file name is exactly of system-defined size.");
 
             _mfsOperations.DeleteFile (fileID);
@@ -227,7 +230,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
 
             string longFileName = TestUtils.GetAWord (MfsOperations.MaxFileNameLength + 1);
 
-            _mfsOperations.SaveFile (longFileName, _fileNarration, _fileData, when, false);
+            SaveFileToMfs (ref _mfsOperations, longFileName, _fileNarration, _fileData, when, false);
         }
 
         [Test]
@@ -236,9 +239,9 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
 
-            string nullFileDesc = null;
+            string nullFileNarration = null;
 
-            _mfsOperations.SaveFile (_fileName, nullFileDesc, _fileData, when, false);
+            SaveFileToMfs (ref _mfsOperations, _fileName, nullFileNarration, _fileData, when, false);
         }
 
         [Test]
@@ -248,7 +251,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
 
             string emptyFileNarration = string.Empty;
 
-            ulong fileID = _mfsOperations.SaveFile (_fileName, emptyFileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, emptyFileNarration, _fileData, when, false);
             Assert.That (fileID > 0, "Failed to save file though empty file narration is allowed.");
 
             _mfsOperations.DeleteFile (fileID);
@@ -261,7 +264,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
 
             string longFileNarration = TestUtils.GetAWord (MfsOperations.MaxFileNarrationLength);
 
-            ulong fileID = _mfsOperations.SaveFile (_fileName, longFileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, longFileNarration, _fileData, when, false);
             Assert.That (fileID > 0, "Failed to save file though file narration is exactly of defined size.");
 
             _mfsOperations.DeleteFile (fileID);
@@ -275,7 +278,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
 
             string longFileNarration = TestUtils.GetAWord (MfsOperations.MaxFileNarrationLength + 1);
 
-            _mfsOperations.SaveFile (_fileName, longFileNarration, _fileData, when, false);
+            SaveFileToMfs (ref _mfsOperations, _fileName, longFileNarration, _fileData, when, false);
         }
 
         [Test]
@@ -286,7 +289,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
 
             byte[] nullFileData = null;
 
-            _mfsOperations.SaveFile (_fileName, _fileNarration, nullFileData, when, false);
+            SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, nullFileData, when, false);
         }
 
         [Test]
@@ -295,7 +298,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             _fileData = TestUtils.GetAnyFileData (FileSize.ZERO_FILE_SIZE);
             DateTime when = DateTime.Now;
 
-            _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
         }
 
         [Test]
@@ -313,7 +316,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             bool doesFileExist = _mfsOperations.DoesFileExist (fileID);
             Assert.IsTrue (doesFileExist, "Showing a saved file as not existing.");
@@ -345,7 +348,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck_Exists () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             bool doesFileExist = _mfsOperations.DoesFileExist (fileID);
             Assert.IsTrue (doesFileExist, "Returned file status as does not exist even though it does.");
@@ -374,7 +377,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string fileName = _mfsOperations.GetFileName (fileID);
             Assert.AreEqual (_fileName, fileName, "Failed to get actual file name.");
@@ -403,7 +406,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string fileNarration = _mfsOperations.GetFileNarration (fileID);
             Assert.AreEqual (_fileNarration, fileNarration, "Failed to get actual file narration.");
@@ -432,7 +435,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int fileSize = _mfsOperations.GetFileSize (fileID);
             Assert.AreEqual (_fileData.Length, fileSize, "Failed to get actual file size.");
@@ -461,7 +464,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime dateTime = _mfsOperations.GetFileSaveDateTime (fileID);
             Assert.That (when.Year == dateTime.Year &&
@@ -496,7 +499,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime deletionDateTime = _mfsOperations.GetFileDeletionDateTime (fileID);
             Assert.AreEqual (DateTime.MaxValue, deletionDateTime, "Deletion date-time do not default to max deletion time.");
@@ -525,7 +528,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             byte[] fileData = _mfsOperations.RetrieveOriginalFile (fileID);
             Assert.AreEqual (_fileData, fileData, "File data returned after saving is not as expected.");
@@ -554,7 +557,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityTest () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime deletionDate = DateTime.Now.AddYears (TYPICAL_MULTI_TIME_UNIT);
             _mfsOperations.SetFileDeletionDateTime (fileID, deletionDate);
@@ -591,7 +594,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_DeletionDateTimeLesserThanFileSaveDate_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (TYPICAL_MULTI_TIME_UNIT);
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime deletionDate = DateTime.Now.AddYears (3);
 
@@ -607,7 +610,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_DeletionDateTimeLesserThanCurrentDateTime_FileSaveDateInPastFromCurrentDateTime_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now.AddYears (-TYPICAL_MULTI_TIME_UNIT);
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime deletionDate = DateTime.Now.AddYears (-TYPICAL_MULTI_TIME_UNIT);
 
@@ -625,7 +628,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string newName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             bool isUpdated = _mfsOperations.UpdateFileName (fileID, newName);
@@ -660,7 +663,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_NullNewFileName_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string nullNewName = null;
 
@@ -676,7 +679,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_FileNameGreaterThanSystemDefined_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string longFileName = TestUtils.GetAWord (MfsOperations.MaxFileNameLength + 1);
 
@@ -692,7 +695,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_EmptyNewFileName_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string emptyFileName = string.Empty;
 
@@ -710,7 +713,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string newNarration = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             bool isUpdated = _mfsOperations.UpdateFileNarration (fileID, newNarration);
@@ -745,7 +748,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_NullNewFileNarration_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string nullNewNarration = null;
 
@@ -760,7 +763,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_EmptyNewFileNarration_Legal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string emptyFileNarration = string.Empty;
             _mfsOperations.UpdateFileNarration (fileID, emptyFileNarration);
@@ -776,7 +779,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_FileNarrationGreaterThanSystemDefined_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string longFileDesc = TestUtils.GetAWord (MfsOperations.MaxFileNarrationLength + 1);
 
@@ -794,7 +797,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime newWhen = new DateTime (when.Year - 1, when.Month, when.Day);
             bool isUpdated = _mfsOperations.UpdateFileSaveDateTime (fileID, newWhen);
@@ -837,7 +840,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime newDeletionDateTime = DateTime.Now;
             bool isUpdated = _mfsOperations.UpdateFileDeletionDateTime (fileID, newDeletionDateTime);
@@ -880,7 +883,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime newDeletionDateTime = DateTime.Now;
             bool isUpdated = _mfsOperations.UpdateFileDeletionDateTime (fileID, newDeletionDateTime);
@@ -931,7 +934,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (i - numFilesToSave / 2);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }
@@ -961,7 +964,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (i - numFilesToSave / 2);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }
@@ -987,7 +990,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (i - numFilesToSave / 2);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }
@@ -1011,13 +1014,13 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             DateTime now = DateTime.Now;
 
             DateTime whenBefore = DateTime.Now.AddDays (-1);
-            ulong fileIDBefore = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, whenBefore, false);
+            ulong fileIDBefore = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenBefore, false);
 
             DateTime whenOn = DateTime.Now;
-            ulong fileIDOn = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, whenOn, false);
+            ulong fileIDOn = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenOn, false);
 
             DateTime whenAfter = DateTime.Now.AddDays (1);
-            ulong fileIDAfter = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, whenAfter, false);
+            ulong fileIDAfter = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenAfter, false);
 
             List<ulong> filesOnDate = _mfsOperations.GetFilesOnDate (whenOn);
             Assert.AreEqual (1, filesOnDate.Count, "Number of files returned on date are not as expected.");
@@ -1033,13 +1036,13 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             DateTime now = DateTime.Now;
 
             DateTime whenBefore = DateTime.Now.AddSeconds (-TYPICAL_MULTI_TIME_UNIT);
-            ulong fileIDBefore = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, whenBefore, false);
+            ulong fileIDBefore = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenBefore, false);
 
             DateTime whenOn = DateTime.Now;
-            ulong fileIDOn = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, whenOn, false);
+            ulong fileIDOn = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenOn, false);
 
             DateTime whenAfter = DateTime.Now.AddSeconds (TYPICAL_MULTI_TIME_UNIT);
-            ulong fileIDAfter = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, whenAfter, false);
+            ulong fileIDAfter = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenAfter, false);
 
             List<ulong> filesOnDate = _mfsOperations.GetFilesAtDateTime (whenOn);
             Assert.AreEqual (1, filesOnDate.Count, "Number of files returned on date-time are not as expected.");
@@ -1059,7 +1062,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (-i - 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsBefore.Add (fileID);
             }
@@ -1070,7 +1073,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (i + 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsAfter.Add (fileID);
             }
@@ -1094,7 +1097,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (-i - 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsBefore.Add (fileID);
             }
@@ -1105,7 +1108,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (i + 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsAfter.Add (fileID);
             }
@@ -1129,7 +1132,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (-i - 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsBefore.Add (fileID);
             }
@@ -1140,7 +1143,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (i + 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsAfter.Add (fileID);
             }
@@ -1164,7 +1167,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (-i - 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsBefore.Add (fileID);
             }
@@ -1175,7 +1178,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (i + 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsAfter.Add (fileID);
             }
@@ -1199,7 +1202,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (-i - 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsBefore.Add (fileID);
             }
@@ -1210,7 +1213,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (i + 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsAfter.Add (fileID);
             }
@@ -1234,7 +1237,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (-i - 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsBefore.Add (fileID);
             }
@@ -1245,7 +1248,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (i + 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsAfter.Add (fileID);
             }
@@ -1269,7 +1272,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (-i - 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsBefore.Add (fileID);
             }
@@ -1280,7 +1283,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddYears (i + 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsAfter.Add (fileID);
             }
@@ -1304,7 +1307,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (-i - 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsBefore.Add (fileID);
             }
@@ -1315,7 +1318,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             for (int i = 0; i < numFilesToSave; ++i) {
                 string fileName = TestUtils.GetAnyFileName ();
                 DateTime when = DateTime.Now.AddHours (i + 1);
-                ulong fileID = _mfsOperations.SaveFile (fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
                 fileIDsAfter.Add (fileID);
             }

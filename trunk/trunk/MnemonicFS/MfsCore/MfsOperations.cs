@@ -43,7 +43,6 @@ using MnemonicFS.MfsUtils.MfsSystem;
 using MnemonicFS.MfsUtils.MfsStrings;
 using MnemonicFS.MfsUtils.MfsLogging;
 using MnemonicFS.MfsUtils.MfsIndexing;
-using System.Threading;
 
 namespace MnemonicFS.MfsCore {
     internal enum ValidationCheckType {
@@ -710,15 +709,8 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Client-input Check Methods >>
 
-        #region << Callback Delegates >>
-
-        public delegate void OnFileSaveDone (ulong fileID);
-
-        #endregion << Callback Delegates >>
-
         #region << File Save / Retrieval / Deletion Instance Operations >>
 
-        // TODO: To remove this and only have callback version.
         public ulong SaveFile (string fileName, string fileNarration, byte[] fileData, DateTime when, bool indexFile) {
             ValidateString (fileName, ValidationCheckType.FILE_NAME);
             ValidateString (fileNarration, ValidationCheckType.FILE_NARRATION);
@@ -764,83 +756,6 @@ namespace MnemonicFS.MfsCore {
             FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.CREATED, DateTime.Now, fileName, fileNarration);
 
             return fileID;
-        }
-
-        public void SaveFile (string fileName, string fileNarration, byte[] fileData, DateTime when, bool indexFile, OnFileSaveDone onFileSaveDone) {
-            List<object> listArgs = new List<object> ();
-
-            listArgs.Add (fileName); // 0
-            listArgs.Add (fileNarration); // 1
-            listArgs.Add (fileData); // 2
-            listArgs.Add (when); // 3
-            listArgs.Add (indexFile); // 4
-            listArgs.Add (onFileSaveDone); // 5
-
-            Thread taskThread = new Thread (SaveFile);
-            taskThread.Start (listArgs);
-        }
-
-        /// <summary>
-        /// This method saves the file requested by the client to be saved, to persistent storage.
-        /// </summary>
-        /// <param name="fileName">Name of the file to be saved.</param>
-        /// <param name="fileNarration">A simple sentence that describes the file to be saved.</param>
-        /// <param name="fileData">File data to be saved.</param>
-        /// <param name="when">The date-time stamp at which this file should be saved.</param>
-        /// <returns>An id that uniquely identifies the file across the entire system, if the call was successful.</returns>
-        private void SaveFile (object listArgsAsObject) {
-            List<object> listArgs = (List<object>) listArgsAsObject;
-            string fileName = (string) listArgs[0];
-            string fileNarration = (string) listArgs[1];
-            byte[] fileData = (byte[]) listArgs[2];
-            DateTime when = (DateTime) listArgs[3];
-            bool indexFile = (bool) listArgs[4];
-            OnFileSaveDone onFileSaveDone = (OnFileSaveDone) listArgs[5];
-
-            ValidateString (fileName, ValidationCheckType.FILE_NAME);
-            ValidateString (fileNarration, ValidationCheckType.FILE_NARRATION);
-            ValidateFileData (fileData);
-            
-            string assumedFileName;
-            string filePassword;
-            string archiveName;
-            string filePath;
-
-            MfsStorageDevice.SaveFile (
-                _userFQPath, fileName, fileData, out assumedFileName, out filePassword, out archiveName, out filePath
-                );
-
-            Debug.Print ("Got path info from storage device: " + filePath);
-
-            // Also get the file size:
-            int fileSize = fileData.Length;
-            Debug.Print ("File size: " + fileSize);
-
-            // And the file hash:
-            string fileHash = Hasher.GetFileHash (fileData);
-
-            // Next, save file meta info to db:
-            Debug.Print ("Saving file meta data to db.");
-            ulong fileID = _dbOperations.SaveFileMetaData (
-                fileName, fileNarration, fileSize, fileHash,
-                archiveName, filePath, when,
-                assumedFileName, filePassword
-                );
-
-            // Also index file extension (always lower-case):
-            string fileExtension = StringUtils.GetFileExtension (fileName).ToLower ();
-            if (!fileExtension.Equals (string.Empty)) {
-                _dbOperations.IndexFileExtension (fileID, fileExtension);
-            }
-
-            if (indexFile) {
-                bool fileIndexed = IndexFile (fileName, fileNarration, fileData, when, fileID, 0);
-            }
-
-            Debug.Print ("Returning new file id: " + fileID);
-            FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.CREATED, DateTime.Now, fileName, fileNarration);
-
-            onFileSaveDone (fileID);
         }
 
         /// <summary>

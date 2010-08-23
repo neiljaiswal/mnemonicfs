@@ -66,7 +66,7 @@ namespace MnemonicFS.Tests.Backup {
             for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
                 filesList.Add (fileID);
             }
 
@@ -81,27 +81,16 @@ namespace MnemonicFS.Tests.Backup {
             string backupFileNameWithPath = null;
             // We don't want to end up over-writing an existing file:
             while (true) {
-                backupFileNameWithPath = FILE_SYSTEM_LOCATION + @"\" + TestUtils.GetAnyFileName ();
+                backupFileNameWithPath = FILE_SYSTEM_LOCATION + TestUtils.GetAnyFileName ();
                 if (!File.Exists (backupFileNameWithPath)) {
                     break;
                 }
             }
 
-            // The method uses a delegate to inform the client of task completion:
-            bool taskSuccess = true;
-            bool taskDone = false;
-            MfsBackupManager.OnBackupTaskDone backupTaskDone = (bool taskStatus) => {
-                taskSuccess = taskStatus;
-                taskDone = true;
-            };
-
-            // And start the actual backup task:
-            MfsBackupManager.CreateUserBackupArchive (_userID, backupFileNameWithPath, backupTaskDone);
-
-            // We cannot move forward unless the MfsBackupManager class informs us of success:
-            while (!taskDone) {
-                Thread.Sleep (NUM_MS_TO_SLEEP);
-            }
+            MethodCreateUserBackupArchive method = MfsBackupManager.CreateUserBackupArchive;
+            IAsyncResult res = method.BeginInvoke (_userID, backupFileNameWithPath, null, null);
+            // [delegate].EndInvoke (IAsyncResult) is blocking:
+            bool taskSuccess = method.EndInvoke (res);
 
             // Finally check the results:
             Assert.IsTrue (taskSuccess, "Task not completed successfully.");

@@ -45,7 +45,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
@@ -73,7 +73,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_AspectIDZero_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.ApplyAspectToFile (0, fileID);
@@ -101,7 +101,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_NonExistentAspectID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeAspectID = UInt64.MaxValue;
 
@@ -119,7 +119,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_SanityCheck_Applied () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
@@ -136,7 +136,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_SanityCheck_NotApplied () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
@@ -164,7 +164,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_AspectIDZero_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.IsAspectAppliedToFile (0, fileID);
@@ -192,7 +192,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_NonExistentAspectID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeAspectID = UInt64.MaxValue;
 
@@ -210,7 +210,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
@@ -243,7 +243,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_AspectIDZero_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.UnapplyAspectFromFile (0, fileID);
@@ -271,7 +271,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_NonExistentAspectID_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeAspectID = UInt64.MaxValue;
 
@@ -289,7 +289,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numAspectsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> aspectIDs = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
@@ -342,7 +342,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 _mfsOperations.ApplyAspectToFile (aspectID, fileID);
 
@@ -387,7 +387,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numAspectsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> aspectIDs = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
@@ -416,7 +416,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_NullAspectList_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.ApplyAspectsToFile (null, fileID);
@@ -431,7 +431,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
                 _mfsOperations.ApplyAspectsToFile (new List<ulong> (), fileID);
@@ -470,7 +470,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }
@@ -529,7 +529,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }
@@ -593,7 +593,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_NullAspectList_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<ulong> fileIDs = new List<ulong> ();
             fileIDs.Add (fileID);
@@ -610,7 +610,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_EmptyAspectList_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             List<ulong> fileIDs = new List<ulong> ();
             fileIDs.Add (fileID);
@@ -629,7 +629,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
         public void Test_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numAspectsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> aspectIDs = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
@@ -676,7 +676,7 @@ namespace MnemonicFS.Tests.AspectsFiles {
             for (int i = 0; i < numFilesToCreate; ++i) {
                 _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
                 fileIDs.Add (fileID);
             }

@@ -46,7 +46,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // Last file version number and its data stream are retrieved:
             int lastVersionNumber;
@@ -97,7 +97,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NullFileData_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int lastVersionNumber;
             byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
@@ -117,7 +117,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_ZeroSizeFileData_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int lastVersionNumber;
             byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
@@ -145,7 +145,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NullComments_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int lastVersionNumber;
             byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
@@ -164,7 +164,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_EmptyComments_Legal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int lastVersionNumber;
             byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
@@ -184,7 +184,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_VersionNumberNegative_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
@@ -203,7 +203,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NonExistentVersionNumber_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
@@ -225,7 +225,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // Last file version number and its data stream are retrieved:
             int lastVersionNumber;
@@ -239,7 +239,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NewVersionNumber_SanityCheck () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // Check out last file version:
             int currentHeadVersionNumber = _mfsOperations.GetLastFileVersionNumber (fileID);
@@ -260,7 +260,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // Last file version number and its data stream are retrieved:
             int lastVersionNumber;
@@ -298,7 +298,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // We next save some versions of the original file.
             int numVersionsToSave = TYPICAL_MULTI_VALUE;
@@ -364,7 +364,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_VersionNumberNegative_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int someNegativeIllegalVersionNumber = -1;
 
@@ -380,7 +380,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NonExistentVersionNumber_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int veryLargeVersionNumber = Int32.MaxValue;
 
@@ -400,7 +400,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // We next save some versions of the original file.
             int numVersionsToSave = TYPICAL_MULTI_VALUE;
@@ -479,7 +479,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_VersionNumberNegative_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string comments;
             DateTime whenDateTime;
@@ -498,7 +498,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NonExistentVersionNumber_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             string comments;
             DateTime whenDateTime;
@@ -521,7 +521,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             DateTime beforeDateTime = DateTime.Now.AddSeconds (-BUFFER_SECONDS);
 
@@ -587,7 +587,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // Last file version number and its data stream are retrieved by user1:
             int lastVersionNumber_user1;
@@ -634,7 +634,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // Last file version number and its data stream are retrieved by user1:
             int lastVersionNumber_user1;
@@ -698,7 +698,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // We next save some versions of the original file.
             int numVersionsToSave = TYPICAL_MULTI_VALUE;
@@ -767,7 +767,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_SameVersionNumbers_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int versionNumber1 = 0;
             int versionNumber2 = versionNumber1;
@@ -786,7 +786,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_FirstVersionNumberNegative_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numVersionsToSave = TYPICAL_MULTI_VALUE;
 
@@ -815,7 +815,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NonExistentFirstVersionNumber_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numVersionsToSave = TYPICAL_MULTI_VALUE;
 
@@ -844,7 +844,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_SecondVersionNumberNegative_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numVersionsToSave = TYPICAL_MULTI_VALUE;
 
@@ -873,7 +873,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NonExistentSecondVersionNumber_Illegal () {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numVersionsToSave = TYPICAL_MULTI_VALUE;
 
@@ -905,7 +905,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             // File is first saved:
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // We next save some versions of the original file.
             int numVersionsToSave = TYPICAL_MULTI_VALUE;
@@ -955,7 +955,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong fileID = _mfsOperations.SaveFile (_fileName, _fileNarration, _fileData, when, false);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numVersionsToSave = 10;
             for (int i = 0; i < numVersionsToSave; ++i) {

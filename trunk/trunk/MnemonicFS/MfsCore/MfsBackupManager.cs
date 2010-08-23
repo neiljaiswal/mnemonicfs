@@ -39,12 +39,9 @@ using MnemonicFS.MfsUtils.MfsCrypto;
 using MnemonicFS.MfsUtils.MfsConfig;
 using Ionic.Zip;
 using MnemonicFS.MfsUtils.MfsStrings;
-using System.Threading;
 
 namespace MnemonicFS.MfsCore {
     public class MfsBackupManager {
-        public delegate void OnBackupTaskDone (bool successStatus);
-
         private const string PATH_PREFIX = "@";
 
         /// <summary>
@@ -56,23 +53,15 @@ namespace MnemonicFS.MfsCore {
         /// <param name="backupFileNameWithPath">Location in the file system where the data has to be backed up.</param>
         /// <param name="backupTaskDone">Delegate specified by the caller using which it is informed if the backup task was
         /// successful or not.</param>
-        public static void CreateUserBackupArchive (string userID, string backupFileNameWithPath, OnBackupTaskDone backupTaskDone) {
-            Thread taskThread = new Thread (() => {
-                DoBackupTasks (userID, backupFileNameWithPath, backupTaskDone);
-            });
-
-            taskThread.Start ();
-        }
-
-        private static void DoBackupTasks (string userID, string backupFileNameWithPath, OnBackupTaskDone backupTaskDone) {
+        public static bool CreateUserBackupArchive (string userID, string backupFileNameWithPath) {
             // tmp:
             using (FileStream fs = File.Create (backupFileNameWithPath)) {
                 // Delete this block later! This is used just to pass the test.
             }
 
             // TODO
-
-            backupTaskDone (true);
+            
+            return true;
         }
 
         private static void SaveMetaDataToArchive (string destZipFileWithPath, string metadata) {
