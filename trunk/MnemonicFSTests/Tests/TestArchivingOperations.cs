@@ -54,19 +54,19 @@ namespace MnemonicFS.Tests.Archiving {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID1);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID2);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID3);
 
             string outFilePath = FILE_SYSTEM_LOCATION;
             string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
@@ -208,19 +208,19 @@ namespace MnemonicFS.Tests.Archiving {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID1);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID2);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID3);
 
             string outFilePath = FILE_SYSTEM_LOCATION;
             string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
@@ -259,7 +259,7 @@ namespace MnemonicFS.Tests.Archiving {
             DateTime when = DateTime.Now;
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID);
 
             string outFilePath = FILE_SYSTEM_LOCATION;
             string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
@@ -283,19 +283,19 @@ namespace MnemonicFS.Tests.Archiving {
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID1);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID2);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
-            _mfsOperations.ApplyAspectToFile (aspectID, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID3);
 
             string outFilePath = FILE_SYSTEM_LOCATION;
             string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
