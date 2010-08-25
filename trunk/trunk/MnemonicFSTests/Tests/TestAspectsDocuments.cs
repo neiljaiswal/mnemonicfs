@@ -39,32 +39,31 @@ using MnemonicFS.Tests.Utils;
 using MnemonicFS.MfsExceptions;
 using MnemonicFS.MfsCore;
 
-namespace MnemonicFS.Tests.AspectsNotes {
+namespace MnemonicFS.Tests.AspectsDocuments {
     [TestFixture]
-    public class Tests_AspectsMethod_ApplyAspectToNote : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_ApplyAspectToDocument : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            bool applySuccess = _mfsOperations.ApplyAspectToNote (aspectID, noteID);
-            Assert.IsTrue (applySuccess, "Aspect failed to be applied to note.");
+            bool applySuccess = _mfsOperations.ApplyAspectToDocument (aspectID, fileID);
+            Assert.IsTrue (applySuccess, "Aspect failed to be applied to document.");
 
             _mfsOperations.DeleteAspect (aspectID);
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.DeleteFile (fileID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_NoteIDZero_Illegal () {
+        public void Test_DocumentIDZero_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
             try {
-                _mfsOperations.ApplyAspectToNote (aspectID, 0);
+                _mfsOperations.ApplyAspectToDocument (aspectID, 0);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -73,27 +72,27 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            string url = TestUtils.GetAnyUrl ();
+            string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong urlID = _mfsOperations.AddUrl (url, description, when);
 
             try {
-                _mfsOperations.ApplyAspectToNote (0, noteID);
+                _mfsOperations.ApplyAspectToDocument (0, urlID);
             } finally {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.DeleteUrl (urlID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
-        public void Test_NonExistentNoteID_Illegal () {
+        public void Test_NonExistentDocumentID_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            ulong veryLargeNoteID = UInt64.MaxValue;
+            ulong veryLargeDocumentID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.ApplyAspectToNote (aspectID, veryLargeNoteID);
+                _mfsOperations.ApplyAspectToDocument (aspectID, veryLargeDocumentID);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -102,7 +101,7 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentAspectID_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
             ulong noteID = _mfsOperations.AddNote (note);
@@ -110,7 +109,7 @@ namespace MnemonicFS.Tests.AspectsNotes {
             ulong veryLargeAspectID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.ApplyAspectToNote (veryLargeAspectID, noteID);
+                _mfsOperations.ApplyAspectToDocument (veryLargeAspectID, noteID);
             } finally {
                 _mfsOperations.DeleteNote (noteID);
             }
@@ -118,36 +117,37 @@ namespace MnemonicFS.Tests.AspectsNotes {
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_IsAspectAppliedToNote : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_IsAspectAppliedToDocument : TestMfsOperationsBase {
         [Test]
-        public void Test_SanityCheck () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+        public void Test_SanityCheck_Applied () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            bool applySuccess = _mfsOperations.ApplyAspectToNote (aspectID, noteID);
+            _mfsOperations.ApplyAspectToDocument (aspectID, fileID);
 
-            bool isApplied = _mfsOperations.IsAspectAppliedToNote (aspectID, noteID);
-            Assert.IsTrue (isApplied, "Indicated that aspect has not been applied to note, even though it is.");
+            bool isApplied = _mfsOperations.IsAspectAppliedToDocument (aspectID, fileID);
+            Assert.IsTrue (isApplied, "Indicated that aspect has not been applied to document, even though it is.");
 
             _mfsOperations.DeleteAspect (aspectID);
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.DeleteFile (fileID);
         }
 
         [Test]
         public void Test_SanityCheck_NotApplied () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
             ulong noteID = _mfsOperations.AddNote (note);
 
+            Assert.That (noteID > 0, "Note not added successfully: Invalid note id returned.");
+
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            bool isApplied = _mfsOperations.IsAspectAppliedToNote (aspectID, noteID);
-            Assert.IsFalse (isApplied, "Indicated that aspect has been applied to note, even though it isn't.");
+            bool isApplied = _mfsOperations.IsAspectAppliedToDocument (aspectID, noteID);
+            Assert.IsFalse (isApplied, "Indicated that aspect has been applied to document, even though it isn't.");
 
             _mfsOperations.DeleteAspect (aspectID);
             _mfsOperations.DeleteNote (noteID);
@@ -155,11 +155,11 @@ namespace MnemonicFS.Tests.AspectsNotes {
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_NoteIDZero_Illegal () {
+        public void Test_DocumentIDZero_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
             try {
-                _mfsOperations.IsAspectAppliedToNote (aspectID, 0);
+                _mfsOperations.IsAspectAppliedToDocument (aspectID, 0);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -168,27 +168,27 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            string url = TestUtils.GetAnyUrl ();
+            string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong urlID = _mfsOperations.AddUrl (url, description, when);
 
             try {
-                _mfsOperations.IsAspectAppliedToNote (0, noteID);
+                _mfsOperations.IsAspectAppliedToDocument (0, urlID);
             } finally {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.DeleteUrl (urlID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
-        public void Test_NonExistentNoteID_Illegal () {
+        public void Test_NonExistentDocumentID_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            ulong veryLargeNoteID = UInt64.MaxValue;
+            ulong veryLargeDocumentID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.IsAspectAppliedToNote (aspectID, veryLargeNoteID);
+                _mfsOperations.IsAspectAppliedToDocument (aspectID, veryLargeDocumentID);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -197,39 +197,38 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentAspectID_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeAspectID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.IsAspectAppliedToNote (veryLargeAspectID, noteID);
+                _mfsOperations.IsAspectAppliedToDocument (veryLargeAspectID, fileID);
             } finally {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.DeleteFile (fileID);
             }
         }
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_UnapplyAspectFromNote : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_UnapplyAspectFromDocument : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
             ulong noteID = _mfsOperations.AddNote (note);
 
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            _mfsOperations.ApplyAspectToNote (aspectID, noteID);
+            _mfsOperations.ApplyAspectToDocument (aspectID, noteID);
 
-            bool isUnapplied = _mfsOperations.UnapplyAspectFromNote (aspectID, noteID);
-            Assert.IsTrue (isUnapplied, "Aspect was not successfully unapplied from note.");
+            bool isUnapplied = _mfsOperations.UnapplyAspectFromDocument (aspectID, noteID);
+            Assert.IsTrue (isUnapplied, "Aspect was not successfully unapplied from document.");
 
-            bool isApplied = _mfsOperations.IsAspectAppliedToNote (aspectID, noteID);
-            Assert.IsFalse (isApplied, "Attempt to unapply aspect from note was not successful.");
+            bool isApplied = _mfsOperations.IsAspectAppliedToDocument (aspectID, noteID);
+            Assert.IsFalse (isApplied, "Attempt to unapply aspect from document was not successful.");
 
             _mfsOperations.DeleteAspect (aspectID);
             _mfsOperations.DeleteNote (noteID);
@@ -237,11 +236,11 @@ namespace MnemonicFS.Tests.AspectsNotes {
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_NoteIDZero_Illegal () {
+        public void Test_DocumentIDZero_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
             try {
-                _mfsOperations.UnapplyAspectFromNote (aspectID, 0);
+                _mfsOperations.UnapplyAspectFromDocument (aspectID, 0);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -250,13 +249,13 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
             ulong noteID = _mfsOperations.AddNote (note);
 
             try {
-                _mfsOperations.UnapplyAspectFromNote (0, noteID);
+                _mfsOperations.UnapplyAspectFromDocument (0, noteID);
             } finally {
                 _mfsOperations.DeleteNote (noteID);
             }
@@ -264,13 +263,13 @@ namespace MnemonicFS.Tests.AspectsNotes {
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
-        public void Test_NonExistentNoteID_Illegal () {
+        public void Test_NonExistentDocumentID_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            ulong veryLargeNoteID = UInt64.MaxValue;
+            ulong veryLargeDocumentID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.UnapplyAspectFromNote (aspectID, veryLargeNoteID);
+                _mfsOperations.UnapplyAspectFromDocument (aspectID, veryLargeDocumentID);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -279,39 +278,37 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentAspectID_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             ulong veryLargeAspectID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.UnapplyAspectFromNote (veryLargeAspectID, noteID);
+                _mfsOperations.UnapplyAspectFromDocument (veryLargeAspectID, fileID);
             } finally {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.DeleteFile (fileID);
             }
         }
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_GetAspectsAppliedOnNote : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_GetAspectsAppliedOnDocument : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numAspectsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> aspectIDs = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
 
             foreach (ulong aspectID in aspectIDs) {
-                _mfsOperations.ApplyAspectToNote (aspectID, noteID);
+                _mfsOperations.ApplyAspectToDocument (aspectID, fileID);
             }
 
-            List<ulong> retrievedAspectIDs = _mfsOperations.GetAspectsAppliedOnNote (noteID);
-            Assert.AreEqual (aspectIDs.Count, retrievedAspectIDs.Count, "Did not retrieve exact number of aspects applied to note.");
+            List<ulong> retrievedAspectIDs = _mfsOperations.GetAspectsAppliedOnDocument (fileID);
+            Assert.AreEqual (aspectIDs.Count, retrievedAspectIDs.Count, "Did not retrieve exact number of aspects applied to document.");
 
             retrievedAspectIDs.Sort ();
             aspectIDs.Sort ();
@@ -320,7 +317,7 @@ namespace MnemonicFS.Tests.AspectsNotes {
                 Assert.AreEqual (aspectIDs[i], retrievedAspectIDs[i], "Got invalid aspect id.");
             }
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.DeleteFile (fileID);
 
             foreach (ulong aspectID in aspectIDs) {
                 _mfsOperations.DeleteAspect (aspectID);
@@ -329,60 +326,60 @@ namespace MnemonicFS.Tests.AspectsNotes {
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_NoteIDZero_Illegal () {
-            _mfsOperations.GetAspectsAppliedOnNote (0);
+        public void Test_DocumentIDZero_Illegal () {
+            _mfsOperations.GetAspectsAppliedOnDocument (0);
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
-        public void Test_NonExistentNoteID_Illegal () {
-            ulong veryLargeNoteID = UInt64.MaxValue;
+        public void Test_NonExistentFileID_Illegal () {
+            ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            _mfsOperations.GetAspectsAppliedOnNote (veryLargeNoteID);
+            _mfsOperations.GetAspectsAppliedOnDocument (veryLargeDocumentID);
         }
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_GetNotesAppliedWithAspect : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_GetDocumentsAppliedWithAspect : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            int numNotesToCreate = TYPICAL_MULTI_VALUE;
-            List<ulong> noteIDs = new List<ulong> (numNotesToCreate);
+            int numDocsToCreate = TYPICAL_MULTI_VALUE;
+            List<ulong> docIDs = new List<ulong> (numDocsToCreate);
 
-            for (int i = 0; i < numNotesToCreate; ++i) {
-                string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            for (int i = 0; i < numDocsToCreate; ++i) {
+                string url = TestUtils.GetAnyUrl ();
+                string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
-                MfsNote note = new MfsNote (noteContent, when);
-                ulong noteID = _mfsOperations.AddNote (note);
+                ulong urlID = _mfsOperations.AddUrl (url, description, when);
 
-                _mfsOperations.ApplyAspectToNote (aspectID, noteID);
+                _mfsOperations.ApplyAspectToDocument (aspectID, urlID);
 
-                noteIDs.Add (noteID);
+                docIDs.Add (urlID);
             }
 
-            List<ulong> retrievedNoteIDs = _mfsOperations.GetNotesAppliedWithAspect (aspectID);
-            Assert.AreEqual (noteIDs.Count, retrievedNoteIDs.Count, "Did not retrieve exact number of notes aspect has been applied to.");
+            List<ulong> retrievedDocIDs = _mfsOperations.GetDocumentsAppliedWithAspect (aspectID);
+            Assert.AreEqual (docIDs.Count, retrievedDocIDs.Count, "Did not retrieve exact number of documents aspect has been applied to.");
 
-            retrievedNoteIDs.Sort ();
-            noteIDs.Sort ();
+            retrievedDocIDs.Sort ();
+            docIDs.Sort ();
 
-            for (int i = 0; i < noteIDs.Count; ++i) {
-                Assert.AreEqual (noteIDs[i], retrievedNoteIDs[i], "Got invalid note id.");
+            for (int i = 0; i < docIDs.Count; ++i) {
+                Assert.AreEqual (docIDs[i], retrievedDocIDs[i], "Got invalid document id.");
             }
 
             _mfsOperations.DeleteAspect (aspectID);
 
-            foreach (ulong noteID in noteIDs) {
-                _mfsOperations.DeleteNote (noteID);
+            foreach (ulong urlID in docIDs) {
+                _mfsOperations.DeleteUrl (urlID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
-            _mfsOperations.GetNotesAppliedWithAspect (0);
+            _mfsOperations.GetDocumentsAppliedWithAspect (0);
         }
 
         [Test]
@@ -390,25 +387,24 @@ namespace MnemonicFS.Tests.AspectsNotes {
         public void Test_NonExistentAspectID_Illegal () {
             ulong veryLargeAspectID = UInt64.MaxValue;
 
-            _mfsOperations.GetNotesAppliedWithAspect (veryLargeAspectID);
+            _mfsOperations.GetDocumentsAppliedWithAspect (veryLargeAspectID);
         }
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_ApplyAspectsToNote : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_ApplyAspectsToDocument : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numAspectsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> aspectIDs = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
 
-            _mfsOperations.ApplyAspectsToNote (aspectIDs, noteID);
+            _mfsOperations.ApplyAspectsToDocument (aspectIDs, fileID);
 
-            List<ulong> retrievedAspectIDs = _mfsOperations.GetAspectsAppliedOnNote (noteID);
+            List<ulong> retrievedAspectIDs = _mfsOperations.GetAspectsAppliedOnDocument (fileID);
             Assert.AreEqual (aspectIDs.Count, retrievedAspectIDs.Count, "Did not retrieve exact number of aspects.");
 
             retrievedAspectIDs.Sort ();
@@ -418,7 +414,7 @@ namespace MnemonicFS.Tests.AspectsNotes {
                 Assert.AreEqual (aspectIDs[i], retrievedAspectIDs[i], "Got invalid aspect id.");
             }
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.DeleteFile (fileID);
 
             foreach (ulong aspectID in aspectIDs) {
                 _mfsOperations.DeleteAspect (aspectID);
@@ -428,13 +424,13 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullAspectList_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
             ulong noteID = _mfsOperations.AddNote (note);
 
             try {
-                _mfsOperations.ApplyAspectsToNote (null, noteID);
+                _mfsOperations.ApplyAspectsToDocument (null, noteID);
             } finally {
                 _mfsOperations.DeleteNote (noteID);
             }
@@ -443,30 +439,29 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyAspectList_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                _mfsOperations.ApplyAspectsToNote (new List<ulong> (), noteID);
+                _mfsOperations.ApplyAspectsToDocument (new List<ulong> (), fileID);
             } finally {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.DeleteFile (fileID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
-        public void Test_NonExistentNoteID_Illegal () {
+        public void Test_NonExistentDocumentID_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
             List<ulong> aspectIDs = new List<ulong> ();
             aspectIDs.Add (aspectID);
 
-            ulong veryLargeNoteID = UInt64.MaxValue;
+            ulong veryLargeDocumentID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.ApplyAspectsToNote (aspectIDs, veryLargeNoteID);
+                _mfsOperations.ApplyAspectsToDocument (aspectIDs, veryLargeDocumentID);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -474,49 +469,48 @@ namespace MnemonicFS.Tests.AspectsNotes {
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_ApplyAspectToNotes : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_ApplyAspectToDocuments : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            int numNotesToCreate = TYPICAL_MULTI_VALUE;
-            List<ulong> noteIDs = new List<ulong> (numNotesToCreate);
+            int numDocsToCreate = TYPICAL_MULTI_VALUE;
+            List<ulong> docIDs = new List<ulong> (numDocsToCreate);
 
-            for (int i = 0; i < numNotesToCreate; ++i) {
-                string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            for (int i = 0; i < numDocsToCreate; ++i) {
+                _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                MfsNote note = new MfsNote (noteContent, when);
-                ulong noteID = _mfsOperations.AddNote (note);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-                noteIDs.Add (noteID);
+                docIDs.Add (fileID);
             }
 
-            _mfsOperations.ApplyAspectToNotes (aspectID, noteIDs);
+            _mfsOperations.ApplyAspectToDocuments (aspectID, docIDs);
 
-            List<ulong> retrievedNoteIDs = _mfsOperations.GetNotesAppliedWithAspect (aspectID);
-            Assert.AreEqual (noteIDs.Count, retrievedNoteIDs.Count, "Did not retrieve exact number of notes aspect has been applied to.");
+            List<ulong> retrievedDocIDs = _mfsOperations.GetDocumentsAppliedWithAspect (aspectID);
+            Assert.AreEqual (docIDs.Count, retrievedDocIDs.Count, "Did not retrieve exact number of documents aspect has been applied to.");
 
-            retrievedNoteIDs.Sort ();
-            noteIDs.Sort ();
+            retrievedDocIDs.Sort ();
+            docIDs.Sort ();
 
-            for (int i = 0; i < noteIDs.Count; ++i) {
-                Assert.AreEqual (noteIDs[i], retrievedNoteIDs[i], "Got invalid note id.");
+            for (int i = 0; i < docIDs.Count; ++i) {
+                Assert.AreEqual (docIDs[i], retrievedDocIDs[i], "Got invalid document id.");
             }
 
             _mfsOperations.DeleteAspect (aspectID);
 
-            foreach (ulong noteID in noteIDs) {
-                _mfsOperations.DeleteNote (noteID);
+            foreach (ulong fileID in docIDs) {
+                _mfsOperations.DeleteFile (fileID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_NullNoteList_Illegal () {
+        public void Test_NullDocumentList_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
             try {
-                _mfsOperations.ApplyAspectToNotes (aspectID, null);
+                _mfsOperations.ApplyAspectToDocuments (aspectID, null);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -524,11 +518,11 @@ namespace MnemonicFS.Tests.AspectsNotes {
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_EmptyNoteList_Illegal () {
+        public void Test_EmptyDocumentList_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
             try {
-                _mfsOperations.ApplyAspectToNotes (aspectID, new List<ulong> ());
+                _mfsOperations.ApplyAspectToDocuments (aspectID, new List<ulong> ());
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -536,38 +530,37 @@ namespace MnemonicFS.Tests.AspectsNotes {
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_ApplyAspectsToNotes : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_ApplyAspectsToDocuments : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            int numNotesToCreate = TYPICAL_MULTI_VALUE;
-            List<ulong> noteIDs = new List<ulong> (numNotesToCreate);
+            int numFilesToCreate = TYPICAL_MULTI_VALUE;
+            List<ulong> docIDs = new List<ulong> (numFilesToCreate);
 
-            for (int i = 0; i < numNotesToCreate; ++i) {
-                string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            for (int i = 0; i < numFilesToCreate; ++i) {
+                _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 DateTime when = DateTime.Now;
-                MfsNote note = new MfsNote (noteContent, when);
-                ulong noteID = _mfsOperations.AddNote (note);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-                noteIDs.Add (noteID);
+                docIDs.Add (fileID);
             }
 
             int numAspectsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> aspectIDs = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
 
-            _mfsOperations.ApplyAspectsToNotes (aspectIDs, noteIDs);
+            _mfsOperations.ApplyAspectsToDocuments (aspectIDs, docIDs);
 
-            foreach (ulong noteID in noteIDs) {
-                List<ulong> retrAspects = _mfsOperations.GetAspectsAppliedOnNote (noteID);
-                Assert.AreEqual (aspectIDs.Count, retrAspects.Count, "Aspect count for note does not match.");
+            foreach (ulong docID in docIDs) {
+                List<ulong> retrAspects = _mfsOperations.GetAspectsAppliedOnDocument (docID);
+                Assert.AreEqual (aspectIDs.Count, retrAspects.Count, "Aspect count for document does not match.");
             }
 
             foreach (ulong aspectID in aspectIDs) {
-                List<ulong> retrNotes = _mfsOperations.GetNotesAppliedWithAspect (aspectID);
-                Assert.AreEqual (noteIDs.Count, retrNotes.Count, "Note count for aspect does not match.");
+                List<ulong> retrDocs = _mfsOperations.GetDocumentsAppliedWithAspect (aspectID);
+                Assert.AreEqual (docIDs.Count, retrDocs.Count, "Document count for aspect does not match.");
             }
 
-            foreach (ulong noteID in noteIDs) {
-                _mfsOperations.DeleteNote (noteID);
+            foreach (ulong fileID in docIDs) {
+                _mfsOperations.DeleteFile (fileID);
             }
 
             foreach (ulong aspectID in aspectIDs) {
@@ -577,14 +570,14 @@ namespace MnemonicFS.Tests.AspectsNotes {
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_NullNoteList_Illegal () {
+        public void Test_NullDocumentList_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
             List<ulong> aspectIDs = new List<ulong> ();
             aspectIDs.Add (aspectID);
 
             try {
-                _mfsOperations.ApplyAspectsToNotes (aspectIDs, null);
+                _mfsOperations.ApplyAspectsToDocuments (aspectIDs, null);
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -592,14 +585,14 @@ namespace MnemonicFS.Tests.AspectsNotes {
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_EmptyNoteList_Illegal () {
+        public void Test_EmptyDocumentList_Illegal () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
             List<ulong> aspectIDs = new List<ulong> ();
             aspectIDs.Add (aspectID);
 
             try {
-                _mfsOperations.ApplyAspectsToNotes (aspectIDs, new List<ulong> ());
+                _mfsOperations.ApplyAspectsToDocuments (aspectIDs, new List<ulong> ());
             } finally {
                 _mfsOperations.DeleteAspect (aspectID);
             }
@@ -608,34 +601,33 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullAspectList_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            List<ulong> noteIDs = new List<ulong> ();
-            noteIDs.Add (noteID);
+            List<ulong> fileIDs = new List<ulong> ();
+            fileIDs.Add (fileID);
 
             try {
-                _mfsOperations.ApplyAspectsToNotes (null, noteIDs);
+                _mfsOperations.ApplyAspectsToDocuments (null, fileIDs);
             } finally {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.DeleteFile (fileID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyAspectList_Illegal () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
             ulong noteID = _mfsOperations.AddNote (note);
 
-            List<ulong> noteIDs = new List<ulong> ();
-            noteIDs.Add (noteID);
+            List<ulong> docIDs = new List<ulong> ();
+            docIDs.Add (noteID);
 
             try {
-                _mfsOperations.ApplyAspectsToNotes (new List<ulong> (), noteIDs);
+                _mfsOperations.ApplyAspectsToDocuments (new List<ulong> (), docIDs);
             } finally {
                 _mfsOperations.DeleteNote (noteID);
             }
@@ -643,26 +635,25 @@ namespace MnemonicFS.Tests.AspectsNotes {
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_UnapplyAllAspectsFromNote : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_UnapplyAllAspectsFromDocument : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int numAspectsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> aspectIDs = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
 
-            _mfsOperations.ApplyAspectsToNote (aspectIDs, noteID);
+            _mfsOperations.ApplyAspectsToDocument (aspectIDs, fileID);
 
-            int numAspectsUnapplied = _mfsOperations.UnapplyAllAspectsFromNote (noteID);
-            Assert.AreEqual (numAspectsToCreate, numAspectsUnapplied, "Attempt to unapply aspects from note was unsuccessful.");
+            int numAspectsUnapplied = _mfsOperations.UnapplyAllAspectsFromDocument (fileID);
+            Assert.AreEqual (numAspectsToCreate, numAspectsUnapplied, "Attempt to unapply aspects from document was unsuccessful.");
 
-            List<ulong> allAspects = _mfsOperations.GetAspectsAppliedOnNote (noteID);
-            Assert.AreEqual (0, allAspects.Count, "Incorrect number of aspects unapplied for note.");
+            List<ulong> allAspects = _mfsOperations.GetAspectsAppliedOnDocument (fileID);
+            Assert.AreEqual (0, allAspects.Count, "Incorrect number of aspects unapplied from document.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.DeleteFile (fileID);
 
             foreach (ulong aspectID in aspectIDs) {
                 _mfsOperations.DeleteAspect (aspectID);
@@ -671,47 +662,47 @@ namespace MnemonicFS.Tests.AspectsNotes {
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_NoteIDZero_Illegal () {
-            _mfsOperations.UnapplyAllAspectsFromNote (0);
+        public void Test_DocumentIDZero_Illegal () {
+            _mfsOperations.UnapplyAllAspectsFromDocument (0);
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
-        public void Test_NonExistentNoteID_Illegal () {
-            ulong veryLargeNoteID = UInt64.MaxValue;
+        public void Test_NonExistentDocumentID_Illegal () {
+            ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            _mfsOperations.UnapplyAllAspectsFromNote (veryLargeNoteID);
+            _mfsOperations.UnapplyAllAspectsFromDocument (veryLargeDocumentID);
         }
     }
 
     [TestFixture]
-    public class Tests_AspectsMethod_UnapplyAspectFromAllNotes : TestMfsOperationsBase {
+    public class Tests_AspectsMethod_UnapplyAspectFromAllDocuments : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
             ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
 
-            int numNotesToCreate = TYPICAL_MULTI_VALUE;
-            List<ulong> noteIDs = new List<ulong> (numNotesToCreate);
+            int numDocsToCreate = TYPICAL_MULTI_VALUE;
+            List<ulong> docIDs = new List<ulong> (numDocsToCreate);
 
-            for (int i = 0; i < numNotesToCreate; ++i) {
-                string noteContent = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            for (int i = 0; i < numDocsToCreate; ++i) {
+                string url = TestUtils.GetAnyUrl ();
+                string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
-                MfsNote note = new MfsNote (noteContent, when);
-                ulong noteID = _mfsOperations.AddNote (note);
+                ulong urlID = _mfsOperations.AddUrl (url, description, when);
 
-                noteIDs.Add (noteID);
+                docIDs.Add (urlID);
             }
 
-            _mfsOperations.ApplyAspectToNotes (aspectID, noteIDs);
+            _mfsOperations.ApplyAspectToDocuments (aspectID, docIDs);
 
-            int numNotesUnappliedFrom = _mfsOperations.UnapplyAspectFromAllNotes (aspectID);
-            Assert.AreEqual (numNotesToCreate, numNotesUnappliedFrom, "Attempt to unapply aspect from notes was unsuccessful.");
+            int numFilesUnappliedFrom = _mfsOperations.UnapplyAspectFromAllDocuments (aspectID);
+            Assert.AreEqual (numDocsToCreate, numFilesUnappliedFrom, "Attempt to unapply aspect from documents was unsuccessful.");
 
-            List<ulong> allNotes = _mfsOperations.GetNotesAppliedWithAspect (aspectID);
-            Assert.AreEqual (0, allNotes.Count, "Number of notes that aspect was unapplied from was incorrect.");
+            List<ulong> allFiles = _mfsOperations.GetDocumentsAppliedWithAspect (aspectID);
+            Assert.AreEqual (0, allFiles.Count, "Number of documents that aspect was unapplied from was incorrect.");
 
-            foreach (ulong noteID in noteIDs) {
-                _mfsOperations.DeleteNote (noteID);
+            foreach (ulong urlID in docIDs) {
+                _mfsOperations.DeleteUrl (urlID);
             }
 
             _mfsOperations.DeleteAspect (aspectID);
@@ -720,7 +711,7 @@ namespace MnemonicFS.Tests.AspectsNotes {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
-            _mfsOperations.UnapplyAspectFromAllNotes (0);
+            _mfsOperations.UnapplyAspectFromAllDocuments (0);
         }
 
         [Test]
@@ -728,7 +719,7 @@ namespace MnemonicFS.Tests.AspectsNotes {
         public void Test_NonExistentAspectID_Illegal () {
             ulong veryLargeAspectID = UInt64.MaxValue;
 
-            _mfsOperations.UnapplyAspectFromAllNotes (veryLargeAspectID);
+            _mfsOperations.UnapplyAspectFromAllDocuments (veryLargeAspectID);
         }
     }
 }

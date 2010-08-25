@@ -116,15 +116,15 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDCurrent);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDFuture);
 
             // Presume we are looking for all files within a 6 month time radius from now,
             // AND
@@ -179,15 +179,15 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDCurrent);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDFuture);
 
             // Presume we are looking for all files within a 6 month time radius from now,
             // AND
@@ -244,14 +244,14 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDFuture);
 
             // Presume we are looking for all files *not* older than 6 months,
             // OR
@@ -312,14 +312,14 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDFuture);
 
             // Presume we are looking for all files 6 months after current date and time,
             // OR
@@ -376,14 +376,14 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDFuture);
 
             // Presume we are looking for all files at current date and time,
             // AND

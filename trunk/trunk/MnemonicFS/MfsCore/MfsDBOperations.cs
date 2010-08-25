@@ -461,6 +461,70 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << User Instantiation Methods & Variables >>
 
+        #region << Next Document ID >>
+
+        private ulong GetNextDocumentID () {
+            string sql = "select LastID from Table_LastDocumentID";
+            Debug.Print ("Get Last Document ID: " + sql);
+
+            SQLiteConnection cnn = null;
+            ulong lastVal = 0;
+
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                lastVal = UInt64.Parse (dt.Rows[0][0].ToString ());
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+
+            ulong newVal = lastVal + 1;
+            bool exec = SetLastDocumentID (newVal);
+
+            return newVal;
+        }
+
+        private bool SetLastDocumentID (ulong nextID) {
+            string sql = "delete from Table_LastDocumentID; insert into Table_LastDocumentID (LastID) values (" + nextID + ")";
+            Debug.Print ("Set Last Document ID: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return (myCommand.ExecuteNonQuery () > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        #endregion << Next Document ID >>
+
         #region << Class-level Storage Operations >>
 
         internal static ulong SaveByteArrayMetaData (string assumedFileName, string archiveName, string destDir, int referenceNumber) {
@@ -714,10 +778,10 @@ namespace MnemonicFS.MfsCore {
                                     + StringUtils.GetAsZeroPaddedTwoCharString (when.Hour) + ":"
                                     + StringUtils.GetAsZeroPaddedTwoCharString (when.Minute) + ":"
                                     + StringUtils.GetAsZeroPaddedTwoCharString (when.Second);
-
-            string sql = "insert into L_Files (FileName, FileNarration, FileSize, FileHash, ArchiveName, FilePath, AssumedFileName, FilePassword, WhenDateTime) "
-                   + "values (@fileName, @fileNarration, " + fileSize + ", '" + fileHash + "', '" + archiveName + "', '" + filePath + "', '" + assumedFileName + "', '" + filePassword + "', '"
-                   + insertDateTime + "'); select last_insert_rowid() from L_Files";
+            ulong fileID = GetNextDocumentID ();
+            string sql = "insert into L_Files (key_FileID, FileName, FileNarration, FileSize, FileHash, ArchiveName, FilePath, AssumedFileName, FilePassword, WhenDateTime) "
+                   + "values (" + fileID + ", @fileName, @fileNarration, " + fileSize + ", '" + fileHash + "', '" + archiveName + "', '" + filePath + "', '"
+                   + assumedFileName + "', '" + filePassword + "', '" + insertDateTime + "')";
             Debug.Print ("Save file metadata: " + sql);
 
             SQLiteConnection cnn = null;
@@ -731,11 +795,9 @@ namespace MnemonicFS.MfsCore {
                 myCommand.Parameters.AddWithValue ("@fileName", fileName);
                 myCommand.Parameters.AddWithValue ("@fileNarration", fileNarration);
 
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                myCommand.ExecuteNonQuery ();
+                
+                return fileID;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (e.Message);
@@ -1321,10 +1383,10 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
 
-                string referencedSql1 = "delete from M_Aspects_Files where fkey_FileID=" + fileID;
-                string referencedSql2 = "delete from M_Files_Collections where fkey_FileID=" + fileID;
+                string referencedSql1 = "delete from M_Aspects_Documents where fkey_DocumentID=" + fileID;
+                string referencedSql2 = "delete from M_Documents_Collections where fkey_DocumentID=" + fileID;
                 string referencedSql3 = "delete from M_Files_Versions where fkey_FileID=" + fileID;
-                string referencedSql4 = "delete from L_FileBookmarks where fkey_FileID=" + fileID;
+                string referencedSql4 = "delete from L_DocumentBookmarks where fkey_DocumentID=" + fileID;
                 string referencedSql5 = "delete from M_Files_Extensions where fkey_FileID=" + fileID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
@@ -2160,6 +2222,19 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << File Retrieval in Date/Time Ranges >>
 
+        internal DocumentType GetDocumentType (ulong docID) {
+            if (DoesFileExist (docID)) {
+                return DocumentType.FILE;
+            }
+            if (DoesNoteExist (docID)) {
+                return DocumentType.NOTE;
+            }
+            if (DoesUrlExist (docID)) {
+                return DocumentType.URL;
+            }
+            return DocumentType.VCARD;
+        }
+
         #region << Aspect-related Operations >>
 
         /// <summary>
@@ -2422,7 +2497,7 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 int val = myCommand.ExecuteNonQuery ();
 
-                string referencedQuery1 = "delete from M_Aspects_Files where fkey_AspectID=" + aspectID;
+                string referencedQuery1 = "delete from M_Aspects_Documents where fkey_AspectID=" + aspectID;
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedQuery1, cnn);
                 myCommand1.ExecuteNonQuery ();
 
@@ -2486,7 +2561,7 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 int val = myCommand.ExecuteNonQuery ();
 
-                string referencedQuery1 = "delete from M_Aspects_Files";
+                string referencedQuery1 = "delete from M_Aspects_Documents";
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedQuery1, cnn);
                 myCommand1.ExecuteNonQuery ();
 
@@ -3015,17 +3090,11 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << File Version-related Operations >>
 
-        #region << Files-Aspects Operations >>
+        #region << Documents-Aspects Operations >>
 
-        /// <summary>
-        /// This method links a file to an aspect.
-        /// </summary>
-        /// <param name="aspectID">Aspect to be applied.</param>
-        /// <param name="fileID">File to be applied aspect to.</param>
-        /// <returns>A boolean value indicating if the operation was successful.</returns>
-        internal bool ApplyAspectToFile (ulong aspectID, ulong fileID) {
-            string sql = "insert into M_Aspects_Files (fkey_AspectID, fkey_FileID) values (" + aspectID + ", " + fileID + ")";
-            Debug.Print ("Apply aspect to file: " + sql);
+        internal bool ApplyAspectToDocument (ulong aspectID, ulong documentID) {
+            string sql = "insert into M_Aspects_Documents (fkey_AspectID, fkey_DocumentID) values (" + aspectID + ", " + documentID + ")";
+            Debug.Print ("Apply aspect to document: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -3050,15 +3119,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        /// <summary>
-        /// This method tells the caller if an aspect has been applied to a file.
-        /// </summary>
-        /// <param name="aspectID">Aspect to be checked for being applied.</param>
-        /// <param name="fileID">File to be checked for being applied to.</param>
-        /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        internal bool IsAspectAppliedToFile (ulong aspectID, ulong fileID) {
-            string sql = "select * from M_Aspects_Files where fkey_AspectID=" + aspectID + " and fkey_FileID=" + fileID;
-            Debug.Print ("Is aspect applied to file: " + sql);
+        internal bool IsAspectAppliedToDocument (ulong aspectID, ulong documentID) {
+            string sql = "select fkey_AspectID from M_Aspects_Documents where fkey_AspectID=" + aspectID + " and fkey_DocumentID=" + documentID;
+            Debug.Print ("Is aspect applied to document: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -3082,15 +3145,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        /// <summary>
-        /// This method "unapplies" an aspect from a file.
-        /// </summary>
-        /// <param name="aspectID">Aspect to be "unapplied."</param>
-        /// <param name="fileID">File to be "unapplied" from.</param>
-        /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        internal bool UnapplyAspectFromFile (ulong aspectID, ulong fileID) {
-            string sql = "delete from M_Aspects_Files where fkey_AspectID=" + aspectID + " and fkey_FileID=" + fileID;
-            Debug.Print ("Unapply aspect from file: " + sql);
+        internal bool UnapplyAspectFromDocument (ulong aspectID, ulong documentID) {
+            string sql = "delete from M_Aspects_Documents where fkey_AspectID=" + aspectID + " and fkey_DocumentID=" + documentID;
+            Debug.Print ("Unapply aspect from document: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -3115,14 +3172,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        /// <summary>
-        /// This method "unapplies" all aspects from a file.
-        /// </summary>
-        /// <param name="fileID">File to be "unapplied" from.</param>
-        /// <returns>An integer value that indicates how many aspects were "unapplied."</returns>
-        internal int UnapplyAllAspectsFromFile (ulong fileID) {
-            string sql = "delete from M_Aspects_Files where fkey_FileID=" + fileID;
-            Debug.Print ("Unapply all aspects from file: " + sql);
+        internal int UnapplyAllAspectsFromDocument (ulong documentID) {
+            string sql = "delete from M_Aspects_Documents where fkey_DocumentID=" + documentID;
+            Debug.Print ("Unapply all aspects from document: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -3146,14 +3198,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        /// <summary>
-        /// This method "unapplies" an aspect from all files.
-        /// </summary>
-        /// <param name="aspectID">Aspect to be "unapplied."</param>
-        /// <returns>An integer value that indicates how many files were "unapplied" from.</returns>
-        internal int UnapplyAspectFromAllFiles (ulong aspectID) {
-            string sql = "delete from M_Aspects_Files where fkey_AspectID=" + aspectID;
-            Debug.Print ("Unapply aspect from all files: " + sql);
+        internal int UnapplyAspectFromAllDocuments (ulong aspectID) {
+            string sql = "delete from M_Aspects_Documents where fkey_AspectID=" + aspectID;
+            Debug.Print ("Unapply aspect from all documents: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -3178,14 +3225,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        /// <summary>
-        /// This method gets all the aspects aspects to a file.
-        /// </summary>
-        /// <param name="fileID">File for which applied aspects are sought.</param>
-        /// <returns>List of all aspects applied to file.</returns>
-        internal List<ulong> GetAspectsAppliedOnFile (ulong fileID) {
-            string sql = "select fkey_AspectID from M_Aspects_Files where fkey_FileID=" + fileID;
-            Debug.Print ("Get aspects applied on file: " + sql);
+        internal List<ulong> GetAspectsAppliedOnDocument (ulong documentID) {
+            string sql = "select fkey_AspectID from M_Aspects_Documents where fkey_DocumentID=" + documentID;
+            Debug.Print ("Get aspects applied on document: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -3215,14 +3257,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        /// <summary>
-        /// This method returns all the files that have been applied an aspect.
-        /// </summary>
-        /// <param name="aspectID">Aspect for which applied files are sought.</param>
-        /// <returns>List of all files applied to.</returns>
-        internal List<ulong> GetFilesAppliedWithAspect (ulong aspectID) {
-            string sql = "select fkey_FileID from M_Aspects_Files where fkey_AspectID=" + aspectID;
-            Debug.Print ("Get files applied with aspect: " + sql);
+        internal List<ulong> GetDocumentsAppliedWithAspect (ulong aspectID) {
+            string sql = "select fkey_DocumentID from M_Aspects_Documents where fkey_AspectID=" + aspectID;
+            Debug.Print ("Get documents applied with aspect: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -3252,7 +3289,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion << Files-Aspects Operations >>
+        #endregion << Documents-Aspects Operations >>
 
         #region << Briefcase-related Operations >>
 
@@ -3600,15 +3637,30 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Briefcase-related Operations >>
 
-        #region << Files-Briefcases Addition / Removal Operations >>
+        #region << Documents-Briefcases Addition / Removal Operations >>
 
         /// <summary>
-        /// This method returns the briefcase id that contains a file.
+        /// This method returns the briefcase id that contains a document.
         /// </summary>
-        /// <param name="fileID">File for which this information is sought.</param>
+        /// <param name="documentID">Document for which this information is sought.</param>
         /// <returns>Id of the briefcase.</returns>
-        internal ulong GetContainingBriefcase (ulong fileID) {
-            string sql = "select fkey_BriefcaseID from L_Files where key_FileID=" + fileID;
+        internal ulong GetContainingBriefcase (ulong documentID) {
+            string sql = null;
+            DocumentType docType = GetDocumentType (documentID);
+            switch (docType) {
+                case DocumentType.FILE:
+                sql = "select fkey_BriefcaseID from L_Files where key_FileID=" + documentID;
+                break;
+                case DocumentType.NOTE:
+                sql = "select fkey_BriefcaseID from L_Notes where key_NoteID=" + documentID;
+                break;
+                case DocumentType.URL:
+                sql = "select fkey_BriefcaseID from L_Urls where key_UrlID=" + documentID;
+                break;
+                case DocumentType.VCARD:
+                sql = "select fkey_BriefcaseID from L_VCards where key_VCardID=" + documentID;
+                break;
+            }
             Debug.Print ("Get containing briefcase: " + sql);
 
             SQLiteConnection cnn = null;
@@ -3634,14 +3686,29 @@ namespace MnemonicFS.MfsCore {
         }
 
         /// <summary>
-        /// This method moves a file to a briefcase.
+        /// This method moves a document to a briefcase.
         /// </summary>
-        /// <param name="fileID">Id of the file to be moved.</param>
+        /// <param name="documentID">Id of the document to be moved.</param>
         /// <param name="briefcaseID">Id of the briefcase to be moved to.</param>
         /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        internal bool MoveFileToBriefcase (ulong fileID, ulong briefcaseID) {
-            string sql = "update L_Files set fkey_BriefcaseID=" + briefcaseID + " where key_FileID=" + fileID;
-            Debug.Print ("Move file to briefcase: " + sql);
+        internal bool MoveDocumentToBriefcase (ulong documentID, ulong briefcaseID) {
+            string sql = null;
+            DocumentType docType = GetDocumentType (documentID);
+            switch (docType) {
+                case DocumentType.FILE:
+                    sql = "update L_Files set fkey_BriefcaseID=" + briefcaseID + " where key_FileID=" + documentID;
+                    break;
+                case DocumentType.NOTE:
+                    sql = "update L_Notes set fkey_BriefcaseID=" + briefcaseID + " where key_NoteID=" + documentID;
+                    break;
+                case DocumentType.URL:
+                    sql = "update L_Urls set fkey_BriefcaseID=" + briefcaseID + " where key_UrlID=" + documentID;
+                    break;
+                case DocumentType.VCARD:
+                    sql = "update L_VCards set fkey_BriefcaseID=" + briefcaseID + " where key_VCardID=" + documentID;
+                    break;
+            }
+            Debug.Print ("Move document to briefcase: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -3668,13 +3735,28 @@ namespace MnemonicFS.MfsCore {
         }
 
         /// <summary>
-        /// This method removes a file from its containing briefcase to the global briefcase.
+        /// This method removes a document from its containing briefcase to the global briefcase.
         /// </summary>
-        /// <param name="fileID">Id of the file to be moved.</param>
+        /// <param name="documentID">Id of the document to be moved.</param>
         /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        internal bool RemoveFileFromBriefcase (ulong fileID) {
-            string sql = "update L_Files set fkey_BriefcaseID=1 where key_FileID=" + fileID;
-            Debug.Print ("Remove file from briefcase: " + sql);
+        internal bool RemoveDocumentFromBriefcase (ulong documentID) {
+            string sql = null;
+            DocumentType docType = GetDocumentType (documentID);
+            switch (docType) {
+                case DocumentType.FILE:
+                    sql = "update L_Files set fkey_BriefcaseID=1 where key_FileID=" + documentID;
+                    break;
+                case DocumentType.NOTE:
+                    sql = "update L_Notes set fkey_BriefcaseID=1 where key_NoteID=" + documentID;
+                    break;
+                case DocumentType.URL:
+                    sql = "update L_Urls set fkey_BriefcaseID=1 where key_UrlID=" + documentID;
+                    break;
+                case DocumentType.VCARD:
+                    sql = "update L_VCards set fkey_BriefcaseID=1 where key_VCardID=" + documentID;
+                    break;
+            }
+            Debug.Print ("Remove document from briefcase: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -3701,31 +3783,38 @@ namespace MnemonicFS.MfsCore {
         }
 
         /// <summary>
-        /// This method gets all the files in a briefcase.
+        /// This method gets all the documents in a briefcase.
         /// </summary>
-        /// <param name="briefcaseID">Id of the briefcase from which its contained files are sought.</param>
-        /// <returns>A list of files that are contained within the briefcase.</returns>
-        internal List<ulong> GetFilesInBriefcase (ulong briefcaseID) {
-            string sql = "select key_FileID from L_Files where fkey_BriefcaseID=" + briefcaseID;
-            Debug.Print ("Get all files in briefcase: " + sql);
+        /// <param name="briefcaseID">Id of the briefcase from which its contained documents are sought.</param>
+        /// <returns>A list of documents that are contained within the briefcase.</returns>
+        internal List<ulong> GetDocumentsInBriefcase (ulong briefcaseID) {
+            string[] sqlQueries = {
+                               "select key_FileID from L_Files where fkey_BriefcaseID=" + briefcaseID,
+                               "select key_NoteID from L_Notes where fkey_BriefcaseID=" + briefcaseID,
+                               "select key_UrlID from L_Urls where fkey_BriefcaseID=" + briefcaseID,
+                               "select key_VCardID from L_VCards where fkey_BriefcaseID=" + briefcaseID
+                           };
+            Debug.Print ("Get documents in briefcase: " + sqlQueries);
 
             SQLiteConnection cnn = null;
             try {
                 cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
                 cnn.Open ();
+                List<ulong> docsInBriefcase = new List<ulong> ();
 
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
+                foreach (string sql in sqlQueries) {
+                    SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                    SQLiteDataReader reader = myCommand.ExecuteReader ();
 
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
+                    DataTable dt = new DataTable ();
+                    dt.Load (reader);
 
-                List<ulong> filesInBriefcase = new List<ulong> ();
-                foreach (DataRow row in dt.Rows) {
-                    filesInBriefcase.Add (ulong.Parse (row[0].ToString ()));
+                    foreach (DataRow row in dt.Rows) {
+                        docsInBriefcase.Add (ulong.Parse (row[0].ToString ()));
+                    }
                 }
 
-                return filesInBriefcase;
+                return docsInBriefcase;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (e.Message);
@@ -3736,7 +3825,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion << Files-Briefcases Addition / Removal Operations >>
+        #endregion << Documents-Briefcases Addition / Removal Operations >>
 
         #region << Collection-related Operations >>
 
@@ -3800,7 +3889,7 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 int val = myCommand.ExecuteNonQuery ();
 
-                string referencedQuery1 = "delete from M_Files_Collections where fkey_CollectionID=" + collectionID;
+                string referencedQuery1 = "delete from M_Documents_Collections where fkey_CollectionID=" + collectionID;
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedQuery1, cnn);
                 myCommand1.ExecuteNonQuery ();
 
@@ -4064,7 +4153,7 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 int val = myCommand.ExecuteNonQuery ();
                 
-                string referencedQuery1 = "delete from M_Files_Collections";
+                string referencedQuery1 = "delete from M_Documents_Collections";
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedQuery1, cnn);
                 myCommand1.ExecuteNonQuery ();
 
@@ -4084,11 +4173,11 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Collection-related Operations >>
 
-        #region << Files-Collections Addition / Removal Operations >>
+        #region << Documents-Collections Addition / Removal Operations >>
 
-        internal bool AddFileToCollection (ulong fileID, ulong collectionID) {
-            string sql = "insert into M_Files_Collections (fkey_FileID, fkey_CollectionID) values (" + fileID + ", " + collectionID + ")";
-            Debug.Print ("Add file to collection: " + sql);
+        internal bool AddDocumentToCollection (ulong documentID, ulong collectionID) {
+            string sql = "insert into M_Documents_Collections (fkey_DocumentID, fkey_CollectionID) values (" + documentID + ", " + collectionID + ")";
+            Debug.Print ("Add document to collection: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -4113,9 +4202,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal bool IsFileInCollection (ulong fileID, ulong collectionID) {
-            string sql = "select * from M_Files_Collections where fkey_FileID=" + fileID + " and fkey_CollectionID=" + collectionID;
-            Debug.Print ("Is file in collection: " + sql);
+        internal bool IsDocumentInCollection (ulong documentID, ulong collectionID) {
+            string sql = "select * from M_Documents_Collections where fkey_DocumentID=" + documentID + " and fkey_CollectionID=" + collectionID;
+            Debug.Print ("Is document in collection: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -4139,9 +4228,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal bool RemoveFileFromCollection (ulong fileID, ulong collectionID) {
-            string sql = "delete from M_Files_Collections where fkey_FileID=" + fileID + " and fkey_CollectionID=" + collectionID;
-            Debug.Print ("Remove file from collection: " + sql);
+        internal bool RemoveDocumentFromCollection (ulong documentID, ulong collectionID) {
+            string sql = "delete from M_Documents_Collections where fkey_DocumentID=" + documentID + " and fkey_CollectionID=" + collectionID;
+            Debug.Print ("Remove document from collection: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -4166,9 +4255,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal List<ulong> GetCollectionsWithFile (ulong fileID) {
-            string sql = "select fkey_CollectionID from M_Files_Collections where fkey_FileID=" + fileID;
-            Debug.Print ("Get collections with file: " + sql);
+        internal List<ulong> GetCollectionsWithDocument (ulong documentID) {
+            string sql = "select fkey_CollectionID from M_Documents_Collections where fkey_DocumentID=" + documentID;
+            Debug.Print ("Get collections with document: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -4198,9 +4287,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal List<ulong> GetFilesInCollection (ulong collectionID) {
-            string sql = "select fkey_FileID from M_Files_Collections where fkey_CollectionID=" + collectionID;
-            Debug.Print ("Get files in collection: " + sql);
+        internal List<ulong> GetDocumentsInCollection (ulong collectionID) {
+            string sql = "select fkey_DocumentID from M_Documents_Collections where fkey_CollectionID=" + collectionID;
+            Debug.Print ("Get documents in collection: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -4230,9 +4319,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal int RemoveFileFromAllCollections (ulong fileID) {
-            string sql = "delete from M_Files_Collections where fkey_FileID=" + fileID;
-            Debug.Print ("Remove file from all collections: " + sql);
+        internal int RemoveDocumentFromAllCollections (ulong documentID) {
+            string sql = "delete from M_Documents_Collections where fkey_DocumentID=" + documentID;
+            Debug.Print ("Remove document from all collections: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -4256,9 +4345,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal int RemoveAllFilesFromCollection (ulong collectionID) {
-            string sql = "delete from M_Files_Collections where fkey_CollectionID=" + collectionID;
-            Debug.Print ("Remove all files from collection: " + sql);
+        internal int RemoveAllDocumentsFromCollection (ulong collectionID) {
+            string sql = "delete from M_Documents_Collections where fkey_CollectionID=" + collectionID;
+            Debug.Print ("Remove all documents from collection: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -4283,7 +4372,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion << Files-Collections Addition / Removal Operations >>
+        #endregion << Documents-Collections Addition / Removal Operations >>
 
         #region << Url-related Operations >>
 
@@ -4295,8 +4384,8 @@ namespace MnemonicFS.MfsCore {
                                     + StringUtils.GetAsZeroPaddedTwoCharString (when.Minute) + ":"
                                     + StringUtils.GetAsZeroPaddedTwoCharString (when.Second);
 
-            string sql = "insert into L_Urls (Url, Description, WhenDateTime) values (@url, @description, '" + insertDateTime + "'); "
-                            + "select last_insert_rowid() from L_Urls";
+            ulong urlID = GetNextDocumentID ();
+            string sql = "insert into L_Urls (key_UrlID, Url, Description, WhenDateTime) values (" + urlID + ", @url, @description, '" + insertDateTime + "')";
             Debug.Print ("Add Url: " + sql);
 
             SQLiteConnection cnn = null;
@@ -4310,12 +4399,9 @@ namespace MnemonicFS.MfsCore {
                 myCommand.Parameters.AddWithValue ("@url", url);
                 myCommand.Parameters.AddWithValue ("@description", description);
 
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
+                myCommand.ExecuteNonQuery ();
 
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return urlID;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (e.Message);
@@ -4468,8 +4554,8 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
 
-                string referencedSql1 = "delete from M_Aspects_Urls where fkey_UrlID=" + urlID;
-                string referencedSql2 = "delete from L_UrlBookmarks where fkey_UrlID=" + urlID;
+                string referencedSql1 = "delete from M_Aspects_Documents where fkey_DocumentID=" + urlID;
+                string referencedSql2 = "delete from L_DocumentBookmarks where fkey_DocumentID=" + urlID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
                 SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
@@ -4479,6 +4565,44 @@ namespace MnemonicFS.MfsCore {
                 myCommand1.ExecuteNonQuery ();
                 myCommand2.ExecuteNonQuery ();
                 
+                return val;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteVCard (ulong vcardID) {
+            string sql = "delete from L_VCards where key_UrlID=" + vcardID;
+            Debug.Print ("Remove vcard: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                string referencedSql1 = "delete from M_Aspects_Documents where fkey_DocumentID=" + vcardID;
+                string referencedSql2 = "delete from L_DocumentBookmarks where fkey_DocumentID=" + vcardID;
+
+                SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
+                SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
+
+                int val = myCommand.ExecuteNonQuery ();
+
+                myCommand1.ExecuteNonQuery ();
+                myCommand2.ExecuteNonQuery ();
+
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
@@ -4519,6 +4643,32 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
+        internal bool DoesVCardExist (ulong vcardID) {
+            string sql = "select Name from L_VCards where key_VCardID=" + vcardID;
+            Debug.Print ("Does vcard exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
         #endregion << Url-related Operations >>
 
         #region << Note-related Operations >>
@@ -4532,8 +4682,8 @@ namespace MnemonicFS.MfsCore {
                                     + StringUtils.GetAsZeroPaddedTwoCharString (when.Minute) + ":"
                                     + StringUtils.GetAsZeroPaddedTwoCharString (when.Second);
 
-            string sql = "insert into L_Notes (NoteContent, WhenDateTime) values (@noteContent, '" + insertDateTime + "'); "
-                            + "select last_insert_rowid() from L_Notes";
+            ulong noteID = GetNextDocumentID ();
+            string sql = "insert into L_Notes (key_NoteID, NoteContent, WhenDateTime) values (" + noteID + ", @noteContent, '" + insertDateTime + "')";
             Debug.Print ("Add Note: " + sql);
 
             SQLiteConnection cnn = null;
@@ -4546,12 +4696,9 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@noteContent", note.NoteContent);
 
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
+                myCommand.ExecuteNonQuery ();
 
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return noteID;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (e.Message);
@@ -4578,8 +4725,8 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
 
-                string referencedSql1 = "delete from M_Aspects_Notes where fkey_NoteID=" + noteID;
-                string referencedSql2 = "delete from L_NoteBookmarks where fkey_NoteID=" + noteID;
+                string referencedSql1 = "delete from M_Aspects_Documents where fkey_DocumentID=" + noteID;
+                string referencedSql2 = "delete from L_DocumentBookmarks where fkey_DocumentID=" + noteID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
                 SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
@@ -4690,64 +4837,11 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Note-related Operations >>
 
-        #region << Urls-Aspects Operations >>
+        #region << Document Bookmarking Operations >>
 
-        internal bool ApplyAspectToUrl (ulong aspectID, ulong urlID) {
-            string sql = "insert into M_Aspects_Urls (fkey_AspectID, fkey_UrlID) values (" + aspectID + ", " + urlID + ")";
-            Debug.Print ("Apply aspect to url: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                return (myCommand.ExecuteNonQuery () > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal bool IsAspectAppliedToUrl (ulong aspectID, ulong urlID) {
-            string sql = "select * from M_Aspects_Urls where fkey_AspectID=" + aspectID + " and fkey_UrlID=" + urlID;
-            Debug.Print ("Is aspect applied to url: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                return (dt.Rows.Count > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal bool UnapplyAspectFromUrl (ulong aspectID, ulong urlID) {
-            string sql = "delete from M_Aspects_Urls where fkey_AspectID=" + aspectID + " and fkey_UrlID=" + urlID;
-            Debug.Print ("Unapply aspect from url: " + sql);
+        internal bool BookmarkDocument (ulong documentID) {
+            string sql = "insert into L_DocumentBookmarks (fkey_DocumentID) values (" + documentID + ")";
+            Debug.Print ("Bookmark document: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -4772,94 +4866,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal int UnapplyAllAspectsFromUrl (ulong urlID) {
-            string sql = "delete from M_Aspects_Urls where fkey_UrlID=" + urlID;
-            Debug.Print ("Unapply all aspects from url: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                return myCommand.ExecuteNonQuery ();
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal int UnapplyAspectFromAllUrls (ulong aspectID) {
-            string sql = "delete from M_Aspects_Urls where fkey_AspectID=" + aspectID;
-            Debug.Print ("Unapply aspect from all urls: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                return myCommand.ExecuteNonQuery ();
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal List<ulong> GetAspectsAppliedOnUrl (ulong urlID) {
-            string sql = "select fkey_AspectID from M_Aspects_Urls where fkey_UrlID=" + urlID;
-            Debug.Print ("Get aspects applied on url: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                List<ulong> allAspects = new List<ulong> ();
-                foreach (DataRow row in dt.Rows) {
-                    ulong aspectID = ulong.Parse (row[0].ToString ());
-                    allAspects.Add (aspectID);
-                }
-
-                return allAspects;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal List<ulong> GetUrlsAppliedWithAspect (ulong aspectID) {
-            string sql = "select fkey_UrlID from M_Aspects_Urls where fkey_AspectID=" + aspectID;
-            Debug.Print ("Get urls applied with aspect: " + sql);
+        internal List<ulong> GetAllBookmarkedDocuments () {
+            string sql = "select fkey_DocumentID from L_DocumentBookmarks";
+            Debug.Print ("Get all document bookmarks: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -4889,40 +4898,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion << Urls-Aspects Operations >>
-
-        #region << Notes-Aspects Operations >>
-
-        internal bool ApplyAspectToNote (ulong aspectID, ulong noteID) {
-            string sql = "insert into M_Aspects_Notes (fkey_AspectID, fkey_NoteID) values (" + aspectID + ", " + noteID + ")";
-            Debug.Print ("Apply aspect to note: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                return (myCommand.ExecuteNonQuery () > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal bool IsAspectAppliedToNote (ulong aspectID, ulong noteID) {
-            string sql = "select * from M_Aspects_Notes where fkey_AspectID=" + aspectID + " and fkey_NoteID=" + noteID;
-            Debug.Print ("Is aspect applied to note: " + sql);
+        internal bool IsDocumentBookmarked (ulong documentID) {
+            string sql = "select fkey_DocumentID from L_DocumentBookmarks where fkey_DocumentID=" + documentID;
+            Debug.Print ("Is document bookmarked: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -4946,242 +4924,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal bool UnapplyAspectFromNote (ulong aspectID, ulong noteID) {
-            string sql = "delete from M_Aspects_Notes where fkey_AspectID=" + aspectID + " and fkey_NoteID=" + noteID;
-            Debug.Print ("Unapply aspect from note: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                return (myCommand.ExecuteNonQuery () > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal List<ulong> GetAspectsAppliedOnNote (ulong noteID) {
-            string sql = "select fkey_AspectID from M_Aspects_Notes where fkey_NoteID=" + noteID;
-            Debug.Print ("Get aspects applied on note: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                List<ulong> allAspects = new List<ulong> ();
-                foreach (DataRow row in dt.Rows) {
-                    ulong aspectID = ulong.Parse (row[0].ToString ());
-                    allAspects.Add (aspectID);
-                }
-
-                return allAspects;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal List<ulong> GetNotesAppliedWithAspect (ulong aspectID) {
-            string sql = "select fkey_NoteID from M_Aspects_Notes where fkey_AspectID=" + aspectID;
-            Debug.Print ("Get notes applied with aspect: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                List<ulong> allFiles = new List<ulong> ();
-                foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
-                    allFiles.Add (fileID);
-                }
-
-                return allFiles;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal int UnapplyAllAspectsFromNote (ulong noteID) {
-            string sql = "delete from M_Aspects_Notes where fkey_NoteID=" + noteID;
-            Debug.Print ("Unapply all aspects from note: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                return myCommand.ExecuteNonQuery ();
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal int UnapplyAspectFromAllNotes (ulong aspectID) {
-            string sql = "delete from M_Aspects_Notes where fkey_AspectID=" + aspectID;
-            Debug.Print ("Unapply aspect from all notes: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                return myCommand.ExecuteNonQuery ();
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        #endregion << Notes-Aspects Operations >>
-
-        #region << File Bookmarking Operations >>
-
-        internal bool BookmarkFile (ulong fileID) {
-            string sql = "insert into L_FileBookmarks (fkey_FileID) values (" + fileID + ")";
-            Debug.Print ("Bookmark file: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                return (myCommand.ExecuteNonQuery () > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal List<ulong> GetAllBookmarkedFiles () {
-            string sql = "select fkey_FileID from L_FileBookmarks";
-            Debug.Print ("Get all file bookmarks: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                List<ulong> allFiles = new List<ulong> ();
-                foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
-                    allFiles.Add (fileID);
-                }
-
-                return allFiles;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal bool IsFileBookmarked (ulong fileID) {
-            string sql = "select fkey_FileID from L_FileBookmarks where fkey_FileID=" + fileID;
-            Debug.Print ("Is file bookmarked: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                return (dt.Rows.Count > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal int DeleteFileBookmark (ulong fileID) {
-            string sql = "delete from L_FileBookmarks where fkey_FileID=" + fileID;
-            Debug.Print ("Delete file bookmark: " + sql);
+        internal int DeleteDocumentBookmark (ulong documentID) {
+            string sql = "delete from L_DocumentBookmarks where fkey_DocumentID=" + documentID;
+            Debug.Print ("Delete document bookmark: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -5207,9 +4952,9 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal int DeleteAllFileBookmarks () {
-            string sql = "delete from L_FileBookmarks";
-            Debug.Print ("Delete all file bookmarks: " + sql);
+        internal int DeleteAllDocumentBookmarks () {
+            string sql = "delete from L_DocumentBookmarks";
+            Debug.Print ("Delete all document bookmarks: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -5235,297 +4980,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        #endregion << File Bookmarking Operations >>
-
-        #region << Note Bookmarking Operations >>
-
-        internal bool BookmarkNote (ulong noteID) {
-            string sql = "insert into L_NoteBookmarks (fkey_NoteID) values (" + noteID + ")";
-            Debug.Print ("Bookmark note: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                return (myCommand.ExecuteNonQuery () > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal List<ulong> GetAllBookmarkedNotes () {
-            string sql = "select fkey_NoteID from L_NoteBookmarks";
-            Debug.Print ("Get all note bookmarks: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                List<ulong> allFiles = new List<ulong> ();
-                foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
-                    allFiles.Add (fileID);
-                }
-
-                return allFiles;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal bool IsNoteBookmarked (ulong noteID) {
-            string sql = "select fkey_NoteID from L_NoteBookmarks where fkey_NoteID=" + noteID;
-            Debug.Print ("Is note bookmarked: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                return (dt.Rows.Count > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal int DeleteNoteBookmark (ulong noteID) {
-            string sql = "delete from L_NoteBookmarks where fkey_NoteID=" + noteID;
-            Debug.Print ("Delete note bookmark: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                int updatedRows = myCommand.ExecuteNonQuery ();
-                return updatedRows;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal int DeleteAllNoteBookmarks () {
-            string sql = "delete from L_NoteBookmarks";
-            Debug.Print ("Delete all note bookmarks: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                int updatedRows = myCommand.ExecuteNonQuery ();
-                return updatedRows;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        #endregion << Note Bookmarking Operations >>
-
-        #region << Url Bookmarking Operations >>
-
-        internal bool BookmarkUrl (ulong urlID) {
-            string sql = "insert into L_UrlBookmarks (fkey_UrlID) values (" + urlID + ")";
-            Debug.Print ("Bookmark url: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                return (myCommand.ExecuteNonQuery () > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal List<ulong> GetAllBookmarkedUrls () {
-            string sql = "select fkey_UrlID from L_UrlBookmarks";
-            Debug.Print ("Get all url bookmarks: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                List<ulong> allFiles = new List<ulong> ();
-                foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
-                    allFiles.Add (fileID);
-                }
-
-                return allFiles;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal bool IsUrlBookmarked (ulong urlID) {
-            string sql = "select fkey_UrlID from L_UrlBookmarks where fkey_UrlID=" + urlID;
-            Debug.Print ("Is url bookmarked: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                return (dt.Rows.Count > 0);
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal int DeleteUrlBookmark (ulong urlID) {
-            string sql = "delete from L_UrlBookmarks where fkey_UrlID=" + urlID;
-            Debug.Print ("Delete url bookmark: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                int updatedRows = myCommand.ExecuteNonQuery ();
-                return updatedRows;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        internal int DeleteAllUrlBookmarks () {
-            string sql = "delete from L_UrlBookmarks";
-            Debug.Print ("Delete all url bookmarks: " + sql);
-
-            SQLiteConnection cnn = null;
-            SQLiteTransaction transaction = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
-                cnn.Open ();
-                transaction = cnn.BeginTransaction ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-
-                int updatedRows = myCommand.ExecuteNonQuery ();
-                return updatedRows;
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
-            } finally {
-                if (transaction != null) {
-                    transaction.Commit ();
-                }
-                if (cnn != null) {
-                    cnn.Close ();
-                }
-            }
-        }
-
-        #endregion << Url Bookmarking Operations >>
+        #endregion << Document Bookmarking Operations >>
 
         #region << Schema Free Document-related Operations >>
 

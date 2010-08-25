@@ -40,13 +40,13 @@ namespace MnemonicFS.MfsUtils.MfsDB {
             return @"
                 CREATE TABLE [L_Files] (
                 [key_FileID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
                 [FileName] NVARCHAR(128) NOT NULL,
                 [FileNarration] NVARCHAR(1024) NOT NULL,
                 [FileSize] INTEGER NOT NULL,
                 [FileHash] VARCHAR NOT NULL,
                 [ArchiveName] NVARCHAR(64) NOT NULL,
                 [FilePath] NVARCHAR(2048) NOT NULL,
-                [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
                 [AssumedFileName] NVARCHAR(128) NOT NULL,
                 [FilePassword] VARCHAR(20) NOT NULL,
                 [WhenDateTime] TIMESTAMP NOT NULL,
@@ -72,73 +72,24 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [WhenDateTime] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
                 );
 
-                CREATE TABLE [L_AspectGroups] (
-                [key_AspectGroupID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                [fkey_ParentAspectGroupID] INTEGER DEFAULT 0,
-                [AspectGroupName] NVARCHAR(128) NOT NULL,
-                [AspectGroupDesc] NVARCHAR(1024) NOT NULL
-                );
-
-                INSERT INTO L_AspectGroups (key_AspectGroupID, AspectGroupName, AspectGroupDesc)
-                VALUES (0, 'Root Aspect Group', 'Root aspect group');
-
-                CREATE TABLE [L_Aspects] (
-                [key_AspectID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                [fkey_AspectGroupID] INTEGER DEFAULT NULL,
-                [AspectName] NVARCHAR(128) UNIQUE NOT NULL,
-                [AspectDesc] NVARCHAR(1024) NOT NULL
-                );
-
-                CREATE TABLE [M_Aspects_Files] (
-                [fkey_AspectID] INTEGER NOT NULL,
-                [fkey_FileID] INTEGER NOT NULL
-                );
-
-                CREATE TABLE [L_Briefcases] (
-                [key_BriefcaseID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                [BriefcaseName] NVARCHAR(128) UNIQUE NOT NULL,
-                [BriefcaseDesc] NVARCHAR(1024) NOT NULL
-                );
-
-                INSERT INTO L_Briefcases (key_BriefcaseID, BriefcaseName, BriefcaseDesc)
-                VALUES (1, 'Default', 'Default Briefcase');
-
-                CREATE TABLE [L_Collections] (
-                [key_CollectionID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                [CollectionName] NVARCHAR(128) UNIQUE NOT NULL,
-                [CollectionDesc] NVARCHAR(1024) NOT NULL
-                );
-
-                CREATE TABLE [M_Files_Collections] (
-                [fkey_FileID] INTEGER NOT NULL,
-                [fkey_CollectionID] INTEGER NOT NULL
+                CREATE TABLE [L_Notes] (
+                [key_NoteID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
+                [NoteContent] NVARCHAR(4096) NOT NULL,
+                [WhenDateTime] TIMESTAMP NOT NULL
                 );
 
                 CREATE TABLE [L_Urls] (
                 [key_UrlID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
                 [Url] NVARCHAR(4096) NOT NULL,
                 [Description] NVARCHAR(1024),
                 [WhenDateTime] TIMESTAMP NOT NULL
                 );
 
-                CREATE TABLE [L_Notes] (
-                [key_NoteID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                [NoteContent] NVARCHAR(4096) NOT NULL,
-                [WhenDateTime] TIMESTAMP NOT NULL
-                );
-
-                CREATE TABLE [M_Aspects_Urls] (
-                [fkey_AspectID] INTEGER NOT NULL,
-                [fkey_UrlID] INTEGER NOT NULL
-                );
-
-                CREATE TABLE [M_Aspects_Notes] (
-                [fkey_AspectID] INTEGER NOT NULL,
-                [fkey_NoteID] INTEGER NOT NULL
-                );
-
                 CREATE TABLE [L_VCards] (
                 [key_VCardID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
                 [Name] NVARCHAR(1024) DEFAULT NULL,
                 [FormattedName] NVARCHAR(1024) DEFAULT NULL,
                 [Photograph] BLOB DEFAULT NULL,
@@ -157,20 +108,50 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [Url] NVARCHAR(4096) DEFAULT NULL
                 );
 
-                CREATE TABLE [L_FileBookmarks] (
-                [fkey_FileID] INTEGER NOT NULL
+                CREATE TABLE [L_AspectGroups] (
+                [key_AspectGroupID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [fkey_ParentAspectGroupID] INTEGER DEFAULT 0,
+                [AspectGroupName] NVARCHAR(128) NOT NULL,
+                [AspectGroupDesc] NVARCHAR(1024) NOT NULL
                 );
 
-                CREATE TABLE [L_NoteBookmarks] (
-                [fkey_NoteID] INTEGER NOT NULL
+                INSERT INTO L_AspectGroups (key_AspectGroupID, AspectGroupName, AspectGroupDesc)
+                VALUES (0, 'Root Aspect Group', 'Root aspect group');
+
+                CREATE TABLE [L_Aspects] (
+                [key_AspectID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [fkey_AspectGroupID] INTEGER DEFAULT NULL,
+                [AspectName] NVARCHAR(128) UNIQUE NOT NULL,
+                [AspectDesc] NVARCHAR(1024) NOT NULL
                 );
 
-                CREATE TABLE [L_UrlBookmarks] (
-                [fkey_UrlID] INTEGER NOT NULL
+                CREATE TABLE [M_Aspects_Documents] (
+                [fkey_AspectID] INTEGER NOT NULL,
+                [fkey_DocumentID] INTEGER NOT NULL
                 );
 
-                CREATE TABLE [L_VCardBookmarks] (
-                [fkey_VCardID] INTEGER NOT NULL
+                CREATE TABLE [L_Briefcases] (
+                [key_BriefcaseID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [BriefcaseName] NVARCHAR(128) UNIQUE NOT NULL,
+                [BriefcaseDesc] NVARCHAR(1024) NOT NULL
+                );
+
+                INSERT INTO L_Briefcases (key_BriefcaseID, BriefcaseName, BriefcaseDesc)
+                VALUES (1, 'Default', 'Default Briefcase');
+
+                CREATE TABLE [L_Collections] (
+                [key_CollectionID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [CollectionName] NVARCHAR(128) UNIQUE NOT NULL,
+                [CollectionDesc] NVARCHAR(1024) NOT NULL
+                );
+
+                CREATE TABLE [M_Documents_Collections] (
+                [fkey_DocumentID] INTEGER NOT NULL,
+                [fkey_CollectionID] INTEGER NOT NULL
+                );
+
+                CREATE TABLE [L_DocumentBookmarks] (
+                [fkey_DocumentID] INTEGER NOT NULL
                 );
 
                 CREATE TABLE [L_SchemaFreeDocuments] (
@@ -186,6 +167,13 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [Key] NVARCHAR(128) NOT NULL,
                 [Value] NVARCHAR(128) NOT NULL
                 );
+
+                CREATE TABLE [Table_LastDocumentID] (
+                [LastID] INTEGER NOT NULL DEFAULT (0)
+                );
+
+                INSERT INTO Table_LastDocumentID (LastID)
+                VALUES (0);
             ";
         }
     }

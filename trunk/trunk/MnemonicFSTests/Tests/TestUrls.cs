@@ -138,7 +138,8 @@ namespace MnemonicFS.Tests.Urls {
 
             ulong urlID = _mfsOperations.AddUrl (url, description, when);
 
-            _mfsOperations.DeleteUrl (urlID);
+            int numDeleted = _mfsOperations.DeleteUrl (urlID);
+            Assert.AreEqual (1, numDeleted, "Did not delete single url.");
         }
 
         [Test]

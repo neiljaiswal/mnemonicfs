@@ -58,6 +58,13 @@ namespace MnemonicFS.MfsCore {
         SCHEMA_FREE_DOC_NAME
     };
 
+    public enum DocumentType {
+        FILE = 1,
+        NOTE,
+        URL,
+        VCARD
+    };
+
     public enum GroupingType {
         ASPECT = 1,
         BRIEFCASE,
@@ -244,7 +251,7 @@ namespace MnemonicFS.MfsCore {
             if (byteStreamID == 0) {
                 throw new MfsIllegalArgumentException ("Byte Stream ID cannot be zero.");
             }
-            
+
             if (!DoesByteStreamExist (byteStreamID)) {
                 throw new MfsNonExistentResourceException ("Byte stream does not exist.");
             }
@@ -469,6 +476,16 @@ namespace MnemonicFS.MfsCore {
         #endregion << Object Construction >>
 
         #region << Client-input Check Methods >>
+
+        private void DoDocumentChecks (ulong documentID) {
+            if (documentID == 0) {
+                throw new MfsIllegalArgumentException ("Document id cannot be zero.");
+            }
+
+            if (!(_dbOperations.DoesFileExist (documentID) || _dbOperations.DoesNoteExist (documentID) || _dbOperations.DoesUrlExist (documentID))) {
+                throw new MfsNonExistentResourceException ("Non-existent document.");
+            }
+        }
 
         private void DoFileChecks (ulong fileID) {
             if (fileID == 0) {
@@ -1169,6 +1186,50 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << File Retrieval in Date/Time Ranges >>
 
+        #region << Document Operations >>
+
+        public DocumentType GetDocumentType (ulong documentID) {
+            if (documentID == 0) {
+                throw new MfsIllegalArgumentException ("Document id may not be zero.");
+            }
+
+            if (_dbOperations.DoesFileExist (documentID)) {
+                return DocumentType.FILE;
+            }
+            if (_dbOperations.DoesNoteExist (documentID)) {
+                return DocumentType.NOTE;
+            }
+            if (_dbOperations.DoesUrlExist (documentID)) {
+                return DocumentType.URL;
+            }
+            if (_dbOperations.DoesVCardExist (documentID)) {
+                return DocumentType.VCARD;
+            }
+
+            throw new MfsNonExistentResourceException ("Non-existent document.");
+        }
+
+        public bool DeleteDocument (ulong docID) {
+            DoDocumentChecks (docID);
+
+            if (_dbOperations.DoesFileExist (docID)) {
+                return _dbOperations.DeleteFile (docID) > 0;
+            }
+            if (_dbOperations.DoesNoteExist (docID)) {
+                return _dbOperations.DeleteNote (docID) > 0;
+            }
+            if (_dbOperations.DoesUrlExist (docID)) {
+                return _dbOperations.DeleteUrl (docID) > 0;
+            }
+            if (_dbOperations.DoesVCardExist (docID)) {
+                return _dbOperations.DeleteVCard (docID) > 0;
+            }
+
+            throw new MfsNonExistentResourceException ("Non-existent document.");
+        }
+
+        #endregion << Document Operations >>
+
         #region << Aspect-related Operations >>
 
         /// <summary>
@@ -1313,7 +1374,7 @@ namespace MnemonicFS.MfsCore {
             if (!DoesAspectGroupExist (aspectGroupID)) {
                 throw new MfsNonExistentResourceException ("Aspect group does not exist.");
             }
-            
+
             _dbOperations.GetAspectGroupNameAndDesc (aspectGroupID, out aspectGroupName, out aspectGroupDesc);
         }
 
@@ -1363,149 +1424,148 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Aspect Group-related Operations >>
 
-        #region << Aspects-Files Operations >>
+        #region << Aspects-Documents Operations >>
 
         /// <summary>
-        /// This method applies an aspect to a file.
+        /// This method applies an aspect to a document.
         /// </summary>
         /// <param name="aspectID">Aspect to be applied.</param>
-        /// <param name="fileID">File to which the aspect has to be applied.</param>
-        /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        public bool ApplyAspectToFile (ulong aspectID, ulong fileID) {
+        /// <param name="documentID">Document to be applied aspect to.</param>
+        /// <returns>A boolean value indicating if the operation was successful.</returns>
+        public bool ApplyAspectToDocument (ulong aspectID, ulong documentID) {
             DoAspectChecks (aspectID);
-            DoFileChecks (fileID);
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.ApplyAspectToFile (aspectID, fileID);
+            return _dbOperations.ApplyAspectToDocument (aspectID, documentID);
         }
 
         /// <summary>
-        /// This method applies a single aspect to multiple files.
+        /// This method applies a single aspect to multiple documents.
         /// </summary>
         /// <param name="aspectID">Aspect to be applied.</param>
-        /// <param name="fileIDs">File list to which the aspect has to be applied.</param>
-        public void ApplyAspectToFiles (ulong aspectID, List<ulong> fileIDs) {
-            ValidateList (fileIDs, false, "File");
+        /// <param name="documentIDs">List of documents to which aspect is to be applied.</param>
+        public void ApplyAspectToDocuments (ulong aspectID, List<ulong> documentIDs) {
+            ValidateList (documentIDs, false, "Document");
             DoAspectChecks (aspectID);
-            foreach (ulong fileID in fileIDs) {
-                DoFileChecks (fileID);
+            foreach (ulong documentID in documentIDs) {
+                DoDocumentChecks (documentID);
             }
 
-            foreach (ulong fileID in fileIDs) {
-                _dbOperations.ApplyAspectToFile (aspectID, fileID);
+            foreach (ulong documentID in documentIDs) {
+                _dbOperations.ApplyAspectToDocument (aspectID, documentID);
             }
         }
 
         /// <summary>
-        /// This method applies multiple aspects to a single file.
+        /// This method applies multiple aspects to a single document.
         /// </summary>
-        /// <param name="aspectIDs">Aspects to be applied.</param>
-        /// <param name="fileID">File to which the aspects have to be applied.</param>
-        public void ApplyAspectsToFile (List<ulong> aspectIDs, ulong fileID) {
-            ValidateList (aspectIDs, false, "Aspect");
-            DoFileChecks (fileID);
+        /// <param name="aspectIDs">List of aspects to apply to document.</param>
+        /// <param name="documentID">Document to which aspects are to be applied.</param>
+        public void ApplyAspectsToDocument (List<ulong> aspectIDs, ulong documentID) {
+            ValidateList (aspectIDs, false, "Document");
+            DoDocumentChecks (documentID);
             foreach (ulong aspectID in aspectIDs) {
                 DoAspectChecks (aspectID);
             }
 
             foreach (ulong aspectID in aspectIDs) {
-                _dbOperations.ApplyAspectToFile (aspectID, fileID);
+                _dbOperations.ApplyAspectToDocument (aspectID, documentID);
             }
         }
 
         /// <summary>
-        /// Careful! This will result in a Cartesian product. To each file in the i/p file,
-        /// apply each aspect in the i/p aspect set.
+        /// Applikes multiple aspects to multiple documents. This results in a Cartesian product.
         /// </summary>
-        /// <param name="aspectIDs">Aspects to be applied.</param>
-        /// <param name="fileIDs">Files to which the aspects have to be applied.</param>
-        public void ApplyAspectsToFiles (List<ulong> aspectIDs, List<ulong> fileIDs) {
+        /// <param name="aspectIDs">List of aspects to apply to list of documents.</param>
+        /// <param name="documentIDs">List of documents to which list of aspects are to be applied.</param>
+        public void ApplyAspectsToDocuments (List<ulong> aspectIDs, List<ulong> documentIDs) {
             ValidateList (aspectIDs, false, "Aspect");
-            ValidateList (fileIDs, false, "File");
+            ValidateList (documentIDs, false, "Document");
             foreach (ulong aspectID in aspectIDs) {
                 DoAspectChecks (aspectID);
             }
-            foreach (ulong fileID in fileIDs) {
-                DoFileChecks (fileID);
+            foreach (ulong documentID in documentIDs) {
+                DoDocumentChecks (documentID);
             }
 
             foreach (ulong aspectID in aspectIDs) {
-                foreach (ulong fileID in fileIDs) {
-                    _dbOperations.ApplyAspectToFile (aspectID, fileID);
+                foreach (ulong documentID in documentIDs) {
+                    _dbOperations.ApplyAspectToDocument (aspectID, documentID);
                 }
             }
         }
 
         /// <summary>
-        /// This method tells the caller if an aspect has been applied to a file.
+        /// This method tells the caller if an aspect has been applied to a document.
         /// </summary>
-        /// <param name="aspectID">Aspect to be checked for being applied.</param>
-        /// <param name="fileID">File to be checked for being applied to.</param>
-        /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        public bool IsAspectAppliedToFile (ulong aspectID, ulong fileID) {
+        /// <param name="aspectID">Aspect to be checked if applied.</param>
+        /// <param name="documentID">Document to be checked whether aspect has been applied to or not.</param>
+        /// <returns>A boolean value indicating whether or not the aspect has been applied to the document.</returns>
+        public bool IsAspectAppliedToDocument (ulong aspectID, ulong documentID) {
             DoAspectChecks (aspectID);
-            DoFileChecks (fileID);
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.IsAspectAppliedToFile (aspectID, fileID);
+            return _dbOperations.IsAspectAppliedToDocument (aspectID, documentID);
         }
 
         /// <summary>
-        /// This method "unapplies" an aspect from a file.
+        /// This method "unapplies" an aspect from a document.
         /// </summary>
-        /// <param name="aspectID">Aspect to be "unapplied."</param>
-        /// <param name="fileID">File to be "unapplied" from.</param>
-        /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        public bool UnapplyAspectFromFile (ulong aspectID, ulong fileID) {
+        /// <param name="aspectID">Aspect that is to be "unapplied."</param>
+        /// <param name="documentID">Document from which aspect is to be "unapplied."</param>
+        /// <returns></returns>
+        public bool UnapplyAspectFromDocument (ulong aspectID, ulong documentID) {
             DoAspectChecks (aspectID);
-            DoFileChecks (fileID);
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.UnapplyAspectFromFile (aspectID, fileID);
+            return _dbOperations.UnapplyAspectFromDocument (aspectID, documentID);
         }
 
         /// <summary>
-        /// This method "unapplies" all aspects from a file.
+        /// This method "unapplies" all aspects from a document.
         /// </summary>
-        /// <param name="fileID">File to be "unapplied" from.</param>
-        /// <returns>An integer value that indicates how many aspects were "unapplied."</returns>
-        public int UnapplyAllAspectsFromFile (ulong fileID) {
-            DoFileChecks (fileID);
+        /// <param name="documentID">Document from which all aspects are to be "unapplied."</param>
+        /// <returns>Number of aspects that were "unapplied" from the document.</returns>
+        public int UnapplyAllAspectsFromDocument (ulong documentID) {
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.UnapplyAllAspectsFromFile (fileID);
+            return _dbOperations.UnapplyAllAspectsFromDocument (documentID);
         }
 
         /// <summary>
-        /// This method "unapplies" an aspect from all files.
+        /// This method "unapplies" an aspect from all documents.
         /// </summary>
-        /// <param name="aspectID">Aspect to be "unapplied."</param>
-        /// <returns>An integer value that indicates how many files were "unapplied" from.</returns>
-        public int UnapplyAspectFromAllFiles (ulong aspectID) {
-            DoAspectChecks (aspectID);
-
-            return _dbOperations.UnapplyAspectFromAllFiles (aspectID);
-        }
-
-        /// <summary>
-        /// This method gets all the aspects aspects to a file.
-        /// </summary>
-        /// <param name="fileID">File for which applied aspects are sought.</param>
-        /// <returns>List of all aspects applied to file.</returns>
-        public List<ulong> GetAspectsAppliedOnFile (ulong fileID) {
-            DoFileChecks (fileID);
-
-            return _dbOperations.GetAspectsAppliedOnFile (fileID);
-        }
-
-        /// <summary>
-        /// This method returns all the files that have been applied an aspect.
-        /// </summary>
-        /// <param name="aspectID">Aspect for which applied files are sought.</param>
-        /// <returns>List of all files applied to.</returns>
-        public List<ulong> GetFilesAppliedWithAspect (ulong aspectID) {
+        /// <param name="aspectID">Aspect that is to be "unapplied."</param>
+        /// <returns>Number of documents from which the apsect was "unapplied."</returns>
+        public int UnapplyAspectFromAllDocuments (ulong aspectID) {
             DoAspectChecks (aspectID);
 
-            return _dbOperations.GetFilesAppliedWithAspect (aspectID);
+            return _dbOperations.UnapplyAspectFromAllDocuments (aspectID);
         }
 
-        #endregion << Aspects-Files Operations >>
+        /// <summary>
+        /// This method gets the aspects that have been applied to a document.
+        /// </summary>
+        /// <param name="documentID">Document for which this information is sought.</param>
+        /// <returns>List of aspects which have been applied to this document.</returns>
+        public List<ulong> GetAspectsAppliedOnDocument (ulong documentID) {
+            DoDocumentChecks (documentID);
+
+            return _dbOperations.GetAspectsAppliedOnDocument (documentID);
+        }
+
+        /// <summary>
+        /// This method gets all the documents that an aspect has been applied to.
+        /// </summary>
+        /// <param name="aspectID">Aspect for which this information is sought.</param>
+        /// <returns>List of documents to which this aspect has been applied.</returns>
+        public List<ulong> GetDocumentsAppliedWithAspect (ulong aspectID) {
+            DoAspectChecks (aspectID);
+
+            return _dbOperations.GetDocumentsAppliedWithAspect (aspectID);
+        }
+
+        #endregion << Aspects-Documents Operations >>
 
         #region << Briefcase-related Operations >>
 
@@ -1624,55 +1684,55 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Briefcase-related Operations >>
 
-        #region << Briefcases-Files Operations >>
+        #region << Briefcases-Documents Operations >>
 
         /// <summary>
-        /// This method returns the briefcase id that contains a file.
+        /// This method returns the briefcase id that contains a document.
         /// </summary>
-        /// <param name="fileID">File for which this information is sought.</param>
+        /// <param name="documentID">Document for which this information is sought.</param>
         /// <returns>Id of the briefcase.</returns>
-        public ulong GetContainingBriefcase (ulong fileID) {
-            DoFileChecks (fileID);
+        public ulong GetContainingBriefcase (ulong documentID) {
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.GetContainingBriefcase (fileID);
+            return _dbOperations.GetContainingBriefcase (documentID);
         }
 
         /// <summary>
-        /// This method moves a file to a briefcase.
+        /// This method moves a document to a briefcase.
         /// </summary>
-        /// <param name="fileID">Id of the file to be moved.</param>
+        /// <param name="documentID">Id of the document to be moved.</param>
         /// <param name="briefcaseID">Id of the briefcase to be moved to.</param>
         /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        public bool MoveFileToBriefcase (ulong fileID, ulong briefcaseID) {
-            DoFileChecks (fileID);
+        public bool MoveDocumentToBriefcase (ulong documentID, ulong briefcaseID) {
+            DoDocumentChecks (documentID);
             DoBriefcaseChecks (briefcaseID);
 
-            return _dbOperations.MoveFileToBriefcase (fileID, briefcaseID);
+            return _dbOperations.MoveDocumentToBriefcase (documentID, briefcaseID);
         }
 
         /// <summary>
-        /// This method removes a file from its containing briefcase to the global briefcase.
+        /// This method removes a document from its containing briefcase to the global briefcase.
         /// </summary>
-        /// <param name="fileID">Id of the file to be moved.</param>
+        /// <param name="documentID">Id of the document to be moved.</param>
         /// <returns>A boolean value indicating whether the operation was successful or not.</returns>
-        public bool RemoveFileFromBriefcase (ulong fileID) {
-            DoFileChecks (fileID);
+        public bool RemoveDocumentFromBriefcase (ulong documentID) {
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.RemoveFileFromBriefcase (fileID);
+            return _dbOperations.RemoveDocumentFromBriefcase (documentID);
         }
 
         /// <summary>
-        /// This method gets all the files in a briefcase.
+        /// This method gets all the documents in a briefcase.
         /// </summary>
-        /// <param name="briefcaseID">Id of the briefcase from which its contained files are sought.</param>
-        /// <returns>A list of files that are contained within the briefcase.</returns>
-        public List<ulong> GetFilesInBriefcase (ulong briefcaseID) {
+        /// <param name="briefcaseID">Id of the briefcase from which its contained documents are sought.</param>
+        /// <returns>A list of documents that are contained within the briefcase.</returns>
+        public List<ulong> GetDocumentsInBriefcase (ulong briefcaseID) {
             DoBriefcaseChecks (briefcaseID);
 
-            return _dbOperations.GetFilesInBriefcase (briefcaseID);
+            return _dbOperations.GetDocumentsInBriefcase (briefcaseID);
         }
 
-        #endregion << Briefcases-Files Operations >>
+        #endregion << Briefcases-Documents Operations >>
 
         #region << Collection-related Operations >>
 
@@ -1788,99 +1848,99 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Collection-related Operations >>
 
-        #region << Collections-Files Operations >>
+        #region << Collections-Documents Operations >>
 
-        public bool AddFileToCollection (ulong fileID, ulong collectionID) {
-            DoFileChecks (fileID);
+        public bool AddDocumentToCollection (ulong documentID, ulong collectionID) {
+            DoDocumentChecks (documentID);
             DoCollectionChecks (collectionID);
 
-            return _dbOperations.AddFileToCollection (fileID, collectionID);
+            return _dbOperations.AddDocumentToCollection (documentID, collectionID);
         }
 
-        public bool RemoveFileFromCollection (ulong fileID, ulong collectionID) {
-            DoFileChecks (fileID);
+        public bool RemoveDocumentFromCollection (ulong documentID, ulong collectionID) {
+            DoDocumentChecks (documentID);
             DoCollectionChecks (collectionID);
 
-            return _dbOperations.RemoveFileFromCollection (fileID, collectionID);
+            return _dbOperations.RemoveDocumentFromCollection (documentID, collectionID);
         }
 
-        public List<ulong> GetCollectionsWithFile (ulong fileID) {
-            DoFileChecks (fileID);
-            
-            return _dbOperations.GetCollectionsWithFile (fileID);
+        public List<ulong> GetCollectionsWithDocument (ulong documentID) {
+            DoDocumentChecks (documentID);
+
+            return _dbOperations.GetCollectionsWithDocument (documentID);
         }
 
-        public List<ulong> GetFilesInCollection (ulong collectionID) {
+        public List<ulong> GetDocumentsInCollection (ulong collectionID) {
             DoCollectionChecks (collectionID);
 
-            return _dbOperations.GetFilesInCollection (collectionID);
+            return _dbOperations.GetDocumentsInCollection (collectionID);
         }
 
-        public void AddFileToCollections (ulong fileID, List<ulong> collectionIDs) {
-            DoFileChecks (fileID);
+        public void AddDocumentToCollections (ulong documentID, List<ulong> collectionIDs) {
+            DoDocumentChecks (documentID);
             ValidateList (collectionIDs, false, "Collection");
 
             foreach (ulong collectionID in collectionIDs) {
                 DoCollectionChecks (collectionID);
             }
-            
+
             foreach (ulong collectionID in collectionIDs) {
-                _dbOperations.AddFileToCollection (fileID, collectionID);
+                _dbOperations.AddDocumentToCollection (documentID, collectionID);
             }
         }
 
-        public void AddFilesToCollection (List<ulong> fileIDs, ulong collectionID) {
-            ValidateList (fileIDs, false, "File");
+        public void AddDocumentsToCollection (List<ulong> documentIDs, ulong collectionID) {
+            ValidateList (documentIDs, false, "Document");
             DoCollectionChecks (collectionID);
 
-            foreach (ulong fileID in fileIDs) {
-                DoFileChecks (fileID);
+            foreach (ulong fileID in documentIDs) {
+                DoDocumentChecks (fileID);
             }
 
-            foreach (ulong fileID in fileIDs) {
-                _dbOperations.AddFileToCollection (fileID, collectionID);
+            foreach (ulong documentID in documentIDs) {
+                _dbOperations.AddDocumentToCollection (documentID, collectionID);
             }
         }
 
-        public void AddFilesToCollections (List<ulong> fileIDs, List<ulong> collectionIDs) {
-            ValidateList (fileIDs, false, "File");
+        public void AddDocumentsToCollections (List<ulong> documentIDs, List<ulong> collectionIDs) {
+            ValidateList (documentIDs, false, "Document");
             ValidateList (collectionIDs, false, "Collection");
 
-            foreach (ulong fileID in fileIDs) {
-                DoFileChecks (fileID);
+            foreach (ulong documentID in documentIDs) {
+                DoDocumentChecks (documentID);
             }
 
             foreach (ulong collectionID in collectionIDs) {
                 DoCollectionChecks (collectionID);
             }
 
-            foreach (ulong fileID in fileIDs) {
+            foreach (ulong documentID in documentIDs) {
                 foreach (ulong collectionID in collectionIDs) {
-                    _dbOperations.AddFileToCollection (fileID, collectionID);
+                    _dbOperations.AddDocumentToCollection (documentID, collectionID);
                 }
             }
         }
 
-        public bool IsFileInCollection (ulong fileID, ulong collectionID) {
-            DoFileChecks (fileID);
+        public bool IsDocumentInCollection (ulong documentID, ulong collectionID) {
+            DoDocumentChecks (documentID);
             DoCollectionChecks (collectionID);
 
-            return _dbOperations.IsFileInCollection (fileID, collectionID);
+            return _dbOperations.IsDocumentInCollection (documentID, collectionID);
         }
 
-        public int RemoveFileFromAllCollections (ulong fileID) {
-            DoFileChecks (fileID);
+        public int RemoveDocumentFromAllCollections (ulong documentID) {
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.RemoveFileFromAllCollections (fileID);
+            return _dbOperations.RemoveDocumentFromAllCollections (documentID);
         }
 
-        public int RemoveAllFilesFromCollection (ulong collectionID) {
+        public int RemoveAllDocumentsFromCollection (ulong collectionID) {
             DoCollectionChecks (collectionID);
 
-            return _dbOperations.RemoveAllFilesFromCollection (collectionID);
+            return _dbOperations.RemoveAllDocumentsFromCollection (collectionID);
         }
 
-        #endregion << Collections-Files Operations >>
+        #endregion << Collections-Documents Operations >>
 
         #region << File Version-related Operations >>
 
@@ -2089,96 +2149,6 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Url-related Operations >>
 
-        #region << Aspects-Urls Operations >>
-
-        public bool ApplyAspectToUrl (ulong aspectID, ulong urlID) {
-            DoAspectChecks (aspectID);
-            DoUrlChecks (urlID);
-
-            return _dbOperations.ApplyAspectToUrl (aspectID, urlID);
-        }
-
-        public void ApplyAspectsToUrl (List<ulong> aspectIDs, ulong urlID) {
-            ValidateList (aspectIDs, false, "Aspect");
-            DoUrlChecks (urlID);
-            foreach (ulong aspectID in aspectIDs) {
-                DoAspectChecks (aspectID);
-            }
-
-            foreach (ulong aspectID in aspectIDs) {
-                _dbOperations.ApplyAspectToUrl (aspectID, urlID);
-            }
-        }
-
-        public void ApplyAspectToUrls (ulong aspectID, List<ulong> urlIDs) {
-            ValidateList (urlIDs, false, "Url");
-            DoAspectChecks (aspectID);
-            foreach (ulong urlID in urlIDs) {
-                DoUrlChecks (urlID);
-            }
-
-            foreach (ulong urlID in urlIDs) {
-                _dbOperations.ApplyAspectToUrl (aspectID, urlID);
-            }
-        }
-
-        public void ApplyAspectsToUrls (List<ulong> aspectIDs, List<ulong> urlIDs) {
-            ValidateList (aspectIDs, false, "Aspect");
-            ValidateList (urlIDs, false, "Url");
-            foreach (ulong aspectID in aspectIDs) {
-                DoAspectChecks (aspectID);
-            }
-            foreach (ulong urlID in urlIDs) {
-                DoUrlChecks (urlID);
-            }
-
-            foreach (ulong aspectID in aspectIDs) {
-                foreach (ulong urlID in urlIDs) {
-                    _dbOperations.ApplyAspectToUrl (aspectID, urlID);
-                }
-            }
-        }
-
-        public bool IsAspectAppliedToUrl (ulong aspectID, ulong urlID) {
-            DoAspectChecks (aspectID);
-            DoUrlChecks (urlID);
-
-            return _dbOperations.IsAspectAppliedToUrl (aspectID, urlID);
-        }
-
-        public bool UnapplyAspectFromUrl (ulong aspectID, ulong urlID) {
-            DoAspectChecks (aspectID);
-            DoUrlChecks (urlID);
-
-            return _dbOperations.UnapplyAspectFromUrl (aspectID, urlID);
-        }
-
-        public int UnapplyAllAspectsFromUrl (ulong urlID) {
-            DoUrlChecks (urlID);
-
-            return _dbOperations.UnapplyAllAspectsFromUrl (urlID);
-        }
-
-        public int UnapplyAspectFromAllUrls (ulong aspectID) {
-            DoAspectChecks (aspectID);
-
-            return _dbOperations.UnapplyAspectFromAllUrls (aspectID);
-        }
-
-        public List<ulong> GetAspectsAppliedOnUrl (ulong urlID) {
-            DoUrlChecks (urlID);
-
-            return _dbOperations.GetAspectsAppliedOnUrl (urlID);
-        }
-
-        public List<ulong> GetUrlsAppliedWithAspect (ulong aspectID) {
-            DoAspectChecks (aspectID);
-
-            return _dbOperations.GetUrlsAppliedWithAspect (aspectID);
-        }
-
-        #endregion << Aspects-Urls Operations >>
-
         #region << Note-related Operations >>
 
         public ulong AddNote (MfsNote note) {
@@ -2207,96 +2177,6 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Note-related Operations >>
 
-        #region << Aspects-Notes Operations >>
-
-        public bool ApplyAspectToNote (ulong aspectID, ulong noteID) {
-            DoAspectChecks (aspectID);
-            DoNoteChecks (noteID);
-
-            return _dbOperations.ApplyAspectToNote (aspectID, noteID);
-        }
-
-        public void ApplyAspectsToNote (List<ulong> aspectIDs, ulong noteID) {
-            ValidateList (aspectIDs, false, "Aspect");
-            DoNoteChecks (noteID);
-            foreach (ulong aspectID in aspectIDs) {
-                DoAspectChecks (aspectID);
-            }
-
-            foreach (ulong aspectID in aspectIDs) {
-                _dbOperations.ApplyAspectToNote (aspectID, noteID);
-            }
-        }
-
-        public void ApplyAspectToNotes (ulong aspectID, List<ulong> noteIDs) {
-            ValidateList (noteIDs, false, "Note");
-            DoAspectChecks (aspectID);
-            foreach (ulong noteID in noteIDs) {
-                DoNoteChecks (noteID);
-            }
-
-            foreach (ulong noteID in noteIDs) {
-                _dbOperations.ApplyAspectToNote (aspectID, noteID);
-            }
-        }
-
-        public void ApplyAspectsToNotes (List<ulong> aspectIDs, List<ulong> noteIDs) {
-            ValidateList (aspectIDs, false, "Aspect");
-            ValidateList (noteIDs, false, "Note");
-            foreach (ulong aspectID in aspectIDs) {
-                DoAspectChecks (aspectID);
-            }
-            foreach (ulong noteID in noteIDs) {
-                DoNoteChecks (noteID);
-            }
-
-            foreach (ulong aspectID in aspectIDs) {
-                foreach (ulong noteID in noteIDs) {
-                    _dbOperations.ApplyAspectToNote (aspectID, noteID);
-                }
-            }
-        }
-
-        public bool IsAspectAppliedToNote (ulong aspectID, ulong noteID) {
-            DoAspectChecks (aspectID);
-            DoNoteChecks (noteID);
-
-            return _dbOperations.IsAspectAppliedToNote (aspectID, noteID);
-        }
-
-        public bool UnapplyAspectFromNote (ulong aspectID, ulong noteID) {
-            DoAspectChecks (aspectID);
-            DoNoteChecks (noteID);
-
-            return _dbOperations.UnapplyAspectFromNote (aspectID, noteID);
-        }
-
-        public List<ulong> GetAspectsAppliedOnNote (ulong noteID) {
-            DoNoteChecks (noteID);
-
-            return _dbOperations.GetAspectsAppliedOnNote (noteID);
-        }
-
-        public List<ulong> GetNotesAppliedWithAspect (ulong aspectID) {
-            DoAspectChecks (aspectID);
-
-            return _dbOperations.GetNotesAppliedWithAspect (aspectID);
-        }
-
-        public int UnapplyAllAspectsFromNote (ulong noteID) {
-            DoNoteChecks (noteID);
-
-            return _dbOperations.UnapplyAllAspectsFromNote (noteID);
-        }
-
-        public int UnapplyAspectFromAllNotes (ulong aspectID) {
-            DoAspectChecks (aspectID);
-
-            return _dbOperations.UnapplyAspectFromAllNotes (aspectID);
-        }
-
-        #endregion << Aspects-Notes Operations >>
-
         #region << Archiving Operations >>
 
         public void ArchiveFilesInGrouping (GroupingType groupingType, ulong groupingID, string opDirPath, string opArchiveName, string password) {
@@ -2309,15 +2189,15 @@ namespace MnemonicFS.MfsCore {
             switch (groupingType) {
                 case GroupingType.ASPECT:
                     DoAspectChecks (groupingID);
-                    filesInGrouping = _dbOperations.GetFilesAppliedWithAspect (groupingID);
+                    filesInGrouping = _dbOperations.GetDocumentsAppliedWithAspect (groupingID);
                     break;
                 case GroupingType.BRIEFCASE:
                     DoBriefcaseChecks (groupingID);
-                    filesInGrouping = _dbOperations.GetFilesInBriefcase (groupingID);
+                    filesInGrouping = _dbOperations.GetDocumentsInBriefcase (groupingID);
                     break;
                 case GroupingType.COLLECTION:
                     DoCollectionChecks (groupingID);
-                    filesInGrouping = _dbOperations.GetFilesInCollection (groupingID);
+                    filesInGrouping = _dbOperations.GetDocumentsInCollection (groupingID);
                     break;
             }
 
@@ -2464,7 +2344,7 @@ namespace MnemonicFS.MfsCore {
                 case FilterType.AND:
                     foreach (ulong fileID in fileIDs) {
                         foreach (ulong aspectID in aspectIDs) {
-                            if (IsAspectAppliedToFile (aspectID, fileID)) {
+                            if (IsAspectAppliedToDocument (aspectID, fileID)) {
                                 isIn = true;
                             } else {
                                 isIn = false;
@@ -2480,7 +2360,7 @@ namespace MnemonicFS.MfsCore {
                 case FilterType.OR:
                     foreach (ulong fileID in fileIDs) {
                         foreach (ulong aspectID in aspectIDs) {
-                            if (IsAspectAppliedToFile (aspectID, fileID)) {
+                            if (IsAspectAppliedToDocument (aspectID, fileID)) {
                                 isIn = true;
                                 break;
                             } else {
@@ -2500,95 +2380,35 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << Aspect Filter Operations >>
 
-        #region << File Bookmarking Operations >>
+        #region << Document Bookmarking Operations >>
 
-        public bool BookmarkFile (ulong fileID) {
-            DoFileChecks (fileID);
+        public bool BookmarkDocument (ulong documentID) {
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.BookmarkFile (fileID);
+            return _dbOperations.BookmarkDocument (documentID);
         }
 
-        public List<ulong> GetAllBookmarkedFiles () {
-            return _dbOperations.GetAllBookmarkedFiles ();
+        public List<ulong> GetAllBookmarkedDocuments () {
+            return _dbOperations.GetAllBookmarkedDocuments ();
         }
 
-        public bool IsFileBookmarked (ulong fileID) {
-            DoFileChecks (fileID);
+        public bool IsDocumentBookmarked (ulong fileID) {
+            DoDocumentChecks (fileID);
 
-            return _dbOperations.IsFileBookmarked (fileID);
+            return _dbOperations.IsDocumentBookmarked (fileID);
         }
 
-        public int DeleteFileBookmark (ulong fileID) {
-            DoFileChecks (fileID);
+        public int DeleteDocumentBookmark (ulong documentID) {
+            DoDocumentChecks (documentID);
 
-            return _dbOperations.DeleteFileBookmark (fileID);
+            return _dbOperations.DeleteDocumentBookmark (documentID);
         }
 
-        public int DeleteAllFileBookmarks () {
-            return _dbOperations.DeleteAllFileBookmarks ();
+        public int DeleteAllDocumentBookmarks () {
+            return _dbOperations.DeleteAllDocumentBookmarks ();
         }
 
-        #endregion << File Bookmarking Operations >>
-
-        #region << Note Bookmarking Operations >>
-
-        public bool BookmarkNote (ulong noteID) {
-            DoNoteChecks (noteID);
-
-            return _dbOperations.BookmarkNote (noteID);
-        }
-
-        public List<ulong> GetAllBookmarkedNotes () {
-            return _dbOperations.GetAllBookmarkedNotes ();
-        }
-
-        public bool IsNoteBookmarked (ulong noteID) {
-            DoNoteChecks (noteID);
-
-            return _dbOperations.IsNoteBookmarked (noteID);
-        }
-
-        public int DeleteNoteBookmark (ulong noteID) {
-            DoNoteChecks (noteID);
-
-            return _dbOperations.DeleteNoteBookmark (noteID);
-        }
-
-        public int DeleteAllNoteBookmarks () {
-            return _dbOperations.DeleteAllNoteBookmarks ();
-        }
-
-        #endregion << Note Bookmarking Operations >>
-
-        #region << Url Bookmarking Operations >>
-
-        public bool BookmarkUrl (ulong urlID) {
-            DoUrlChecks (urlID);
-
-            return _dbOperations.BookmarkUrl (urlID);
-        }
-
-        public List<ulong> GetAllBookmarkedUrls () {
-            return _dbOperations.GetAllBookmarkedUrls ();
-        }
-
-        public bool IsUrlBookmarked (ulong urlID) {
-            DoUrlChecks (urlID);
-
-            return _dbOperations.IsUrlBookmarked (urlID);
-        }
-
-        public int DeleteUrlBookmark (ulong urlID) {
-            DoUrlChecks (urlID);
-
-            return _dbOperations.DeleteUrlBookmark (urlID);
-        }
-
-        public int DeleteAllUrlBookmarks () {
-            return _dbOperations.DeleteAllUrlBookmarks ();
-        }
-
-        #endregion << Url Bookmarking Operations >>
+        #endregion << Document Bookmarking Operations >>
 
         #region << Schema Free Document-related Operations >>
 

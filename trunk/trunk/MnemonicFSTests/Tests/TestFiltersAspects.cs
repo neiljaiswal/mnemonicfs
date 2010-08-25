@@ -71,16 +71,16 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
 
             // Apply only two aspects to second file:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID2);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
 
             // Apply only one aspect to third file:
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID3);
 
             // Put all aspects in a list:
             List<ulong> aspectIDs = new List<ulong> ();
@@ -139,18 +139,18 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
 
             // Apply only two aspects to second file:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID2);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
 
             // Apply all aspects to third file too:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID3);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID3);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID3);
 
             // At this point, fileID1 and fileID2 have been applied all three aspects.
 
@@ -214,17 +214,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to all three files:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID2);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID2);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
 
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID3);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID3);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID3);
 
             // At this point, all files have been applied all three aspects.
 
@@ -288,9 +288,9 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply only one aspect to each of the files:
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID2);
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID3);
 
             // At this point, all files have been applied all three aspects.
 
@@ -351,11 +351,11 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply two aspects to first file:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
 
             // Apply only one aspect to second file:
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
 
             // Apply zero aspects to third file:
 
@@ -422,16 +422,16 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
 
             // Apply only two aspects to second file:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID2);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
 
             // Apply only one aspect to third file:
-            _mfsOperations.ApplyAspectToFile (aspectID2, fileID3);
+            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID3);
 
             // Put all aspects in a list:
             List<ulong> aspectIDs = new List<ulong> ();
@@ -500,11 +500,11 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply two aspects to first file:
-            _mfsOperations.ApplyAspectToFile (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
 
             // Apply only one aspect to second file:
-            _mfsOperations.ApplyAspectToFile (aspectID3, fileID2);
+            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
 
             // Apply zero aspects to third file:
 

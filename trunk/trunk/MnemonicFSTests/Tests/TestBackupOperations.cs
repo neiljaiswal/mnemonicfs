@@ -72,7 +72,7 @@ namespace MnemonicFS.Tests.Backup {
 
             // Also map some of the files to some of the aspects:
             for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
-                _mfsOperations.ApplyAspectToFile (aspectsList[i], filesList[i]);
+                _mfsOperations.ApplyAspectToDocument (aspectsList[i], filesList[i]);
             }
 
             // Prepare to do a backup:
