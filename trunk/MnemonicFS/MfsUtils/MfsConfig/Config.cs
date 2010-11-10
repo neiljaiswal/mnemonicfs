@@ -55,6 +55,7 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         private const string PROP_STORAGE_BASE_PATH = "storage_base_path";
         private const string PROP_MAX_FILEVERSION_COMMENT_LENGTH = "max_fileversion_comment_length";
         private const string PROP_MAX_SCHEMA_FREE_DOC_NAME_LENGTH = "max_schema_free_doc_name_length";
+        private const string PROP_MAX_PREDICATE_LENGTH = "max_predicate_length";
         private const string PROP_USERNAME_REGEX = "username_regex";
 
         // Properties with default values:
@@ -74,6 +75,7 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         private static int _maxUrlLength = 1024;
 
         private static int _maxFileVersionCommentLength = 1024;
+        private static int _maxPredicateLength = 1024;
 
         private static int _maxSchemaFreeDocNameLength = 1024;
 
@@ -140,6 +142,9 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
 
                 "# Max schema-free document name length:\n" +
                 PROP_MAX_SCHEMA_FREE_DOC_NAME_LENGTH + "=" + _maxSchemaFreeDocNameLength + "\n\n" +
+
+                "# Max predicate length:\n" +
+                PROP_MAX_PREDICATE_LENGTH + "=" + _maxPredicateLength + "\n\n" +
 
                 "# User Name Regex:\n" +
                 PROP_USERNAME_REGEX + "=" + _userNameRegex + "\n\n" +
@@ -293,6 +298,18 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
             }
 
             return _maxSchemaFreeDocNameLength;
+        }
+
+        internal static int GetMaxPredicateLength () {
+            try {
+                string value = _propertiesFileReader.GetValueForKey (PROP_MAX_PREDICATE_LENGTH);
+                _maxPredicateLength = Int32.Parse (value);
+                Debug.Print ("Got value for predicate length: " + _maxPredicateLength);
+            } catch (Exception) {
+                Trace.TraceError ("Error reading property: " + PROP_MAX_PREDICATE_LENGTH + ". Using default value instead.");
+            }
+
+            return _maxPredicateLength;
         }
 
         internal static string GetRegexString () {

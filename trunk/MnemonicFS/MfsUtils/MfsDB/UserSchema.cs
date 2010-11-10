@@ -172,8 +172,18 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [LastID] INTEGER NOT NULL DEFAULT (0)
                 );
 
-                INSERT INTO Table_LastDocumentID (LastID)
-                VALUES (0);
+                INSERT INTO Table_LastDocumentID (LastID) VALUES (0);
+
+                CREATE TABLE [L_Predicates] (
+                [key_PredicateID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [Predicate] NVARCHAR(1024) UNIQUE NOT NULL
+                );
+
+                CREATE TABLE [C_Documents_Predicates] (
+                [fkey_SubjectDocumentID] INTEGER NOT NULL,
+                [fkey_ObjectDocumentID] INTEGER NOT NULL,
+                [fkey_PredicateID] INTEGER NOT NULL
+                );
             ";
         }
     }

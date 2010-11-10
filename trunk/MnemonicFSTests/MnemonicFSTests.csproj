@@ -87,6 +87,7 @@
     <Compile Include="Tests\TestCollections.cs" />
     <Compile Include="Tests\TestCollectionsDocuments.cs" />
     <Compile Include="Tests\TestDateTimeFilter.cs" />
+    <Compile Include="Tests\TestDocumentRelations.cs" />
     <Compile Include="Tests\TestDocuments.cs" />
     <Compile Include="Tests\TestExtensionIndex.cs" />
     <Compile Include="Tests\TestFileHashing.cs" />

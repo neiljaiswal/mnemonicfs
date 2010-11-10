@@ -94,6 +94,8 @@ namespace MnemonicFS.Tests.Base {
 
         protected string _schemaFreeDocName;
 
+        protected string _predicate;
+
         protected delegate bool MethodCreateUserBackupArchive (string userID, string backupFileNameWithPath);
 
         #endregion << Instance data used across a test suite >>
@@ -124,6 +126,10 @@ namespace MnemonicFS.Tests.Base {
             do {
                 _schemaFreeDocName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             } while (_mfsOperations.DoesSfdExist (_schemaFreeDocName));
+
+            do {
+                _predicate = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            } while (_mfsOperations.DoesPredicateExist (_predicate));
         }
 
         [TearDown]
@@ -141,6 +147,10 @@ namespace MnemonicFS.Tests.Base {
 
             _collectionName = null;
             _collectionDesc = null;
+
+            _schemaFreeDocName = null;
+
+            _predicate = null;
         }
 
         [TestFixtureSetUp]
@@ -197,6 +207,14 @@ namespace MnemonicFS.Tests.Base {
             return mfsOperations.CreateSfd (schemaFreeDocName, when);
         }
 
+        protected static ulong CreateUniquePredicate (ref MfsOperations mfsOperations, out string predicate) {
+            do {
+                predicate = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            } while (mfsOperations.DoesPredicateExist (predicate));
+
+            return mfsOperations.CreatePredicate (predicate);
+        }
+
         protected static List<ulong> CreateUniqueNAspects (ref MfsOperations mfsOperations, int numAspects) {
             List<ulong> aspectList = new List<ulong> (numAspects);
 
@@ -242,6 +260,17 @@ namespace MnemonicFS.Tests.Base {
             }
 
             return schemaFreeDocumentList;
+        }
+
+        protected static List<ulong> CreateUniqueNPredicates (ref MfsOperations mfsOperations, int numPredicates) {
+            List<ulong> predicatesList = new List<ulong> ();
+
+            for (int i = 0; i < numPredicates; ++i) {
+                string predicate;
+                predicatesList.Add (CreateUniquePredicate (ref mfsOperations, out predicate));
+            }
+
+            return predicatesList;
         }
 
         protected static MfsVCard CreateVCard () {

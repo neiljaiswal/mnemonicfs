@@ -705,7 +705,7 @@ namespace MnemonicFS.MfsCore {
                 List<ulong> listExpiredFiles = new List<ulong> ();
 
                 foreach (DataRow row in dt.Rows) {
-                    listExpiredFiles.Add (ulong.Parse (dt.Rows[0][0].ToString ()));
+                    listExpiredFiles.Add (ulong.Parse (row[0].ToString ()));
                 }
 
                 return listExpiredFiles;
@@ -1388,12 +1388,14 @@ namespace MnemonicFS.MfsCore {
                 string referencedSql3 = "delete from M_Files_Versions where fkey_FileID=" + fileID;
                 string referencedSql4 = "delete from L_DocumentBookmarks where fkey_DocumentID=" + fileID;
                 string referencedSql5 = "delete from M_Files_Extensions where fkey_FileID=" + fileID;
+                string referencedSql6 = "delete from C_Documents_Predicates where fkey_SubjectDocumentID=" + fileID + " or fkey_ObjectDocumentID=" + fileID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
                 SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
                 SQLiteCommand myCommand3 = new SQLiteCommand (referencedSql3, cnn);
                 SQLiteCommand myCommand4 = new SQLiteCommand (referencedSql4, cnn);
                 SQLiteCommand myCommand5 = new SQLiteCommand (referencedSql5, cnn);
+                SQLiteCommand myCommand6 = new SQLiteCommand (referencedSql6, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
@@ -1402,6 +1404,7 @@ namespace MnemonicFS.MfsCore {
                 myCommand3.ExecuteNonQuery ();
                 myCommand4.ExecuteNonQuery ();
                 myCommand5.ExecuteNonQuery ();
+                myCommand6.ExecuteNonQuery ();
 
                 return val;
             } catch (Exception e) {
@@ -4556,14 +4559,17 @@ namespace MnemonicFS.MfsCore {
 
                 string referencedSql1 = "delete from M_Aspects_Documents where fkey_DocumentID=" + urlID;
                 string referencedSql2 = "delete from L_DocumentBookmarks where fkey_DocumentID=" + urlID;
+                string referencedSql3 = "delete from C_Documents_Predicates where fkey_SubjectDocumentID=" + urlID + " or fkey_ObjectDocumentID=" + urlID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
                 SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
+                SQLiteCommand myCommand3 = new SQLiteCommand (referencedSql3, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
                 myCommand1.ExecuteNonQuery ();
                 myCommand2.ExecuteNonQuery ();
+                myCommand3.ExecuteNonQuery ();
                 
                 return val;
             } catch (Exception e) {
@@ -4594,14 +4600,17 @@ namespace MnemonicFS.MfsCore {
 
                 string referencedSql1 = "delete from M_Aspects_Documents where fkey_DocumentID=" + vcardID;
                 string referencedSql2 = "delete from L_DocumentBookmarks where fkey_DocumentID=" + vcardID;
+                string referencedSql3 = "delete from C_Documents_Predicates where fkey_SubjectDocumentID=" + vcardID + " or fkey_ObjectDocumentID=" + vcardID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
                 SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
+                SQLiteCommand myCommand3 = new SQLiteCommand (referencedSql3, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
                 myCommand1.ExecuteNonQuery ();
                 myCommand2.ExecuteNonQuery ();
+                myCommand3.ExecuteNonQuery ();
 
                 return val;
             } catch (Exception e) {
@@ -4727,14 +4736,17 @@ namespace MnemonicFS.MfsCore {
 
                 string referencedSql1 = "delete from M_Aspects_Documents where fkey_DocumentID=" + noteID;
                 string referencedSql2 = "delete from L_DocumentBookmarks where fkey_DocumentID=" + noteID;
+                string referencedSql3 = "delete from C_Documents_Predicates where fkey_SubjectDocumentID=" + noteID + " or fkey_ObjectDocumentID=" + noteID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
                 SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
+                SQLiteCommand myCommand3 = new SQLiteCommand (referencedSql3, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
                 myCommand1.ExecuteNonQuery ();
                 myCommand2.ExecuteNonQuery ();
+                myCommand3.ExecuteNonQuery ();
 
                 return val;
             } catch (Exception e) {
@@ -5039,12 +5051,15 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
 
                 string referencedSql1 = "delete from L_SchemaFreeDocuments_Properties where fkey_DocID=" + docID;
+                string referencedSql2 = "delete from C_Documents_Predicates where fkey_SubjectDocumentID=" + docID + " or fkey_ObjectDocumentID=" + docID;
 
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
+                SQLiteCommand myCommand2 = new SQLiteCommand (referencedSql2, cnn);
 
                 int val = myCommand.ExecuteNonQuery ();
 
                 myCommand1.ExecuteNonQuery ();
+                myCommand2.ExecuteNonQuery ();
 
                 return val;
             } catch (Exception e) {
@@ -5444,5 +5459,494 @@ namespace MnemonicFS.MfsCore {
         // TODO
 
         #endregion << Schema Free Document Version-related Operations >>
+
+        #region << Relationship Operations >>
+
+        internal ulong CreatePredicate (string predicate) {
+            string sql = "insert into L_Predicates (Predicate) values (@relationPredicate); "
+                + "select last_insert_rowid() from L_Predicates";
+            Debug.Print ("Create predicate: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@relationPredicate", predicate);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeletePredicate (ulong predicateID) {
+            string sql = "delete from L_Predicates where key_PredicateID=" + predicateID;
+            Debug.Print ("Delete predicate: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                string referencedSql1 = "delete from C_Documents_Predicates where fkey_PredicateID=" + predicateID;
+
+                SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
+
+                int val = myCommand.ExecuteNonQuery ();
+
+                myCommand1.ExecuteNonQuery ();
+
+                return val;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeletePredicate (string predicate) {
+            ulong predicateID = GetPredicateID (predicate);
+
+            string sql = "delete from L_Predicates where Predicate=@predicate";
+            Debug.Print ("Delete predicate: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@predicate", predicate);
+
+                string referencedSql1 = "delete from C_Documents_Predicates where fkey_PredicateID=" + predicateID;
+
+                SQLiteCommand myCommand1 = new SQLiteCommand (referencedSql1, cnn);
+
+                int val = myCommand.ExecuteNonQuery ();
+
+                myCommand1.ExecuteNonQuery ();
+
+                return val;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal ulong GetPredicateID (string predicate) {
+            string sql = "select key_PredicateID from L_Predicates where Predicate=@predicate";
+            Debug.Print ("Get predicate ID: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@predicate", predicate);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return UInt64.Parse ((dt.Rows[0][0]).ToString ());
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal string GetPredicate (ulong predicateID) {
+            string sql = "select Predicate from L_Predicates where key_PredicateID=" + predicateID;
+            Debug.Print ("Get predicate name: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                if (dt.Rows.Count == 0) {
+                    return null;
+                }
+
+                return dt.Rows[0][0].ToString ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool DoesPredicateExist (ulong predicateID) {
+            string sql = "select key_PredicateID from L_Predicates where key_PredicateID=" + predicateID;
+            Debug.Print ("Does predicate exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool DoesPredicateExist (string predicate) {
+            string sql = "select key_PredicateID from L_Predicates where Predicate=@predicate";
+            Debug.Print ("Does predicate exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@predicate", predicate);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal List<ulong> GetAllPredicates () {
+            string sql = "select key_PredicateID from L_Predicates";
+            Debug.Print ("Get all predicates: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                List<ulong> allDocs = new List<ulong> ();
+                foreach (DataRow row in dt.Rows) {
+                    ulong docID = ulong.Parse (row[0].ToString ());
+                    allDocs.Add (docID);
+                }
+
+                return allDocs;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool UpdatePredicate (ulong predicateID, string newPredicate) {
+            string sql = "update L_Predicates set Predicate=@predicate where key_PredicateID=" + predicateID;
+            Debug.Print ("Update predicate: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@predicate", newPredicate);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+
+                return (updatedRows > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal int DeleteAllPredicates () {
+            string sql = "delete from L_Predicates where key_PredicateID>0";
+            Debug.Print ("Delete all predicates: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                int val = myCommand.ExecuteNonQuery ();
+
+                string referencedQuery1 = "delete from C_Documents_Predicates";
+                SQLiteCommand myCommand1 = new SQLiteCommand (referencedQuery1, cnn);
+                myCommand1.ExecuteNonQuery ();
+
+                return val;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool CreateRelation (ulong subjectDocID, ulong objectDocID, ulong predicateID) {
+            string sql = "insert into C_Documents_Predicates (fkey_SubjectDocumentID, fkey_ObjectDocumentID, fkey_PredicateID) values ("
+                + subjectDocID + ", " + objectDocID + ", " + predicateID + ")";
+            Debug.Print ("Create relation: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return (myCommand.ExecuteNonQuery () > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool DoesRelationExist (ulong subjectDocID, ulong objectDocID) {
+            string sql = "select fkey_PredicateID from C_Documents_Predicates where fkey_SubjectDocumentID="
+                + subjectDocID + " and fkey_ObjectDocumentID=" + objectDocID;
+            Debug.Print ("Does relation exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool DoesSpecificRelationExist (ulong subjectDocID, ulong objectDocID, ulong predicateID) {
+            string sql = "select fkey_PredicateID from C_Documents_Predicates where fkey_SubjectDocumentID="
+                + subjectDocID + " and fkey_ObjectDocumentID=" + objectDocID + " and fkey_PredicateID=" + predicateID;
+            Debug.Print ("Does specific relation exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal List<ulong> GetRelations (ulong subjectDocID, ulong objectDocID) {
+            string sql = "select fkey_PredicateID from C_Documents_Predicates where fkey_SubjectDocumentID="
+                + subjectDocID + " and fkey_ObjectDocumentID=" + objectDocID;
+            Debug.Print ("Get relations: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                List<ulong> listRelations = new List<ulong> ();
+
+                foreach (DataRow row in dt.Rows) {
+                    listRelations.Add (ulong.Parse (row[0].ToString ()));
+                }
+
+                return listRelations;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool RemoveSpecificRelation (ulong subjectDocID, ulong objectDocID, ulong predicateID) {
+            string sql = "delete from C_Documents_Predicates where fkey_SubjectDocumentID="
+                + subjectDocID + " and fkey_ObjectDocumentID=" + objectDocID + " and fkey_PredicateID=" + predicateID;
+            Debug.Print ("Remove specific relation: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return (myCommand.ExecuteNonQuery () > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        internal bool RemoveAllRelations (ulong subjectDocID, ulong objectDocID) {
+            string sql = "delete from C_Documents_Predicates where fkey_SubjectDocumentID="
+                + subjectDocID + " and fkey_ObjectDocumentID=" + objectDocID;
+            Debug.Print ("Remove all relations: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return (myCommand.ExecuteNonQuery () > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (e.Message);
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                }
+                if (cnn != null) {
+                    cnn.Close ();
+                }
+            }
+        }
+
+        #endregion << Relationship Operations >>
     }
 }
