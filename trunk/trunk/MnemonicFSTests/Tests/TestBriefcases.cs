@@ -325,7 +325,7 @@ namespace MnemonicFS.Tests.Briefcases {
             // Add the global briefcase id too:
             briefcasesList.Add (MfsOperations.GlobalBriefcase);
 
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
                 string briefcaseName, briefcaseDesc;
                 ulong briefcaseID = CreateUniqueBriefcase (ref _mfsOperations, out briefcaseName, out briefcaseDesc);
                 briefcasesList.Add (briefcaseID);
@@ -532,7 +532,7 @@ namespace MnemonicFS.Tests.Briefcases {
     public class Tests_BriefcasesMethod_DeleteAllBriefcasesInSystem : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            int numBriefcasesToCreate = 3;
+            int numBriefcasesToCreate = TYPICAL_MULTI_VALUE;
 
             List<ulong> listBriefcases = CreateUniqueNBriefcases (ref _mfsOperations, numBriefcasesToCreate);
 

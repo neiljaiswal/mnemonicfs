@@ -55,7 +55,8 @@ namespace MnemonicFS.MfsCore {
         COLLECTION_NAME,
         COLLECTION_DESC,
         VERSION_COMMENT,
-        SCHEMA_FREE_DOC_NAME
+        SCHEMA_FREE_DOC_NAME,
+        PREDICATE,
     };
 
     public enum DocumentType {
@@ -99,6 +100,8 @@ namespace MnemonicFS.MfsCore {
         private static int MAX_FILEVERSIONCOMMENT_LENGTH = Config.GetMaxFileVersionCommentLength ();
 
         private static int MAX_SCHEMA_FREE_DOC_NAME_LENGTH = Config.GetMaxSchemaFreeDocNameLength ();
+
+        private static int MAX_PREDICATE_LENGTH = Config.GetMaxPredicateLength ();
 
         private static string REGEX_STRING = Config.GetRegexString ();
 
@@ -183,6 +186,12 @@ namespace MnemonicFS.MfsCore {
         public static int MaxSchemaFreeDocNameLength {
             get {
                 return MAX_SCHEMA_FREE_DOC_NAME_LENGTH;
+            }
+        }
+
+        public static int MaxPredicateLength {
+            get {
+                return MAX_PREDICATE_LENGTH;
             }
         }
 
@@ -482,7 +491,11 @@ namespace MnemonicFS.MfsCore {
                 throw new MfsIllegalArgumentException ("Document id cannot be zero.");
             }
 
-            if (!(_dbOperations.DoesFileExist (documentID) || _dbOperations.DoesNoteExist (documentID) || _dbOperations.DoesUrlExist (documentID))) {
+            if (!(_dbOperations.DoesFileExist (documentID)
+                || _dbOperations.DoesNoteExist (documentID)
+                || _dbOperations.DoesUrlExist (documentID)
+                || _dbOperations.DoesSfdExist (documentID)
+                || _dbOperations.DoesVCardExist (documentID))) {
                 throw new MfsNonExistentResourceException ("Non-existent document.");
             }
         }
@@ -549,6 +562,24 @@ namespace MnemonicFS.MfsCore {
             }
 
             // NO! Don't check for collection existence here.
+        }
+
+        private void DoPredicateChecks (ulong predicateID) {
+            if (predicateID == 0) {
+                throw new MfsIllegalArgumentException ("Predicate id cannot be zero.");
+            }
+
+            if (!_dbOperations.DoesPredicateExist (predicateID)) {
+                throw new MfsNonExistentResourceException ("Non-existent predicate.");
+            }
+        }
+
+        private void DoPredicateChecks (string predicate) {
+            if (predicate == null || predicate.Equals (string.Empty)) {
+                throw new MfsIllegalArgumentException ("Predicate cannot be null or empty.");
+            }
+
+            // NO! Don't check for predicate existence here.
         }
 
         private void DoNoteChecks (ulong noteID) {
@@ -674,9 +705,17 @@ namespace MnemonicFS.MfsCore {
                     break;
 
                 case ValidationCheckType.SCHEMA_FREE_DOC_NAME:
-                    if (str == null || str.Length > MAX_SCHEMA_FREE_DOC_NAME_LENGTH) {
+                    if (str == null || str.Equals (string.Empty) || str.Length > MAX_SCHEMA_FREE_DOC_NAME_LENGTH) {
                         throw new MfsIllegalArgumentException (
                                 string.Format ("Schema-free document name cannot be null or greater than {0} chars.", MAX_SCHEMA_FREE_DOC_NAME_LENGTH)
+                            );
+                    }
+                    break;
+
+                case ValidationCheckType.PREDICATE:
+                    if (str == null || str.Equals (string.Empty) || str.Length > MAX_PREDICATE_LENGTH) {
+                        throw new MfsIllegalArgumentException (
+                                string.Format ("Predicate cannot be null or greater than {0} chars.", MAX_PREDICATE_LENGTH)
                             );
                     }
                     break;
@@ -2569,5 +2608,132 @@ namespace MnemonicFS.MfsCore {
         // TODO
 
         #endregion << Schema Free Document Version-related Operations >>
+
+        #region << Relationship Operations >>
+
+        public ulong CreatePredicate (string predicate) {
+            ValidateString (predicate, ValidationCheckType.PREDICATE);
+            DoPredicateChecks (predicate);
+
+            if (_dbOperations.DoesPredicateExist (predicate)) {
+                throw new MfsDuplicateNameException ("Predicate already exists.");
+            }
+
+            return _dbOperations.CreatePredicate (predicate);
+        }
+
+        public int DeletePredicate (ulong predicateID) {
+            if (!DoesPredicateExist (predicateID)) {
+                throw new MfsNonExistentResourceException ("Predicate does not exist.");
+            }
+
+            return _dbOperations.DeletePredicate (predicateID);
+        }
+
+        public int DeletePredicate (string predicate) {
+            DoPredicateChecks (predicate);
+            if (!DoesPredicateExist (predicate)) {
+                throw new MfsNonExistentResourceException ("Predicate does not exist.");
+            }
+
+            return _dbOperations.DeletePredicate (predicate);
+        }
+
+        public bool DoesPredicateExist (ulong predicateID) {
+            if (predicateID == 0) {
+                throw new MfsIllegalArgumentException ("Predicate id cannot be zero.");
+            }
+
+            return _dbOperations.DoesPredicateExist (predicateID);
+        }
+
+        public bool DoesPredicateExist (string predicate) {
+            DoPredicateChecks (predicate);
+
+            return _dbOperations.DoesPredicateExist (predicate);
+        }
+
+        public string GetPredicate (ulong predicateID) {
+            if (!DoesPredicateExist (predicateID)) {
+                throw new MfsNonExistentResourceException ("Predicate does not exist.");
+            }
+
+            return _dbOperations.GetPredicate (predicateID);
+        }
+
+        public ulong GetPredicateID (string predicate) {
+            DoPredicateChecks (predicate);
+            if (!DoesPredicateExist (predicate)) {
+                throw new MfsNonExistentResourceException ("Predicate does not exist.");
+            }
+
+            return _dbOperations.GetPredicateID (predicate);
+        }
+
+        public List<ulong> GetAllPredicates () {
+            return _dbOperations.GetAllPredicates ();
+        }
+
+        public bool UpdatePredicate (ulong predicateID, string newPredicate) {
+            DoPredicateChecks (predicateID);
+            ValidateString (newPredicate, ValidationCheckType.PREDICATE);
+
+            return _dbOperations.UpdatePredicate (predicateID, newPredicate);
+        }
+
+        public int DeleteAllPredicates () {
+            return _dbOperations.DeleteAllPredicates ();
+        }
+
+        public bool CreateRelation (ulong subjectDocID, ulong objectDocID, ulong predicateID) {
+            DoDocumentChecks (subjectDocID);
+            DoDocumentChecks (objectDocID);
+            DoPredicateChecks (predicateID);
+
+            if (_dbOperations.DoesSpecificRelationExist (subjectDocID, objectDocID, predicateID)) {
+                throw new MfsDuplicationException ("Specific relation already exists.");
+            }
+
+            return _dbOperations.CreateRelation (subjectDocID, objectDocID, predicateID);
+        }
+
+        public bool DoesRelationExist (ulong subjectDocID, ulong objectDocID) {
+            DoDocumentChecks (subjectDocID);
+            DoDocumentChecks (objectDocID);
+
+            return _dbOperations.DoesRelationExist (subjectDocID, objectDocID);
+        }
+
+        public bool DoesSpecificRelationExist (ulong subjectDocID, ulong objectDocID, ulong predicateID) {
+            DoDocumentChecks (subjectDocID);
+            DoDocumentChecks (objectDocID);
+            DoPredicateChecks (predicateID);
+
+            return _dbOperations.DoesSpecificRelationExist (subjectDocID, objectDocID, predicateID);
+        }
+
+        public List<ulong> GetRelations (ulong subjectDocID, ulong objectDocID) {
+            DoDocumentChecks (subjectDocID);
+            DoDocumentChecks (objectDocID);
+
+            return _dbOperations.GetRelations (subjectDocID, objectDocID);
+        }
+
+        public bool RemoveSpecificRelation (ulong subjectDocID, ulong objectDocID, ulong predicateID) {
+            DoDocumentChecks (subjectDocID);
+            DoDocumentChecks (objectDocID);
+            DoPredicateChecks (predicateID);
+
+            return _dbOperations.RemoveSpecificRelation (subjectDocID, objectDocID, predicateID);
+        }
+
+        public bool RemoveAllRelations (ulong subjectDocID, ulong objectDocID) {
+            DoDocumentChecks (subjectDocID);
+            DoDocumentChecks (objectDocID);
+
+            return _dbOperations.RemoveAllRelations (subjectDocID, objectDocID);
+        }
+
+        #endregion << Relationship Operations >>
     }
 }

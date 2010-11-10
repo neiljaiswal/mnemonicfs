@@ -213,8 +213,6 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_NonExistentAspectID_Illegal () {
             ulong veryLargeAspectID = UInt64.MaxValue;
 
-            string anyDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-
             _mfsOperations.DeleteAspect (veryLargeAspectID);
         }
     }
@@ -327,7 +325,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_SanityCheck () {
             List<ulong> aspectsList = new List<ulong> ();
 
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
                 string aspectName, aspectDesc;
                 ulong aspectID = CreateUniqueAspect (ref _mfsOperations, out aspectName, out aspectDesc);
                 aspectsList.Add (aspectID);
@@ -537,13 +535,15 @@ namespace MnemonicFS.Tests.Aspects {
     public class Tests_AspectsMethod_DeleteAllAspects : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            int numAspectsToCreate = 3;
+            int numAspectsToCreate = TYPICAL_MULTI_VALUE;
 
             List<ulong> listAspects = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
             
             int numAspectsDeleted = _mfsOperations.DeleteAllAspectsInSystem ();
-
             Assert.AreEqual (listAspects.Count, numAspectsDeleted, "Did not delete the same number of aspects as were created.");
+
+            List<ulong> aspectsList = _mfsOperations.GetAllAspects ();
+            Assert.AreEqual (0, aspectsList.Count, "Did not delete all aspects in the system.");
         }
     }
 }

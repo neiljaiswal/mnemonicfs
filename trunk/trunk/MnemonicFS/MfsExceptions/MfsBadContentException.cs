@@ -35,11 +35,11 @@ using System.Linq;
 using System.Text;
 
 namespace MnemonicFS.MfsExceptions {
-    public class BadContentException : Exception {
-        public BadContentException () : base () {
+    public class MfsBadContentException : Exception {
+        public MfsBadContentException () : base () {
         }
 
-        public BadContentException (string message) : base (message) {
+        public MfsBadContentException (string message) : base (message) {
         }
     }
 }

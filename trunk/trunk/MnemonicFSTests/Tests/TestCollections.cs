@@ -335,7 +335,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck () {
             List<ulong> collectionsList = new List<ulong> ();
 
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
                 string collectionName, collectionDesc;
                 ulong collectionID = CreateUniqueCollection (ref _mfsOperations, out collectionName, out collectionDesc);
                 collectionsList.Add (collectionID);
@@ -540,13 +540,15 @@ namespace MnemonicFS.Tests.Collections {
     public class Tests_CollectionsMethod_DeleteAllCollections : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            int numCollectionsToCreate = 3;
+            int numCollectionsToCreate = TYPICAL_MULTI_VALUE;
 
             List<ulong> listCollections = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
 
             int numCollectionsDeleted = _mfsOperations.DeleteAllCollectionsInSystem ();
-
             Assert.AreEqual (listCollections.Count, numCollectionsDeleted, "Did not delete the same number of collections as were created.");
+
+            List<ulong> collectionsList = _mfsOperations.GetAllCollections ();
+            Assert.AreEqual (0, collectionsList.Count, "Did not delete all collections in the system.");
         }
     }
 }
