@@ -167,6 +167,7 @@ namespace MnemonicFS.Tests.Base {
 
         [TestFixtureTearDown]
         protected void TestFixtureTearDown () {
+            MfsOperations.DeleteUserFileLogs (_userID);
             MfsOperations.DeleteUser (_userID, true, true);
 
             _mfsOperations = null;

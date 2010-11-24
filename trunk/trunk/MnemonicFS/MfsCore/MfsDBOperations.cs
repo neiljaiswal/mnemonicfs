@@ -2815,7 +2815,7 @@ namespace MnemonicFS.MfsCore {
 
         #region << File Version-related Operations >>
 
-        internal void SaveAsNextVersion (ulong fileID, string fileHash, string comments, string fullyQualifiedPath, int versionNumber) {
+        internal void SaveAsNextVersion (ulong fileID, string fileHash, string comments, string absPath, int versionNumber) {
             DateTime when = DateTime.Now;
 
             // TODO: Use StringBuilder class.
@@ -2827,7 +2827,7 @@ namespace MnemonicFS.MfsCore {
                                     + StringUtils.GetAsZeroPaddedTwoCharString (when.Second);
 
             string sql = "insert into M_Files_Versions (fkey_FileID, VersionNumber, FileHash, Comments, ArchiveNameWithPath, WhenDateTime) values ("
-                                + fileID + ", " + versionNumber + ", '" + fileHash + "', @comments, '" + fullyQualifiedPath + "', '"
+                                + fileID + ", " + versionNumber + ", '" + fileHash + "', @comments, '" + absPath + "', '"
                                 + insertDateTime + "')";
             Debug.Print ("Save as next version: " + sql);
 

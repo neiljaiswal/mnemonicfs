@@ -336,5 +336,17 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
 
             return _basePath;
         }
+
+        internal static List<string> GetAllKeys () {
+            return _propertiesFileReader.GetAllKeys ();
+        }
+
+        internal static string GetValue (string key) {
+            return _propertiesFileReader.GetValueForKey (key);
+        }
+
+        internal static bool DoesKeyExist (string key) {
+            return _propertiesFileReader.GetAllKeys ().Contains (key);
+        }
     }
 }
