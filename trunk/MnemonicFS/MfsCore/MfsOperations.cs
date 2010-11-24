@@ -81,6 +81,7 @@ namespace MnemonicFS.MfsCore {
         #region << Constants Declarations >>
 
         private static int HASH_SIZE = 40;
+        private static string LUCENE_INDEX_PATH = @"\index\";
 
         private static int MAX_FILENAME_LENGTH = Config.GetMaxFileNameLength ();
         private static int MAX_FILENARRATION_LENGTH = Config.GetMaxFileNarrationLength ();
@@ -424,7 +425,7 @@ namespace MnemonicFS.MfsCore {
 
         private string _userID;
         private string _userSpecificPath;
-        private string _userFQPath;
+        private string _userAbsPath;
         private MfsDBOperations _dbOperations;
         private LuceneIndexer _indexer;
 
@@ -469,13 +470,13 @@ namespace MnemonicFS.MfsCore {
             _userID = userID;
             _userSpecificPath = MfsDBOperations.GetUserSpecificPath (userID);
 
-            _userFQPath = Config.GetStorageBasePath () + _userSpecificPath;
-            Debug.Print ("Got FQ path for user: " + _userFQPath);
+            _userAbsPath = Config.GetStorageBasePath () + _userSpecificPath;
+            Debug.Print ("Got absolute path for user: " + _userAbsPath);
 
             Debug.Print ("Creating DBOperations object.");
             _dbOperations = new MfsDBOperations (userID, _userSpecificPath);
 
-            _indexer = new LuceneIndexer (_userSpecificPath + @"\LuceneIndex\");
+            _indexer = new LuceneIndexer (_userSpecificPath + LUCENE_INDEX_PATH);
         }
 
         public void GetUserName (out string fName, out string lName) {
@@ -778,7 +779,7 @@ namespace MnemonicFS.MfsCore {
             string filePath;
 
             MfsStorageDevice.SaveFile (
-                _userFQPath, fileName, fileData, out assumedFileName, out filePassword, out archiveName, out filePath
+                _userAbsPath, fileName, fileData, out assumedFileName, out filePassword, out archiveName, out filePath
                 );
 
             Debug.Print ("Got path info from storage device: " + filePath);
@@ -822,15 +823,16 @@ namespace MnemonicFS.MfsCore {
         public byte[] RetrieveOriginalFile (ulong fileID) {
             DoFileChecks (fileID);
 
-            string fileWithPath = _dbOperations.GetFileContainingDirPath (fileID) + _dbOperations.GetFileArchiveName (fileID);
-            string assumedFileName = _dbOperations.GetFileAssumedName (fileID);
-            string password = _dbOperations.GetFilePassword (fileID);
+            string fileWithPath = Config.GetStorageBasePath () + _userSpecificPath + _dbOperations.GetFileContainingDirPath (fileID) + _dbOperations.GetFileArchiveName (fileID);
 
             // Now check to see if the file exists in storage:
             bool doesFileExistInStorage = MfsStorageDevice.DoesFileExist (fileWithPath);
             if (!doesFileExistInStorage) {
                 throw new MfsStorageCorruptedException ("File storage is corrupted.");
             }
+
+            string assumedFileName = _dbOperations.GetFileAssumedName (fileID);
+            string password = _dbOperations.GetFilePassword (fileID);
 
             FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.ACCESSED_ORIGINAL, DateTime.Now, null, null);
 
@@ -845,8 +847,7 @@ namespace MnemonicFS.MfsCore {
             DoFileChecks (fileID);
 
             string fileName = _dbOperations.GetFileName (fileID);
-            string filePath = _dbOperations.GetFileContainingDirPath (fileID);
-            Debug.Print ("Got file path: " + filePath + ", file name: " + fileName);
+            string filePath = Config.GetStorageBasePath () + _userSpecificPath + _dbOperations.GetFileContainingDirPath (fileID);
 
             List<string> allVersionsOfFile = _dbOperations.GetAllVersionsPathsForFile (fileID);
 
@@ -862,15 +863,9 @@ namespace MnemonicFS.MfsCore {
             // Also delete all the versions of this file:
             foreach (string fileWithPath in allVersionsOfFile) {
                 int index = fileWithPath.LastIndexOf (sep[0]);
-                Debug.Print ("Got index: " + index + ", str len: " + fileWithPath.Length);
-
                 string[] fileNameAndPath = new string[2];
                 fileNameAndPath[0] = fileWithPath.Substring (0, index + 1);
-                Debug.Print ("File path: " + fileNameAndPath[0]);
-
                 fileNameAndPath[1] = fileWithPath.Substring (index + 1, fileWithPath.Length - index - 1);
-                Debug.Print ("File name: " + fileNameAndPath[1]);
-
                 MfsStorageDevice.DeleteFile (fileNameAndPath[0], fileNameAndPath[1]);
             }
 
@@ -2030,15 +2025,15 @@ namespace MnemonicFS.MfsCore {
             // Now ask the MfsStorageDevice to save this file:
             MfsStorageDevice.SaveFileAsNewVersion (fileData, freshPath, fileAssumedName, password, archiveName);
 
-            string fileFQPath = null;
-            fileFQPath = freshPath + archiveName;
+            string fileAbsPath = null;
+            fileAbsPath = freshPath + archiveName;
 
             int nextVersionNumber = lastVersionNumber + 1;
 
             // Calculate its hash before saving its meta-data:
             string fileHash = Hasher.GetFileHash (fileData);
 
-            _dbOperations.SaveAsNextVersion (fileID, fileHash, comments, fileFQPath, nextVersionNumber);
+            _dbOperations.SaveAsNextVersion (fileID, fileHash, comments, fileAbsPath, nextVersionNumber);
 
             FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.NEW_VERSION_CREATED, DateTime.Now, nextVersionNumber.ToString (), null);
 
@@ -2735,5 +2730,33 @@ namespace MnemonicFS.MfsCore {
         }
 
         #endregion << Relationship Operations >>
+
+        #region << Config File Operations >>
+
+        public static List<string> GetConfigFileKeys () {
+            return Config.GetAllKeys ();
+        }
+
+        public static string GetConfigValue (string key) {
+            if (key == null || string.IsNullOrEmpty (key)) {
+                throw new MfsIllegalArgumentException ("Config key may not be null or empty.");
+            }
+
+            if (!Config.DoesKeyExist (key)) {
+                throw new MfsNonExistentResourceException ("Key does not exist.");
+            }
+
+            return Config.GetValue (key);
+        }
+
+        public static bool DoesConfigKeyExist (string key) {
+            if (key == null || string.IsNullOrEmpty (key)) {
+                throw new MfsIllegalArgumentException ("Config key may not be null or empty.");
+            }
+
+            return Config.DoesKeyExist (key);
+        }
+
+        #endregion << Config File Operations >>
     }
 }

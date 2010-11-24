@@ -124,18 +124,20 @@ namespace MnemonicFS.MfsCore {
         /// <returns>Exact path on the storage device where the file has been saved.</returns>
         internal static void SaveFile (
             string userSpecificPath, string fileName, byte[] fileData,
-            out string assumedFileName, out string filePassword, out string archiveName, out string absPathToContainingDir
+            out string assumedFileName, out string filePassword, out string archiveName, out string pathToContainingDir
             ) {
             string sep = BaseSystem.GetFileSystemSeparator ();
             DateTime now = DateTime.Now;
 
-            // We generate a fresh path with the format:
-            // <base_storage_dir>/day/month/year/hour/<some random int>/v0/
-            absPathToContainingDir = userSpecificPath +
-                                     NumericValuesCustomHashDictionary.GetCustomHashValue (now.Day) + sep +
+            pathToContainingDir = NumericValuesCustomHashDictionary.GetCustomHashValue (now.Day) + sep +
                                      NumericValuesCustomHashDictionary.GetCustomHashValue (now.Month) + sep +
                                      NumericValuesCustomHashDictionary.GetCustomHashValue (now.Year) + sep +
                                      NumericValuesCustomHashDictionary.GetCustomHashValue (now.Hour);
+
+            // We generate a fresh path with the format:
+            // <base_storage_dir>/day/month/year/hour/<some random int>/v0/
+            string absPathToContainingDir = userSpecificPath + pathToContainingDir;
+                                     
 
             // We also need to make sure while generating the random int that the directory does not already exist.
             bool dirExists = true;
@@ -167,6 +169,8 @@ namespace MnemonicFS.MfsCore {
                 }
 
                 dirExists = false;
+
+                pathToContainingDir += sep + StringUtils.GetPureAlphaStr (lastInt.ToString ()) + sep + "v0" + sep;
 
                 absPathToContainingDir += sep + StringUtils.GetPureAlphaStr (lastInt.ToString ()) + sep + "v0" + sep;
 
@@ -243,7 +247,7 @@ namespace MnemonicFS.MfsCore {
         /// <summary>
         /// This method returns the file sought by the client as a byte array.
         /// </summary>
-        /// <param name="filePath">The exact FQ path of the file.</param>
+        /// <param name="filePath">The exact absolute path of the file.</param>
         /// <returns>File content as a byte array.</returns>
         internal static byte[] RetrieveFile (string filePath) {
             return File.ReadAllBytes (filePath);
@@ -257,18 +261,15 @@ namespace MnemonicFS.MfsCore {
         /// <param name="containingDir">The containing directory of the file.</param>
         /// <param name="fileName">The file name of the file to be deleted.</param>
         internal static void DeleteFile (string containingDir, string fileName) {
-            Debug.Print ("Got file name: " + fileName + ", at path: " + containingDir);
             string fileWithPath = containingDir + fileName;
 
             Debug.Print ("Deleting: " + fileWithPath);
             File.Delete (fileWithPath);
-            //Debug.Print ("About to start deleting: " + containingDir);
 
             DeleteEmptyDir (containingDir);
         }
 
         internal static void DeleteDirectoryIfEmpty (string directory) {
-            Debug.Print ("Deleting directory (IF empty): " + directory);
             DeleteEmptyDir (directory);
         }
 

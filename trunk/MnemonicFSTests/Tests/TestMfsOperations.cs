@@ -950,7 +950,7 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
             }
 
             foreach (ulong fileID in fileIDs) {
-                _mfsOperations.DeleteFile (fileID);
+                 _mfsOperations.DeleteFile (fileID);
             }
         }
 
