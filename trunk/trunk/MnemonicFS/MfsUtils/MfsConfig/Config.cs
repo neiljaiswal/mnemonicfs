@@ -348,5 +348,86 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         internal static bool DoesKeyExist (string key) {
             return _propertiesFileReader.GetAllKeys ().Contains (key);
         }
+
+        internal static bool AddKVPair (string key, string val, List<string> commentLines) {
+            FileStream fs = null;
+            try {
+                fs = File.OpenWrite (PROPERTIES_FILENAME);
+                fs.Seek (0, SeekOrigin.End);
+
+                string comments = "\n";
+                byte[] bytes = null;
+                if (commentLines != null) {
+                    foreach (string comment in commentLines) {
+                        comments += "# " + comment + "\n";
+                    }
+                    bytes = StringUtils.ConvertToByteArray (comments);
+                    fs.Write (bytes, 0, bytes.Length);
+
+                    string toWrite = key + "=" + val + "\n";
+                    bytes = StringUtils.ConvertToByteArray (toWrite);
+                    fs.Write (bytes, 0, bytes.Length);
+                } else {
+                    string toWrite = "\n" + key + "=" + val + "\n";
+                    bytes = StringUtils.ConvertToByteArray (toWrite);
+                    fs.Write (bytes, 0, bytes.Length);
+                }
+            } finally {
+                fs.Close ();
+                _propertiesFileReader.ReadFileOnce ();
+            }
+
+            return true;
+        }
+
+        internal static bool RemoveConfigKey (string key) {
+            FileStream fs = null;
+            TextReader reader = null;
+            int lineNum = 0;
+            try {
+                fs = File.OpenRead (PROPERTIES_FILENAME);
+                reader = new StreamReader (fs);
+                do {
+                    string line = reader.ReadLine ().Trim ();
+                    if (line.StartsWith (key + "=")) {
+                        break;
+                    }
+                    ++lineNum;
+                } while (true);
+            } finally {
+                if (reader != null) {
+                    reader.Close ();
+                }
+                if (fs != null) {
+                    fs.Close ();
+                }
+            }
+
+            TextWriter tw = null;
+            try {
+                fs = File.OpenWrite (PROPERTIES_FILENAME);
+                int i = 0;
+                while (i++ < lineNum) {
+                    while (true) {
+                        int val = fs.ReadByte ();
+                        if ('\n' == (byte) val) {
+                            break;
+                        }
+                    }
+                }
+                tw = new StreamWriter (fs);
+                tw.WriteLine ();
+            } finally {
+                if (tw != null) {
+                    tw.Close ();
+                }
+                if (fs != null) {
+                    fs.Close ();
+                }
+                _propertiesFileReader.ReadFileOnce ();
+            }
+
+            return true;
+        }
     }
 }

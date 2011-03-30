@@ -80,12 +80,9 @@ namespace MnemonicFS.Tests.Backup {
             // First specify the location where the backup file should be saved:
             string backupFileNameWithPath = null;
             // We don't want to end up over-writing an existing file:
-            while (true) {
+            do {
                 backupFileNameWithPath = FILE_SYSTEM_LOCATION + TestUtils.GetAnyFileName ();
-                if (!File.Exists (backupFileNameWithPath)) {
-                    break;
-                }
-            }
+            } while (File.Exists (backupFileNameWithPath));
 
             MethodCreateUserBackupArchive method = MfsBackupManager.CreateUserBackupArchive;
             IAsyncResult res = method.BeginInvoke (_userID, backupFileNameWithPath, null, null);

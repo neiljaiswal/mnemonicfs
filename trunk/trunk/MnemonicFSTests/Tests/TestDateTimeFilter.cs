@@ -41,9 +41,413 @@ using MnemonicFS.MfsCore;
 
 namespace MnemonicFS.Tests.DateTimeFilter {
     [TestFixture]
-    public class TestDateTimeFilter : TestMfsOperationsBase {
+    public class Tests_MfsOperations_DateTimeRetrievals : TestMfsOperationsBase {
         [Test]
-        public void Test_SanityCheck () {
+        public void Test_GetAllFiles_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDs = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (i - numFilesToSave / 2);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
+
+                fileIDs.Add (fileID);
+            }
+
+            List<ulong> allFileIDs = _mfsOperations.GetAllFiles ();
+            Assert.AreEqual (TYPICAL_MULTI_VALUE, allFileIDs.Count, "Incorrect number of files retrieved.");
+
+            fileIDs.Sort ();
+            allFileIDs.Sort ();
+
+            for (int i = 0; i < fileIDs.Count; ++i) {
+                Assert.AreEqual (fileIDs[i], allFileIDs[i], "Incorrect file retrieved.");
+            }
+
+            foreach (ulong fileID in fileIDs) {
+                _mfsOperations.DeleteFile (fileID);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesInDateRange_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDs = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (i - numFilesToSave / 2);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
+
+                fileIDs.Add (fileID);
+            }
+
+            DateTime dt1 = DateTime.Now.AddYears (-1).AddDays (-1);
+            DateTime dt2 = DateTime.Now.AddYears (1).AddDays (1);
+            List<ulong> filesInDateRange = _mfsOperations.GetFilesInDateRange (dt1, dt2);
+
+            Assert.AreEqual (3, filesInDateRange.Count, "Number of files returned in date range are not as expected.");
+
+            foreach (ulong fileID in fileIDs) {
+                _mfsOperations.DeleteFile (fileID);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesInDateTimeRange_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDs = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (i - numFilesToSave / 2);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
+
+                fileIDs.Add (fileID);
+            }
+
+            const int BUFFER_SECONDS_FOR_TEST_TO_RUN = TYPICAL_MULTI_TIME_UNIT; // seconds
+            DateTime dt1 = DateTime.Now.AddHours (-1).AddSeconds (-BUFFER_SECONDS_FOR_TEST_TO_RUN);
+            DateTime dt2 = DateTime.Now.AddHours (1).AddSeconds (BUFFER_SECONDS_FOR_TEST_TO_RUN);
+
+            List<ulong> filesInDateTimeRange = _mfsOperations.GetFilesInDateTimeRange (dt1, dt2);
+
+            Assert.AreEqual (3, filesInDateTimeRange.Count, "Number of files returned in date-time range are not as expected.");
+
+            foreach (ulong fileID in fileIDs) {
+                _mfsOperations.DeleteFile (fileID);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesOnDate_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+            DateTime now = DateTime.Now;
+
+            DateTime whenBefore = DateTime.Now.AddDays (-1);
+            ulong fileIDBefore = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenBefore, false);
+
+            DateTime whenOn = DateTime.Now;
+            ulong fileIDOn = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenOn, false);
+
+            DateTime whenAfter = DateTime.Now.AddDays (1);
+            ulong fileIDAfter = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenAfter, false);
+
+            List<ulong> filesOnDate = _mfsOperations.GetFilesOnDate (whenOn);
+            Assert.AreEqual (1, filesOnDate.Count, "Number of files returned on date are not as expected.");
+
+            _mfsOperations.DeleteFile (fileIDBefore);
+            _mfsOperations.DeleteFile (fileIDOn);
+            _mfsOperations.DeleteFile (fileIDAfter);
+        }
+
+        [Test]
+        public void Test_GetFilesOnDateTime_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+            DateTime now = DateTime.Now;
+
+            DateTime whenBefore = DateTime.Now.AddSeconds (-TYPICAL_MULTI_TIME_UNIT);
+            ulong fileIDBefore = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenBefore, false);
+
+            DateTime whenOn = DateTime.Now;
+            ulong fileIDOn = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenOn, false);
+
+            DateTime whenAfter = DateTime.Now.AddSeconds (TYPICAL_MULTI_TIME_UNIT);
+            ulong fileIDAfter = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenAfter, false);
+
+            List<ulong> filesOnDate = _mfsOperations.GetFilesAtDateTime (whenOn);
+            Assert.AreEqual (1, filesOnDate.Count, "Number of files returned on date-time are not as expected.");
+
+            _mfsOperations.DeleteFile (fileIDBefore);
+            _mfsOperations.DeleteFile (fileIDOn);
+            _mfsOperations.DeleteFile (fileIDAfter);
+        }
+
+        [Test]
+        public void Test_GetFilesBeforeDate_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDsBefore = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (-i - 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsBefore.Add (fileID);
+            }
+
+            DateTime now = DateTime.Now;
+
+            List<ulong> fileIDsAfter = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (i + 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsAfter.Add (fileID);
+            }
+
+            List<ulong> filesBeforeDate = _mfsOperations.GetFilesBeforeDate (now);
+            Assert.AreEqual (fileIDsBefore.Count, filesBeforeDate.Count, "Number of files returned before date are not as expected.");
+
+            for (int i = 0; i < numFilesToSave; ++i) {
+                _mfsOperations.DeleteFile (fileIDsBefore[i]);
+                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesBeforeDateTime_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDsBefore = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (-i - 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsBefore.Add (fileID);
+            }
+
+            DateTime now = DateTime.Now;
+
+            List<ulong> fileIDsAfter = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (i + 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsAfter.Add (fileID);
+            }
+
+            List<ulong> filesBeforeDateTime = _mfsOperations.GetFilesBeforeDateTime (now);
+            Assert.AreEqual (fileIDsBefore.Count, filesBeforeDateTime.Count, "Number of files returned before date-time are not as expected.");
+
+            for (int i = 0; i < numFilesToSave; ++i) {
+                _mfsOperations.DeleteFile (fileIDsBefore[i]);
+                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesBeforeAndOnDate_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDsBefore = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (-i - 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsBefore.Add (fileID);
+            }
+
+            DateTime now = DateTime.Now;
+
+            List<ulong> fileIDsAfter = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (i + 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsAfter.Add (fileID);
+            }
+
+            List<ulong> filesBeforeDate = _mfsOperations.GetFilesBeforeAndOnDate (now);
+            Assert.AreEqual (fileIDsBefore.Count, filesBeforeDate.Count, "Number of files returned before and on date are not as expected.");
+
+            for (int i = 0; i < numFilesToSave; ++i) {
+                _mfsOperations.DeleteFile (fileIDsBefore[i]);
+                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesBeforeAndOnDateTime_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDsBefore = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (-i - 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsBefore.Add (fileID);
+            }
+
+            DateTime now = DateTime.Now;
+
+            List<ulong> fileIDsAfter = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (i + 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsAfter.Add (fileID);
+            }
+
+            List<ulong> filesBeforeDateTime = _mfsOperations.GetFilesBeforeAndAtDateTime (now);
+            Assert.AreEqual (fileIDsBefore.Count, filesBeforeDateTime.Count, "Number of files returned before and on date-time are not as expected.");
+
+            for (int i = 0; i < numFilesToSave; ++i) {
+                _mfsOperations.DeleteFile (fileIDsBefore[i]);
+                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesAfterDate_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDsBefore = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (-i - 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsBefore.Add (fileID);
+            }
+
+            DateTime now = DateTime.Now;
+
+            List<ulong> fileIDsAfter = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (i + 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsAfter.Add (fileID);
+            }
+
+            List<ulong> filesAfterDate = _mfsOperations.GetFilesAfterDate (now);
+            Assert.AreEqual (fileIDsAfter.Count, filesAfterDate.Count, "Number of files returned after date are not as expected.");
+
+            for (int i = 0; i < numFilesToSave; ++i) {
+                _mfsOperations.DeleteFile (fileIDsBefore[i]);
+                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesAfterDateTime_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDsBefore = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (-i - 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsBefore.Add (fileID);
+            }
+
+            DateTime now = DateTime.Now;
+
+            List<ulong> fileIDsAfter = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (i + 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsAfter.Add (fileID);
+            }
+
+            List<ulong> filesAfterDateTime = _mfsOperations.GetFilesAfterDateTime (now);
+            Assert.AreEqual (fileIDsBefore.Count, filesAfterDateTime.Count, "Number of files returned after date-time are not as expected.");
+
+            for (int i = 0; i < numFilesToSave; ++i) {
+                _mfsOperations.DeleteFile (fileIDsBefore[i]);
+                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesAfterAndOnDate_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDsBefore = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (-i - 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsBefore.Add (fileID);
+            }
+
+            DateTime now = DateTime.Now;
+
+            List<ulong> fileIDsAfter = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddYears (i + 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsAfter.Add (fileID);
+            }
+
+            List<ulong> filesAfterDate = _mfsOperations.GetFilesAfterAndOnDate (now);
+            Assert.AreEqual (fileIDsAfter.Count, filesAfterDate.Count, "Number of files returned after and on date are not as expected.");
+
+            for (int i = 0; i < numFilesToSave; ++i) {
+                _mfsOperations.DeleteFile (fileIDsBefore[i]);
+                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+            }
+        }
+
+        [Test]
+        public void Test_GetFilesAfterAndOnDateTime_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+
+            int numFilesToSave = TYPICAL_MULTI_VALUE;
+
+            List<ulong> fileIDsBefore = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (-i - 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsBefore.Add (fileID);
+            }
+
+            DateTime now = DateTime.Now;
+
+            List<ulong> fileIDsAfter = new List<ulong> ();
+            for (int i = 0; i < numFilesToSave; ++i) {
+                string fileName = TestUtils.GetAnyFileName ();
+                DateTime when = DateTime.Now.AddHours (i + 1);
+                ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
+
+                fileIDsAfter.Add (fileID);
+            }
+
+            List<ulong> filesAfterDateTime = _mfsOperations.GetFilesAfterAndAtDateTime (now);
+            Assert.AreEqual (fileIDsAfter.Count, filesAfterDateTime.Count, "Number of files returned after and on date-time are not as expected.");
+
+            for (int i = 0; i < numFilesToSave; ++i) {
+                _mfsOperations.DeleteFile (fileIDsBefore[i]);
+                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+            }
         }
     }
 }

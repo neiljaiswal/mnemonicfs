@@ -2757,6 +2757,33 @@ namespace MnemonicFS.MfsCore {
             return Config.DoesKeyExist (key);
         }
 
+        public static bool AddConfigKVPair (string key, string val, List<string> commentLines = null) {
+            if (key == null || string.IsNullOrEmpty (key)) {
+                throw new MfsIllegalArgumentException ("Config key may not be null or empty.");
+            }
+            if (val == null || string.IsNullOrEmpty (val)) {
+                throw new MfsIllegalArgumentException ("Config value may not be null or empty.");
+            }
+            if (Config.DoesKeyExist (key)) {
+                throw new MfsDuplicationException ("Config key already exists.");
+            }
+
+            return Config.AddKVPair (key, val, commentLines);
+        }
+
+        public static bool RemoveConfigKey (string key) {
+            if (key == null || string.IsNullOrEmpty (key)) {
+                throw new MfsIllegalArgumentException ("Config key may not be null or empty.");
+            }
+            if (!Config.DoesKeyExist (key)) {
+                throw new MfsNonExistentResourceException ("Config key does not exist.");
+            }
+
+            // TODO
+            return true;
+            //return Config.RemoveConfigKey (key);
+        }
+
         #endregion << Config File Operations >>
     }
 }

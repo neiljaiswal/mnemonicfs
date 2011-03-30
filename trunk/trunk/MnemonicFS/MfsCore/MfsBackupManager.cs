@@ -46,12 +46,11 @@ namespace MnemonicFS.MfsCore {
 
         /// <summary>
         /// This method performs a complete archive of all user data, including files, file metadata, aspects,
-        /// briefcases, collections, and so on. It saves this backed-up data at the location as specified by
-        /// the client program.
+        /// briefcases, collections, and so on. It saves this backed-up data toe the location specified by th
+        /// client program.
         /// </summary>
         /// <param name="userID">Id of the user whos data has to be backed up.</param>
         /// <param name="backupFileNameWithPath">Location in the file system where the data has to be backed up.</param>
-        /// <param name="backupTaskDone">Delegate specified by the caller using which it is informed if the backup task was
         /// successful or not.</param>
         public static bool CreateUserBackupArchive (string userID, string backupFileNameWithPath) {
             // tmp:

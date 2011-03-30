@@ -75,7 +75,7 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
             return allKeys;
         }
 
-        private void ReadFileOnce () {
+        internal void ReadFileOnce () {
             ReadFileLineByLine ();
             Dictionary<string, string>.Enumerator enumerator = _dictionaryKeysValues.GetEnumerator ();
             _allPairs = new List<KeyValuePair<string, string>> ();
