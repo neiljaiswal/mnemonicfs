@@ -84,6 +84,7 @@
     <Compile Include="Tests\TestBookmarks.cs" />
     <Compile Include="Tests\TestBriefcases.cs" />
     <Compile Include="Tests\TestBriefcasesDocuments.cs" />
+    <Compile Include="Tests\TestByteStreams.cs" />
     <Compile Include="Tests\TestCollections.cs" />
     <Compile Include="Tests\TestCollectionsDocuments.cs" />
     <Compile Include="Tests\TestConfigOperations.cs" />
@@ -97,7 +98,7 @@
     <Compile Include="Tests\TestFiltersAspects.cs" />
     <Compile Include="Tests\TestFiltersPipes.cs" />
     <Compile Include="Tests\TestLogging.cs" />
-    <Compile Include="Tests\TestMfsOperations.cs" />
+    <Compile Include="Tests\TestFileSaveRetrieval.cs" />
     <Compile Include="Tests\TestMfsOperationsBase.cs" />
     <Compile Include="Tests\TestNotes.cs" />
     <Compile Include="Tests\TestSchemaFreeDocs.cs" />

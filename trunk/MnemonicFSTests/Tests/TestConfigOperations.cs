@@ -64,7 +64,8 @@ namespace MnemonicFS.Tests.Config {
 
         [Test]
         public void Test_SanityCheck_NotExists () {
-            // We will take this test of the "faith" that such a large key does not already exist in the config file:
+            // We will take this test of the faith that such a large key does not already
+            // exist in the config file:
             string key = TestUtils.GetAWord (TYPICAL_WORD_SIZE * TYPICAL_MULTI_VALUE);
             bool keyExists = MfsOperations.DoesConfigKeyExist (key);
             Assert.IsFalse (keyExists, "Shows non-existing key as existent.");
@@ -136,6 +137,90 @@ namespace MnemonicFS.Tests.Config {
     public class Tests_ConfigMethod_AddConfigKeyValue : TestMfsOperationsBase {
         [Test]
         public void Test_Sanity_Check () {
+            string anyKey = null;
+            string anyVal = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+
+            do {
+                anyKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            } while (MfsOperations.DoesConfigKeyExist (anyKey));
+
+            bool success = MfsOperations.AddConfigKVPair (anyKey, anyVal);
+            Assert.IsTrue (success, "Key-value pair not added successfully to config file.");
+            Assert.IsTrue (MfsOperations.DoesConfigKeyExist (anyKey), "Config file does not have specified key.");
+
+            string val = MfsOperations.GetConfigValue (anyKey);
+            Assert.AreEqual (anyVal, val, "Retrieved value for newly-added key is not as expected.");
+
+            MfsOperations.RemoveConfigKey (anyKey);
+        }
+
+        [Test]
+        public void Test_Sanity_Check_WithComments () {
+            string anyKey = null;
+            string anyVal = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+
+            List<string> commentLines = new List<string> ();
+            for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
+                string commentLine = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+                commentLines.Add (commentLine);
+            }
+
+            do {
+                anyKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            } while (MfsOperations.DoesConfigKeyExist (anyKey));
+
+            bool success = MfsOperations.AddConfigKVPair (anyKey, anyVal, commentLines);
+            Assert.IsTrue (success, "Key-value pair not added successfully to config file.");
+            Assert.IsTrue (MfsOperations.DoesConfigKeyExist (anyKey), "Config file does not have specified key.");
+
+            string val = MfsOperations.GetConfigValue (anyKey);
+            Assert.AreEqual (anyVal, val, "Retrieved value for newly-added key is not as expected.");
+
+            MfsOperations.RemoveConfigKey (anyKey);
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsIllegalArgumentException))]
+        public void Test_NullKey_Illegal () {
+            string nullKey = null;
+            string anyVal = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+
+            MfsOperations.AddConfigKVPair (nullKey, anyVal);
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsIllegalArgumentException))]
+        public void Test_EmptyKey_Illegal () {
+            string emptyKey = string.Empty;
+            string anyVal = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+
+            MfsOperations.AddConfigKVPair (emptyKey, anyVal);
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsIllegalArgumentException))]
+        public void Test_NullValue_Illegal () {
+            string anyKey = null;
+            string nullVal = null;
+
+            do {
+                anyKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            } while (MfsOperations.DoesConfigKeyExist (anyKey));
+
+            MfsOperations.AddConfigKVPair (anyKey, nullVal);
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsIllegalArgumentException))]
+        public void Test_EmptyValue_Illegal () {
+            string anyKey = null;
+            string emptyVal = string.Empty;
+
+            do {
+                anyKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            } while (MfsOperations.DoesConfigKeyExist (anyKey));
+
+            MfsOperations.AddConfigKVPair (anyKey, emptyVal);
         }
     }
 
