@@ -180,6 +180,7 @@ namespace MnemonicFS.MfsCore {
 
             string fileWithPath = absPathToContainingDir + archiveName;
 
+            Debug.Print ("Saving new file: abs path: {0}; assumedFileName: {1}", fileWithPath, assumedFileName);
             SaveByteArrayToZippedFile (fileWithPath, fileData, assumedFileName, filePassword);
         }
 
@@ -250,6 +251,7 @@ namespace MnemonicFS.MfsCore {
         /// <param name="filePath">The exact absolute path of the file.</param>
         /// <returns>File content as a byte array.</returns>
         internal static byte[] RetrieveFile (string filePath) {
+            Debug.Print ("Retrieving bytes: " + filePath);
             return File.ReadAllBytes (filePath);
         }
 
@@ -437,13 +439,15 @@ namespace MnemonicFS.MfsCore {
         #region << File Version Operations >>
 
         internal static void SaveFileAsNewVersion (
-            byte[] fileData, string freshPath,
+            string userSpecificPath, byte[] fileData, string freshPath,
             string fileAssumedName, string filePassword, string archiveName
             ) {
-            Directory.CreateDirectory (freshPath);
+            string directoryForFile = userSpecificPath + freshPath;
+            string fileWithPath =  directoryForFile + archiveName;
+            Debug.Print ("Creating directory for new version of file: " + fileWithPath);
+            Directory.CreateDirectory (directoryForFile);
 
-            string fileWithPath = freshPath + archiveName;
-
+            Debug.Print ("Saving new file: abs path: {0}; assumedFileName: {1}", fileWithPath, fileAssumedName);
             SaveByteArrayToZippedFile (fileWithPath, fileData, fileAssumedName, filePassword);
             
             Debug.Print ("Writing (new version) file to path: " + fileWithPath);

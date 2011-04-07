@@ -866,7 +866,7 @@ namespace MnemonicFS.MfsCore {
                 string[] fileNameAndPath = new string[2];
                 fileNameAndPath[0] = fileWithPath.Substring (0, index + 1);
                 fileNameAndPath[1] = fileWithPath.Substring (index + 1, fileWithPath.Length - index - 1);
-                MfsStorageDevice.DeleteFile (fileNameAndPath[0], fileNameAndPath[1]);
+                MfsStorageDevice.DeleteFile (_userAbsPath + fileNameAndPath[0], fileNameAndPath[1]);
             }
 
             FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.DELETED, DateTime.Now, null, null);
@@ -1080,16 +1080,7 @@ namespace MnemonicFS.MfsCore {
         private bool IndexFile (string fileName, string fileNarration, byte[] fileData, DateTime when, ulong fileID, int versionNumber) {
             Debug.Print ("Indexing file in indexer.");
 
-            // TODO: Remove this and add indexing for byte[] array:
-            string fData = StringUtils.ConvertToString (fileData);
-
-            Dictionary<ulong, string> dictionary = new Dictionary<ulong, string> ();
-            dictionary.Add (fileID, fData);
-            _indexer.Index (dictionary, IndexContentType.FILE_CONTENT);
-
-            dictionary = new Dictionary<ulong, string> ();
-            dictionary.Add (fileID, fileNarration);
-            _indexer.Index (dictionary, IndexContentType.FILE_NARRRATION);
+            // TODO
 
             return true;
         }
@@ -2006,7 +1997,8 @@ namespace MnemonicFS.MfsCore {
             // version path to it. Thus, if the last file version path was, say,
             // <base_dir>/abc/pqr/xyz/v41/, the fresh path will be: <base_dir>/abc/pqr/xyz/v42/
             // Read the code below to find out how: it's just a manpulation of strings.
-            string lastPartOfFreshPath = "v" + (lastVersionNumber + 1).ToString ();
+            int nextVersionNumber = lastVersionNumber + 1;
+            string lastPartOfFreshPath = "v" + (nextVersionNumber).ToString ();
 
             Debug.Print ("Got original file's path: " + containingDirPath);
             string freshPath = null;
@@ -2023,12 +2015,10 @@ namespace MnemonicFS.MfsCore {
             Debug.Print ("Got fresh path: " + freshPath);
 
             // Now ask the MfsStorageDevice to save this file:
-            MfsStorageDevice.SaveFileAsNewVersion (fileData, freshPath, fileAssumedName, password, archiveName);
+            MfsStorageDevice.SaveFileAsNewVersion (_userAbsPath, fileData, freshPath, fileAssumedName, password, archiveName);
 
             string fileAbsPath = null;
             fileAbsPath = freshPath + archiveName;
-
-            int nextVersionNumber = lastVersionNumber + 1;
 
             // Calculate its hash before saving its meta-data:
             string fileHash = Hasher.GetFileHash (fileData);
@@ -2049,12 +2039,11 @@ namespace MnemonicFS.MfsCore {
                 return RetrieveOriginalFile (fileID);
             }
 
-            string fileNameWithPath;
-            _dbOperations.GetFileVersionPath (fileID, currentVersionNumber, out fileNameWithPath);
+            string fileNameWithPath = _dbOperations.GetFileVersionPath (fileID, currentVersionNumber);
 
             FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.ACCESSED_VERSION, DateTime.Now, currentVersionNumber.ToString (), null);
 
-            return MfsStorageDevice.RetrieveFile (fileNameWithPath);
+            return MfsStorageDevice.RetrieveFile (_userAbsPath + fileNameWithPath);
         }
 
         // TODO: To add tests for this.
@@ -2074,8 +2063,7 @@ namespace MnemonicFS.MfsCore {
                 throw new MfsFileVersionException ("Illegal file version specified.");
             }
 
-            string fileNameWithPath;
-            _dbOperations.GetFileVersionPath (fileID, versionNumber, out fileNameWithPath);
+            string fileNameWithPath = _dbOperations.GetFileVersionPath (fileID, versionNumber);
 
             FileLogger.AddLogEntry (_userID, fileID, FileLogEntryType.ACCESSED_VERSION, DateTime.Now, versionNumber.ToString (), null);
 
@@ -2099,10 +2087,9 @@ namespace MnemonicFS.MfsCore {
             DoFileChecks (fileID);
             DoVersionChecks (fileID, versionNumber);
 
-            string fileNameWithPath;
-            _dbOperations.GetFileVersionPath (fileID, versionNumber, out fileNameWithPath);
+            string fileNameWithPath = _dbOperations.GetFileVersionPath (fileID, versionNumber);
 
-            return MfsStorageDevice.RetrieveFile (fileNameWithPath);
+            return MfsStorageDevice.RetrieveFile (_userAbsPath + fileNameWithPath);
         }
 
         public void GetFileVersionDetails (ulong fileID, int versionNumber, out string comments, out DateTime whenDateTime) {

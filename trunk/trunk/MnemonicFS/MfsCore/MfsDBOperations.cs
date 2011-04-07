@@ -2877,12 +2877,12 @@ namespace MnemonicFS.MfsCore {
                     Debug.Print ("Got from row: " + val);
                     try {
                         lastVersionNumber = int.Parse (val);
-                    } catch (Exception e) {
+                    } catch (Exception) {
                         // For some weird reason, sqlite actually returns a row, even for
                         // no entries in table. Control will reach here, i.e., exception
                         // will get thrown the first time (when there are no file versions).
                         // So just catch it and ignore it.
-                        Debug.Print ("Caught error, just ignore this: " + e.Message);
+                        Debug.Print ("This error will always be thrown the first time a new version is created, so ignore it!");
                     }
                 }
 
@@ -2947,12 +2947,12 @@ namespace MnemonicFS.MfsCore {
                     Debug.Print ("Got from row: " + val);
                     try {
                         lastVersionNumber = int.Parse (val);
-                    } catch (Exception e) {
+                    } catch (Exception) {
                         // For some weird reason, sqlite actually returns a row, even for
                         // no entries in table. Control will reach here, i.e., exception
                         // will get thrown the first time (when there are no file versions).
                         // So just catch it and ignore it.
-                        Debug.Print ("Caught error, just ignore this: " + e.Message);
+                        Debug.Print ("This error will always be thrown the first time a new version is created, so ignore it!");
                     }
                 }
 
@@ -3000,7 +3000,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal void GetFileVersionPath (ulong fileID, int versionNumber, out string fileNameWithPath) {
+        internal string GetFileVersionPath (ulong fileID, int versionNumber) {
             string sql = "select ArchiveNameWithPath from M_Files_Versions where fkey_FileID=" + fileID + " and VersionNumber=" + versionNumber;
             Debug.Print ("Get version path for file: " + sql);
 
@@ -3015,8 +3015,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                fileNameWithPath = dt.Rows[0][0].ToString ();
-                Debug.Print (fileNameWithPath);
+                return dt.Rows[0][0].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (e.Message);
