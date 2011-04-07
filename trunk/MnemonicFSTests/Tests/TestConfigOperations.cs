@@ -102,7 +102,7 @@ namespace MnemonicFS.Tests.Config {
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentKey_Illegal () {
-            string nonExistentKey = null;
+            string nonExistentKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
             do {
                 nonExistentKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
