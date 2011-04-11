@@ -311,6 +311,32 @@ namespace MnemonicFS.Tests.FileSaveRetrieval {
     }
 
     [TestFixture]
+    public class Tests_MfsOperations_SaveFile_FileNameWithIllegalChars : TestMfsOperationsBase {
+        [Test]
+        public void Test_SanityCheck () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+            DateTime when = DateTime.Now;
+
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
+
+            Assert.That (fileID > 0, "File not saved even though name is legal.");
+
+            _mfsOperations.DeleteFile (fileID);
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsIllegalArgumentException))]
+        public void Test_SanityCheck_IllegalChar () {
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+            DateTime when = DateTime.Now;
+
+            string fileNameWithIllegalChar = TestUtils.GetAnyFileName () + "?";
+
+            SaveFileToMfs (ref _mfsOperations, fileNameWithIllegalChar, _fileNarration, _fileData, when, false);
+        }
+    }
+
+    [TestFixture]
     public class Tests_MfsOperations_DeleteFile : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {

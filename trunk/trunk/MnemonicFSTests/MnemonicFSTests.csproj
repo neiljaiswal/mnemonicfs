@@ -88,6 +88,7 @@
     <Compile Include="Tests\TestCollections.cs" />
     <Compile Include="Tests\TestCollectionsDocuments.cs" />
     <Compile Include="Tests\TestConfigOperations.cs" />
+    <Compile Include="Tests\TestCredentials.cs" />
     <Compile Include="Tests\TestDateTimeFilter.cs" />
     <Compile Include="Tests\TestDocumentRelations.cs" />
     <Compile Include="Tests\TestDocuments.cs" />

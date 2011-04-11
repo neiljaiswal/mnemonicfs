@@ -29,35 +29,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  **/
 
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NUnit.Framework;
+using MnemonicFS.Tests.Base;
+using MnemonicFS.Tests.Utils;
+using MnemonicFS.MfsExceptions;
+using MnemonicFS.MfsCore;
 
-namespace MnemonicFS.MfsUtils.MfsDB {
-    internal static class SystemSchema {
-        internal static string GetSystemSchema () {
-            return @"
-                CREATE TABLE [L_Users] (
-                [key_UserID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                [UserIDStr] NVARCHAR(128) UNIQUE NOT NULL,
-                [UserFName] NVARCHAR(128) DEFAULT NULL,
-                [UserLName] NVARCHAR(128) DEFAULT NULL,
-                [PasswordHash] VARCHAR(40) NOT NULL,
-                [UserSpecificPath] NVARCHAR(1024) NOT NULL,
-                [WhenDateTime] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                [MasterPasswordHash] VARCHAR(40),
-                [UserDeleted] SHORT DEFAULT 0
-                );
-
-                CREATE TABLE [L_ByteStreams] (
-                [key_ByteStreamID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                [ReferenceNumber] INTEGER DEFAULT NULL,
-                [AssumedFileName] NVARCHAR(128) NOT NULL,
-                [ArchiveName] NVARCHAR(64) NOT NULL,
-                [ArchivePath] NVARCHAR(128) NOT NULL
-                );
-            ";
+namespace MnemonicFS.Tests.Credentials {
+    [TestFixture]
+    public class Tests_MasterPassword_Creation : TestMfsOperationsBase {
+        [Test]
+        public void Test_SanityCheck () {
+            //
         }
     }
 }

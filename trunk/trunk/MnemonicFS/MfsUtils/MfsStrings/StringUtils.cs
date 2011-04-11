@@ -33,6 +33,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace MnemonicFS.MfsUtils.MfsStrings {
     internal static class StringUtils {
@@ -163,6 +165,10 @@ namespace MnemonicFS.MfsUtils.MfsStrings {
         public static string GetFileExtension (string fileName) {
             int dotIndex = fileName.LastIndexOf ('.');
             return fileName.Substring (dotIndex + 1);
+        }
+
+        internal static bool FileNameContainsIllegalChars (string fileName) {
+            return (fileName.IndexOfAny (System.IO.Path.GetInvalidFileNameChars ()) != -1);
         }
     }
 }
