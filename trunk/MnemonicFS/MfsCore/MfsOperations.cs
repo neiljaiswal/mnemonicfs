@@ -63,7 +63,8 @@ namespace MnemonicFS.MfsCore {
         FILE = 1,
         NOTE,
         URL,
-        VCARD
+        VCARD,
+        CREDENTIALS
     };
 
     public enum GroupingType {
@@ -637,6 +638,11 @@ namespace MnemonicFS.MfsCore {
                     if (str == null || str.Equals (string.Empty) || str.Length > MAX_FILENAME_LENGTH) {
                         throw new MfsIllegalArgumentException (
                                 string.Format ("File name cannot be null, empty or greater than {0} chars.", MAX_FILENAME_LENGTH)
+                            );
+                    }
+                    if (StringUtils.FileNameContainsIllegalChars (str)) {
+                        throw new MfsIllegalArgumentException (
+                                string.Format ("File name may not contain \\ / : * ? \" < > |")
                             );
                     }
                     break;
