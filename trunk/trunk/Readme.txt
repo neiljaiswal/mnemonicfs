@@ -1,5 +1,5 @@
 Pre-requisites:
-1) Visual Studio 2008;
+1) Visual Studio 2010;
 2) NUnit should be installed.
 
 Procedure:
