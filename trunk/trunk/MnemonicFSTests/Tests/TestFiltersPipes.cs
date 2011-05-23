@@ -66,13 +66,13 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             // Presume we are looking for all files *not* within a 6 month time radius from now.
 
             // First retrieve all files within date time range that you *don't* need:
-            List<ulong> unwantedFileIDs = _mfsOperations.GetFilesInDateRange (DateTime.Now.AddMonths (-6), DateTime.Now.AddMonths (6));
+            List<ulong> unwantedFileIDs = _mfsOperations.File.GetInDateRange (DateTime.Now.AddMonths (-6), DateTime.Now.AddMonths (6));
 
             // Then retrieve *all* files:
-            List<ulong> allUserFileIDs = _mfsOperations.GetAllFiles ();
+            List<ulong> allUserFileIDs = _mfsOperations.File.GetAll ();
 
             // And "pipe" it to the invert filter to invert the selection:
-            List<ulong> reqdFileIDs = MfsOperations.FilterInvert (allUserFileIDs, unwantedFileIDs);
+            List<ulong> reqdFileIDs = MfsOperations.Filter.Invert (allUserFileIDs, unwantedFileIDs);
             Assert.AreEqual (2, reqdFileIDs.Count, "Incorrect number of files retrieved.");
 
             foreach (ulong reqdFileID in reqdFileIDs) {
@@ -81,9 +81,9 @@ namespace MnemonicFS.Tests.Filters.Pipes {
                 }
             }
 
-            _mfsOperations.DeleteFile (fileIDPast);
-            _mfsOperations.DeleteFile (fileIDCurrent);
-            _mfsOperations.DeleteFile (fileIDFuture);
+            _mfsOperations.File.Delete (fileIDPast);
+            _mfsOperations.File.Delete (fileIDCurrent);
+            _mfsOperations.File.Delete (fileIDFuture);
         }
         
         [Test]
@@ -116,37 +116,37 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDCurrent);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID3, fileIDFuture);
 
             // Presume we are looking for all files within a 6 month time radius from now,
             // AND
             // Files within aspectID2.
 
             // First retrieve all files within date range that you need:
-            List<ulong> retrFileIDs = _mfsOperations.GetFilesInDateRange (DateTime.Now.AddMonths (-6), DateTime.Now.AddMonths (6));
+            List<ulong> retrFileIDs = _mfsOperations.File.GetInDateRange (DateTime.Now.AddMonths (-6), DateTime.Now.AddMonths (6));
 
             List<ulong> listFilterAspects = new List<ulong> ();
             listFilterAspects.Add (aspectID2);
-            List<ulong> reqdFileIDs = _mfsOperations.FilterFilesWithinAspects (listFilterAspects, retrFileIDs, FilterType.AND);
+            List<ulong> reqdFileIDs = _mfsOperations.Aspect.FilterFilesWithin (listFilterAspects, retrFileIDs, FilterType.AND);
 
             Assert.AreEqual (1, reqdFileIDs.Count, "Incorrect number of files retrieved.");
             Assert.AreEqual (fileIDCurrent, reqdFileIDs[0], "Incorrect file retrieved.");
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileIDPast);
-            _mfsOperations.DeleteFile (fileIDCurrent);
-            _mfsOperations.DeleteFile (fileIDFuture);
+            _mfsOperations.File.Delete (fileIDPast);
+            _mfsOperations.File.Delete (fileIDCurrent);
+            _mfsOperations.File.Delete (fileIDFuture);
         }
 
         [Test]
@@ -179,39 +179,39 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDCurrent);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID3, fileIDFuture);
 
             // Presume we are looking for all files within a 6 month time radius from now,
             // AND
             // Files *not* within aspectID2.
 
             // First retrieve all files within date range that you need:
-            List<ulong> retrFileIDs = _mfsOperations.GetFilesInDateRange (DateTime.Now.AddMonths (-6), DateTime.Now.AddMonths (6));
+            List<ulong> retrFileIDs = _mfsOperations.File.GetInDateRange (DateTime.Now.AddMonths (-6), DateTime.Now.AddMonths (6));
 
             // Get files within aspect that you *don't* need:
             List<ulong> listFilterAspects = new List<ulong> ();
             listFilterAspects.Add (aspectID2);
-            List<ulong> unwantedFileIDs = _mfsOperations.FilterFilesWithinAspects (listFilterAspects, retrFileIDs, FilterType.AND);
+            List<ulong> unwantedFileIDs = _mfsOperations.Aspect.FilterFilesWithin (listFilterAspects, retrFileIDs, FilterType.AND);
 
             // And invert the selection:
-            List<ulong> reqdFileIDs = MfsOperations.FilterInvert (retrFileIDs, unwantedFileIDs);
+            List<ulong> reqdFileIDs = MfsOperations.Filter.Invert (retrFileIDs, unwantedFileIDs);
             Assert.AreEqual (0, reqdFileIDs.Count, "Files retrieved even though none expected in set.");
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileIDPast);
-            _mfsOperations.DeleteFile (fileIDCurrent);
-            _mfsOperations.DeleteFile (fileIDFuture);
+            _mfsOperations.File.Delete (fileIDPast);
+            _mfsOperations.File.Delete (fileIDCurrent);
+            _mfsOperations.File.Delete (fileIDFuture);
         }
 
         [Test]
@@ -244,28 +244,28 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDFuture);
 
             // Presume we are looking for all files *not* older than 6 months,
             // OR
             // Files within aspectID2.
 
-            List<ulong> unwantedFileIDs = _mfsOperations.GetFilesBeforeDate (DateTime.Now.AddMonths (-6));
-            List<ulong> allFileIDs = _mfsOperations.GetAllFiles ();
-            List<ulong> retrFileIDs1 = MfsOperations.FilterInvert (allFileIDs, unwantedFileIDs);
+            List<ulong> unwantedFileIDs = _mfsOperations.File.GetBeforeDate (DateTime.Now.AddMonths (-6));
+            List<ulong> allFileIDs = _mfsOperations.File.GetAll ();
+            List<ulong> retrFileIDs1 = MfsOperations.Filter.Invert (allFileIDs, unwantedFileIDs);
 
             List<ulong> aspectIDs = new List<ulong> ();
             aspectIDs.Add (aspectID2);
-            List<ulong> retrFileIDs2 = _mfsOperations.FilterFilesWithinAspects (aspectIDs, allFileIDs, FilterType.AND);
+            List<ulong> retrFileIDs2 = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, allFileIDs, FilterType.AND);
 
-            List<ulong> reqdFileIDs = MfsOperations.FilterCombineOR (retrFileIDs1, retrFileIDs2);
+            List<ulong> reqdFileIDs = MfsOperations.Filter.CombineOR (retrFileIDs1, retrFileIDs2);
 
             Assert.AreEqual (3, reqdFileIDs.Count, "Incorrect number of files returned.");
 
@@ -273,13 +273,13 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             Assert.IsTrue (reqdFileIDs.Contains (fileIDCurrent), "Expected file not returned.");
             Assert.IsTrue (reqdFileIDs.Contains (fileIDFuture), "Expected file not returned.");
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileIDPast);
-            _mfsOperations.DeleteFile (fileIDCurrent);
-            _mfsOperations.DeleteFile (fileIDFuture);
+            _mfsOperations.File.Delete (fileIDPast);
+            _mfsOperations.File.Delete (fileIDCurrent);
+            _mfsOperations.File.Delete (fileIDFuture);
         }
 
         [Test]
@@ -312,38 +312,38 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDFuture);
 
             // Presume we are looking for all files 6 months after current date and time,
             // OR
             // Files within aspectID2.
 
-            List<ulong> retrFileIDs1 = _mfsOperations.GetFilesAfterDateTime (DateTime.Now.AddMonths (6));
-            List<ulong> allFileIDs = _mfsOperations.GetAllFiles ();
+            List<ulong> retrFileIDs1 = _mfsOperations.File.GetAfterDateTime (DateTime.Now.AddMonths (6));
+            List<ulong> allFileIDs = _mfsOperations.File.GetAll ();
             List<ulong> aspectIDs = new List<ulong> ();
             aspectIDs.Add (aspectID2);
-            List<ulong> retrFileIDs2 = _mfsOperations.FilterFilesWithinAspects (aspectIDs, allFileIDs, FilterType.AND);
+            List<ulong> retrFileIDs2 = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, allFileIDs, FilterType.AND);
 
-            List<ulong> reqdFileIDs = MfsOperations.FilterCombineOR (retrFileIDs1, retrFileIDs2);
+            List<ulong> reqdFileIDs = MfsOperations.Filter.CombineOR (retrFileIDs1, retrFileIDs2);
             Assert.AreEqual (2, reqdFileIDs.Count, "Incorrect number of files returned.");
 
             Assert.IsTrue (reqdFileIDs.Contains (fileIDPast), "Expected file not returned.");
             Assert.IsTrue (reqdFileIDs.Contains (fileIDFuture), "Expected file not returned.");
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileIDPast);
-            _mfsOperations.DeleteFile (fileIDCurrent);
-            _mfsOperations.DeleteFile (fileIDFuture);
+            _mfsOperations.File.Delete (fileIDPast);
+            _mfsOperations.File.Delete (fileIDCurrent);
+            _mfsOperations.File.Delete (fileIDFuture);
         }
 
         [Test]
@@ -376,33 +376,33 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             ulong fileIDFuture = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply aspects to files:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDPast);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDPast);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDPast);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDCurrent);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDCurrent);
+            _mfsOperations.Aspect.Apply (aspectID3, fileIDCurrent);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileIDFuture);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID1, fileIDFuture);
+            _mfsOperations.Aspect.Apply (aspectID2, fileIDFuture);
 
             // Presume we are looking for all files at current date and time,
             // AND
             // Files within aspectID2.
 
-            List<ulong> retrFileIDs1 = _mfsOperations.GetFilesAtDateTime (whenNow);
+            List<ulong> retrFileIDs1 = _mfsOperations.File.GetAtDateTime (whenNow);
             List<ulong> aspectIDs = new List<ulong> ();
             aspectIDs.Add (aspectID2);
-            List<ulong> reqdFileIDs = _mfsOperations.FilterFilesWithinAspects (aspectIDs, retrFileIDs1, FilterType.AND);
+            List<ulong> reqdFileIDs = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, retrFileIDs1, FilterType.AND);
 
             Assert.AreEqual (0, reqdFileIDs.Count, "Incorrect number of files returned.");
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileIDPast);
-            _mfsOperations.DeleteFile (fileIDCurrent);
-            _mfsOperations.DeleteFile (fileIDFuture);
+            _mfsOperations.File.Delete (fileIDPast);
+            _mfsOperations.File.Delete (fileIDCurrent);
+            _mfsOperations.File.Delete (fileIDFuture);
         }
 
         [Test]
@@ -427,20 +427,20 @@ namespace MnemonicFS.Tests.Filters.Pipes {
             DateTime startDate = new DateTime (2001, 1, 1);
             DateTime endDate = new DateTime (2010, 12, 31);
             // The o/p list below should have 10 files:
-            List<ulong> allFilesInRange = _mfsOperations.GetFilesInDateRange (startDate, endDate);
+            List<ulong> allFilesInRange = _mfsOperations.File.GetInDateRange (startDate, endDate);
 
             // Next, get all files in the year 2005:
             DateTime unwantedStartDate = new DateTime (2005, 1, 1);
             DateTime unwantedEndDate = new DateTime (2005, 12, 31);
             // The o/p list below should have 1 file:
-            List<ulong> unwantedFiles = _mfsOperations.GetFilesInDateRange (unwantedStartDate, unwantedEndDate);
+            List<ulong> unwantedFiles = _mfsOperations.File.GetInDateRange (unwantedStartDate, unwantedEndDate);
 
             // Now EXOR both the lists to get the required files:
-            List<ulong> reqdFiles = MfsOperations.FilterCombineEXOR (allFilesInRange, unwantedFiles);
+            List<ulong> reqdFiles = MfsOperations.Filter.CombineEXOR (allFilesInRange, unwantedFiles);
             Assert.AreEqual (9, reqdFiles.Count, "Wrong number of files returned.");
 
             foreach (ulong fileID in fileIDs) {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }

@@ -44,21 +44,21 @@ namespace MnemonicFS.Tests.Aspects {
     public class Tests_AspectsMethod_CreateAspect : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
             Assert.That (aspectID > 0, "Aspect not created successfully: Invalid aspect id returned.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsDuplicateNameException))]
         public void Test_DuplicateAspectName_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             try {
-                _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+                _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
             } finally {
-                _mfsOperations.DeleteAspect (aspectID);
+                _mfsOperations.Aspect.Delete (aspectID);
             }
         }
 
@@ -66,18 +66,18 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_AspectNameWithMaxSizeAllowed_SanityCheck () {
             string aspectName = TestUtils.GetAWord (MfsOperations.MaxAspectNameLength);
 
-            ulong aspectID = _mfsOperations.CreateAspect (aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (aspectName, _aspectDesc);
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         public void Test_AspectDescWithMaxSizeAllowed_SanityCheck () {
             string aspectDesc = TestUtils.GetAWord (MfsOperations.MaxAspectDescLength);
 
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, aspectDesc);
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_NullAspectName_Illegal () {
             string nullAspectName = null;
 
-            _mfsOperations.CreateAspect (nullAspectName, _aspectDesc);
+            _mfsOperations.Aspect.New (nullAspectName, _aspectDesc);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_NullAspectDesc_Illegal () {
             string nullAspectDesc = null;
 
-            _mfsOperations.CreateAspect (_aspectName, nullAspectDesc);
+            _mfsOperations.Aspect.New (_aspectName, nullAspectDesc);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_EmptyAspectName_Illegal () {
             string emptyAspectName = string.Empty;
 
-            _mfsOperations.CreateAspect (emptyAspectName, _aspectDesc);
+            _mfsOperations.Aspect.New (emptyAspectName, _aspectDesc);
         }
 
         [Test]
@@ -111,17 +111,17 @@ namespace MnemonicFS.Tests.Aspects {
 
             string longAspectName = TestUtils.GetAWord (maxCharsInAspectName + 1);
 
-            _mfsOperations.CreateAspect (longAspectName, _aspectDesc);
+            _mfsOperations.Aspect.New (longAspectName, _aspectDesc);
         }
 
         [Test]
         public void Test_EmptyAspectDesc_Legal () {
             string emptyAspectDesc = string.Empty;
 
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, emptyAspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, emptyAspectDesc);
             Assert.That (aspectID > 0, "Failed to save aspect though empty aspect description is allowed.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace MnemonicFS.Tests.Aspects {
 
             string longAspectDesc = TestUtils.GetAWord (maxCharsInAspectDesc + 1);
 
-            _mfsOperations.CreateAspect (_aspectName, longAspectDesc);
+            _mfsOperations.Aspect.New (_aspectName, longAspectDesc);
         }
     }
 
@@ -139,56 +139,56 @@ namespace MnemonicFS.Tests.Aspects {
     public class Tests_AspectsMethod_DoesAspectExist : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck_Exists () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
-            bool aspectExists = _mfsOperations.DoesAspectExist (aspectID);
+            bool aspectExists = _mfsOperations.Aspect.Exists (aspectID);
             Assert.IsTrue (aspectExists, "Aspect was shown as not existing, even though it does.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         public void Test_SanityCheck_NotExists () {
             ulong veryLargeAspectID = ulong.MaxValue;
 
-            bool aspectExists = _mfsOperations.DoesAspectExist (veryLargeAspectID);
+            bool aspectExists = _mfsOperations.Aspect.Exists (veryLargeAspectID);
             Assert.IsFalse (aspectExists, "Aspect was shown as existing, even though it does not.");
         }
 
         [Test]
         public void Test_SanityCheck_WithAspectName_Exists () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
-            bool aspectExists = _mfsOperations.DoesAspectExist (_aspectName);
+            bool aspectExists = _mfsOperations.Aspect.Exists (_aspectName);
             Assert.IsTrue (aspectExists, "Aspect was shown as not existing, even though it does.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         public void Test_SanityCheck_WithAspectName_NotExists () {
             string someAspectName = TestUtils.GetAWord (TYPICAL_WORD_SIZE * 2);
 
-            bool aspectExists = _mfsOperations.DoesAspectExist (someAspectName);
+            bool aspectExists = _mfsOperations.Aspect.Exists (someAspectName);
             Assert.IsFalse (aspectExists, "Aspect was shown as existing, even though it does not.");
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
-            _mfsOperations.DoesAspectExist (0);
+            _mfsOperations.Aspect.Exists (0);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectNameNull_Illegal () {
-            _mfsOperations.DoesAspectExist (null);
+            _mfsOperations.Aspect.Exists (null);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
-        public void Test_AspectNameSizeZero_Illegal () {
-            _mfsOperations.DoesAspectExist (string.Empty);
+        public void Test_AspectNameEmpty_Illegal () {
+            _mfsOperations.Aspect.Exists (string.Empty);
         }
     }
 
@@ -196,16 +196,16 @@ namespace MnemonicFS.Tests.Aspects {
     public class Tests_AspectsMethod_DeleteAspect : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
-            int numAspectsDeleted = _mfsOperations.DeleteAspect (aspectID);
+            int numAspectsDeleted = _mfsOperations.Aspect.Delete (aspectID);
             Assert.AreEqual (1, numAspectsDeleted, "Aspect was not deleted.");
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
-            _mfsOperations.DeleteAspect (0);
+            _mfsOperations.Aspect.Delete (0);
         }
 
         [Test]
@@ -213,7 +213,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_NonExistentAspectID_Illegal () {
             ulong veryLargeAspectID = UInt64.MaxValue;
 
-            _mfsOperations.DeleteAspect (veryLargeAspectID);
+            _mfsOperations.Aspect.Delete (veryLargeAspectID);
         }
     }
 
@@ -221,13 +221,13 @@ namespace MnemonicFS.Tests.Aspects {
     public class Tests_AspectsMethod_GetAspectName : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (aspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (aspectID, out aspectName, out aspectDesc);
             Assert.AreEqual (_aspectName, aspectName, "Did not retrieve existing aspect's name.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
@@ -235,7 +235,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_AspectIDZero_Illegal () {
             string aspectName, aspectDesc;
 
-            _mfsOperations.GetAspectNameAndDesc (0, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (0, out aspectName, out aspectDesc);
         }
 
         [Test]
@@ -244,7 +244,7 @@ namespace MnemonicFS.Tests.Aspects {
             ulong veryLargeAspectID = UInt64.MaxValue;
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (veryLargeAspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (veryLargeAspectID, out aspectName, out aspectDesc);
         }
     }
 
@@ -252,20 +252,20 @@ namespace MnemonicFS.Tests.Aspects {
     public class Tests_AspectsMethod_GetAspectDesc : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (aspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (aspectID, out aspectName, out aspectDesc);
             Assert.AreEqual (_aspectDesc, aspectDesc, "Did not retrieve existing aspect's description.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectIDZero_Illegal () {
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (0, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (0, out aspectName, out aspectDesc);
         }
 
         [Test]
@@ -274,7 +274,7 @@ namespace MnemonicFS.Tests.Aspects {
             ulong veryLargeAspectID = UInt64.MaxValue;
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (veryLargeAspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (veryLargeAspectID, out aspectName, out aspectDesc);
         }
     }
 
@@ -284,10 +284,10 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_SanityCheck () {
             ulong aspectID = CreateUniqueAspect (ref _mfsOperations, out _aspectName, out _aspectDesc);
 
-            ulong retrAspectID = _mfsOperations.GetAspectIDFromName (_aspectName);
-            Assert.AreEqual (aspectID, retrAspectID, "Wrong aspect ID retrieved.");
+            ulong retrAspectID = _mfsOperations.Aspect.IDFromName (_aspectName);
+            Assert.AreEqual (aspectID, retrAspectID, "Wrong aspect id retrieved.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
@@ -297,9 +297,9 @@ namespace MnemonicFS.Tests.Aspects {
 
             do {
                 nonExistentAspectName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (_mfsOperations.DoesAspectExist (nonExistentAspectName));
+            } while (_mfsOperations.Aspect.Exists (nonExistentAspectName));
 
-            _mfsOperations.GetAspectIDFromName (nonExistentAspectName);
+            _mfsOperations.Aspect.IDFromName (nonExistentAspectName);
         }
 
         [Test]
@@ -307,7 +307,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_NullAspectName_Illegal () {
             string nullAspectName = null;
 
-            _mfsOperations.GetAspectIDFromName (nullAspectName);
+            _mfsOperations.Aspect.IDFromName (nullAspectName);
         }
 
         [Test]
@@ -315,7 +315,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_EmptyAspectName_Illegal () {
             string emptyAspectName = string.Empty;
 
-            _mfsOperations.GetAspectIDFromName (emptyAspectName);
+            _mfsOperations.Aspect.IDFromName (emptyAspectName);
         }
     }
 
@@ -331,7 +331,7 @@ namespace MnemonicFS.Tests.Aspects {
                 aspectsList.Add (aspectID);
             }
 
-            List<ulong> retrAspectIDs = _mfsOperations.GetAllAspects ();
+            List<ulong> retrAspectIDs = _mfsOperations.Aspect.All ();
 
             aspectsList.Sort ();
             retrAspectIDs.Sort ();
@@ -340,7 +340,7 @@ namespace MnemonicFS.Tests.Aspects {
             Assert.AreEqual (aspectsList, retrAspectIDs, "Wrong aspect ids recovered.");
 
             foreach (ulong aspectID in aspectsList) {
-                _mfsOperations.DeleteAspect (aspectID);
+                _mfsOperations.Aspect.Delete (aspectID);
             }
         }
     }
@@ -349,32 +349,32 @@ namespace MnemonicFS.Tests.Aspects {
     public class Tests_AspectsMethod_UpdateAspectName : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string newAspectName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            bool aspectNameUpdated = _mfsOperations.UpdateAspectName (aspectID, newAspectName);
+            bool aspectNameUpdated = _mfsOperations.Aspect.UpdateName (aspectID, newAspectName);
             Assert.IsTrue (aspectNameUpdated, "Aspect name was not updated successfully.");
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (aspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (aspectID, out aspectName, out aspectDesc);
             Assert.AreEqual (newAspectName, aspectName, "Aspect name was not updated successfully.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         public void Test_AspectNameWithMaxSizeAllowed_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string newAspectName = TestUtils.GetAWord (MfsOperations.MaxAspectNameLength);
-            _mfsOperations.UpdateAspectName (aspectID, newAspectName);
+            _mfsOperations.Aspect.UpdateName (aspectID, newAspectName);
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (aspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (aspectID, out aspectName, out aspectDesc);
             Assert.AreEqual (newAspectName, aspectName, "Wrong aspect name returned after aspect name updation.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
@@ -382,7 +382,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_AspectIDZero_Illegal () {
             string anyName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdateAspectName (0, anyName);
+            _mfsOperations.Aspect.UpdateName (0, anyName);
         }
 
         [Test]
@@ -392,48 +392,48 @@ namespace MnemonicFS.Tests.Aspects {
 
             string anyName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdateAspectName (veryLargeAspectID, anyName);
+            _mfsOperations.Aspect.UpdateName (veryLargeAspectID, anyName);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullNewAspectName_Illegal () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string nullAspectName = null;
 
             try {
-                _mfsOperations.UpdateAspectName (aspectID, nullAspectName);
+                _mfsOperations.Aspect.UpdateName (aspectID, nullAspectName);
             } finally {
-                _mfsOperations.DeleteAspect (aspectID);
+                _mfsOperations.Aspect.Delete (aspectID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyNewAspectName_Illegal () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string emptyAspectName = string.Empty;
 
             try {
-                _mfsOperations.UpdateAspectName (aspectID, emptyAspectName);
+                _mfsOperations.Aspect.UpdateName (aspectID, emptyAspectName);
             } finally {
-                _mfsOperations.DeleteAspect (aspectID);
+                _mfsOperations.Aspect.Delete (aspectID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectNameGreaterThanSystemDefined_Illegal () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string veryLongAspectName = TestUtils.GetAWord (MfsOperations.MaxAspectNameLength + 1);
 
             try {
-                _mfsOperations.UpdateAspectName (aspectID, veryLongAspectName);
+                _mfsOperations.Aspect.UpdateName (aspectID, veryLongAspectName);
             } finally {
-                _mfsOperations.DeleteAspect (aspectID);
+                _mfsOperations.Aspect.Delete (aspectID);
             }
         }
     }
@@ -442,32 +442,32 @@ namespace MnemonicFS.Tests.Aspects {
     public class Tests_AspectsMethod_UpdateAspectDesc : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string newAspectDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            bool aspectDescUpdated = _mfsOperations.UpdateAspectDesc (aspectID, newAspectDesc);
+            bool aspectDescUpdated = _mfsOperations.Aspect.UpdateDesc (aspectID, newAspectDesc);
             Assert.IsTrue (aspectDescUpdated, "Aspect description was not updated successfully.");
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (aspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (aspectID, out aspectName, out aspectDesc);
             Assert.AreEqual (newAspectDesc, aspectDesc, "Aspect description was not updated successfully.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         public void Test_AspectDescWithMaxSizeAllowed_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string newAspectDesc = TestUtils.GetAWord (MfsOperations.MaxAspectDescLength);
-            _mfsOperations.UpdateAspectDesc (aspectID, newAspectDesc);
+            _mfsOperations.Aspect.UpdateDesc (aspectID, newAspectDesc);
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (aspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (aspectID, out aspectName, out aspectDesc);
             Assert.AreEqual (newAspectDesc, aspectDesc, "Wrong aspect description returned after aspect description updation.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
@@ -475,7 +475,7 @@ namespace MnemonicFS.Tests.Aspects {
         public void Test_AspectIDZero_Illegal () {
             string anyDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdateAspectDesc (0, anyDesc);
+            _mfsOperations.Aspect.UpdateDesc (0, anyDesc);
         }
 
         [Test]
@@ -485,48 +485,48 @@ namespace MnemonicFS.Tests.Aspects {
 
             string anyDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdateAspectDesc (veryLargeAspectID, anyDesc);
+            _mfsOperations.Aspect.UpdateDesc (veryLargeAspectID, anyDesc);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullNewAspectDesc_Illegal () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string nullAspectDesc = null;
 
             try {
-                _mfsOperations.UpdateAspectDesc (aspectID, nullAspectDesc);
+                _mfsOperations.Aspect.UpdateDesc (aspectID, nullAspectDesc);
             } finally {
-                _mfsOperations.DeleteAspect (aspectID);
+                _mfsOperations.Aspect.Delete (aspectID);
             }
         }
 
         [Test]
         public void Test_EmptyNewAspectDesc_Legal () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string emptyAspectDesc = string.Empty;
-            _mfsOperations.UpdateAspectDesc (aspectID, emptyAspectDesc);
+            _mfsOperations.Aspect.UpdateDesc (aspectID, emptyAspectDesc);
 
             string aspectName, aspectDesc;
-            _mfsOperations.GetAspectNameAndDesc (aspectID, out aspectName, out aspectDesc);
+            _mfsOperations.Aspect.Get (aspectID, out aspectName, out aspectDesc);
             Assert.AreEqual (string.Empty, aspectDesc, "Aspect description was not updated to an empty string.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_AspectDescGreaterThanSystemDefined_Illegal () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             string veryLongAspectDesc = TestUtils.GetAWord (MfsOperations.MaxAspectDescLength + 1);
 
             try {
-                _mfsOperations.UpdateAspectDesc (aspectID, veryLongAspectDesc);
+                _mfsOperations.Aspect.UpdateDesc (aspectID, veryLongAspectDesc);
             } finally {
-                _mfsOperations.DeleteAspect (aspectID);
+                _mfsOperations.Aspect.Delete (aspectID);
             }
         }
     }
@@ -538,11 +538,11 @@ namespace MnemonicFS.Tests.Aspects {
             int numAspectsToCreate = TYPICAL_MULTI_VALUE;
 
             List<ulong> listAspects = CreateUniqueNAspects (ref _mfsOperations, numAspectsToCreate);
-            
-            int numAspectsDeleted = _mfsOperations.DeleteAllAspectsInSystem ();
+
+            int numAspectsDeleted = _mfsOperations.Aspect.DeleteAll ();
             Assert.AreEqual (listAspects.Count, numAspectsDeleted, "Did not delete the same number of aspects as were created.");
 
-            List<ulong> aspectsList = _mfsOperations.GetAllAspects ();
+            List<ulong> aspectsList = _mfsOperations.Aspect.All ();
             Assert.AreEqual (0, aspectsList.Count, "Did not delete all aspects in the system.");
         }
     }

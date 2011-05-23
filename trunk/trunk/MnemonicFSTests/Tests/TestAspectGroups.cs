@@ -47,10 +47,10 @@ namespace MnemonicFS.Tests.AspectGroups {
             string aspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            ulong aspectGroupID = _mfsOperations.CreateAspectGroup (0, aspectGroupName, aspectGroupDesc);
+            ulong aspectGroupID = _mfsOperations.AspectGroup.New (0, aspectGroupName, aspectGroupDesc);
             Assert.That (aspectGroupID > 0, "Aspect group not created successfully: Invalid aspect group id returned.");
 
-            _mfsOperations.DeleteAspectGroup (aspectGroupID);
+            _mfsOperations.AspectGroup.Delete (aspectGroupID);
         }
 
         [Test]
@@ -59,12 +59,12 @@ namespace MnemonicFS.Tests.AspectGroups {
             string aspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            ulong aspectGroupID = _mfsOperations.CreateAspectGroup (0, aspectGroupName, aspectGroupDesc);
+            ulong aspectGroupID = _mfsOperations.AspectGroup.New (0, aspectGroupName, aspectGroupDesc);
 
             try {
-                _mfsOperations.CreateAspectGroup (0, aspectGroupName, aspectGroupDesc);
+                _mfsOperations.AspectGroup.New (0, aspectGroupName, aspectGroupDesc);
             } finally {
-                _mfsOperations.DeleteAspectGroup (aspectGroupID);
+                _mfsOperations.AspectGroup.Delete (aspectGroupID);
             }
         }
 
@@ -78,21 +78,21 @@ namespace MnemonicFS.Tests.AspectGroups {
             string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
             // Create both aspect groups at same (root) level so that they are peers (siblings):
-            ulong parent1AspectGroupID = _mfsOperations.CreateAspectGroup (0, parent1AspectGroupName, aspectGroupDesc);
-            ulong parent2AspectGroupID = _mfsOperations.CreateAspectGroup (0, parent2AspectGroupName, aspectGroupDesc);
+            ulong parent1AspectGroupID = _mfsOperations.AspectGroup.New (0, parent1AspectGroupName, aspectGroupDesc);
+            ulong parent2AspectGroupID = _mfsOperations.AspectGroup.New (0, parent2AspectGroupName, aspectGroupDesc);
 
             // Also get a new aspect group name to be created as a child of both the aspect groups just created above:
             string childAspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE + 2);
 
             // Create child aspects with the same name for both the peers (siblings); this is a legal operation:
-            ulong childGroupID1 = _mfsOperations.CreateAspectGroup (parent1AspectGroupID, childAspectGroupName, aspectGroupDesc);
-            ulong childGroupID2 = _mfsOperations.CreateAspectGroup (parent2AspectGroupID, childAspectGroupName, aspectGroupDesc);
+            ulong childGroupID1 = _mfsOperations.AspectGroup.New (parent1AspectGroupID, childAspectGroupName, aspectGroupDesc);
+            ulong childGroupID2 = _mfsOperations.AspectGroup.New (parent2AspectGroupID, childAspectGroupName, aspectGroupDesc);
 
             // If control has reached this far, the test is passing; so delete all the aspect groups created:
-            _mfsOperations.DeleteAspectGroup (childGroupID1);
-            _mfsOperations.DeleteAspectGroup (childGroupID2);
-            _mfsOperations.DeleteAspectGroup (parent1AspectGroupID);
-            _mfsOperations.DeleteAspectGroup (parent2AspectGroupID);
+            _mfsOperations.AspectGroup.Delete (childGroupID1);
+            _mfsOperations.AspectGroup.Delete (childGroupID2);
+            _mfsOperations.AspectGroup.Delete (parent1AspectGroupID);
+            _mfsOperations.AspectGroup.Delete (parent2AspectGroupID);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace MnemonicFS.Tests.AspectGroups {
             string nullAspectGroupName = null;
             string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            _mfsOperations.CreateAspectGroup (0, nullAspectGroupName, aspectGroupDesc);
+            _mfsOperations.AspectGroup.New (0, nullAspectGroupName, aspectGroupDesc);
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace MnemonicFS.Tests.AspectGroups {
             string emptyAspectGroupName = string.Empty;
             string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            _mfsOperations.CreateAspectGroup (0, emptyAspectGroupName, aspectGroupDesc);
+            _mfsOperations.AspectGroup.New (0, emptyAspectGroupName, aspectGroupDesc);
         }
 
         [Test]
@@ -118,9 +118,9 @@ namespace MnemonicFS.Tests.AspectGroups {
             string aspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            ulong aspectGroupID = _mfsOperations.CreateAspectGroup (0, aspectGroupName, aspectGroupDesc);
+            ulong aspectGroupID = _mfsOperations.AspectGroup.New (0, aspectGroupName, aspectGroupDesc);
 
-            _mfsOperations.DeleteAspectGroup (aspectGroupID);
+            _mfsOperations.AspectGroup.Delete (aspectGroupID);
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace MnemonicFS.Tests.AspectGroups {
 
             ulong veryLargeAspectGroupID = UInt64.MaxValue;
 
-            _mfsOperations.CreateAspectGroup (veryLargeAspectGroupID, aspectGroupName, aspectGroupDesc);
+            _mfsOperations.AspectGroup.New (veryLargeAspectGroupID, aspectGroupName, aspectGroupDesc);
         }
 
         [Test]
@@ -139,9 +139,9 @@ namespace MnemonicFS.Tests.AspectGroups {
             string aspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string emptyAspectGroupDesc = string.Empty;
 
-            ulong aspectGroupID = _mfsOperations.CreateAspectGroup (0, aspectGroupName, emptyAspectGroupDesc);
+            ulong aspectGroupID = _mfsOperations.AspectGroup.New (0, aspectGroupName, emptyAspectGroupDesc);
 
-            _mfsOperations.DeleteAspectGroup (aspectGroupID);
+            _mfsOperations.AspectGroup.Delete (aspectGroupID);
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace MnemonicFS.Tests.AspectGroups {
             string aspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string nullAspectGroupDesc = null;
 
-            _mfsOperations.CreateAspectGroup (0, aspectGroupName, nullAspectGroupDesc);
+            _mfsOperations.AspectGroup.New (0, aspectGroupName, nullAspectGroupDesc);
         }
     }
 
@@ -169,11 +169,11 @@ namespace MnemonicFS.Tests.AspectGroups {
                 string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 aspectGroupDescs.Add (aspectGroupDesc);
 
-                ulong aspectGroupID = _mfsOperations.CreateAspectGroup (0, aspectGroupName, aspectGroupDesc);
+                ulong aspectGroupID = _mfsOperations.AspectGroup.New (0, aspectGroupName, aspectGroupDesc);
                 aspectGroupIDs.Add (aspectGroupID);
             }
 
-            List<ulong> retrievedAspectGroupIDs = _mfsOperations.GetChildAspectGroups (0);
+            List<ulong> retrievedAspectGroupIDs = _mfsOperations.AspectGroup.ChildAspectGroups (0);
             // Recall that the root aspect group is present in the system by default; hence TYPICAL_MULTI_VALUE + 1.
             Assert.AreEqual (TYPICAL_MULTI_VALUE + 1, retrievedAspectGroupIDs.Count, "Number of aspect groups do not match.");
 
@@ -187,20 +187,20 @@ namespace MnemonicFS.Tests.AspectGroups {
 
                 string aspectGroupName;
                 string aspectGroupDesc;
-                _mfsOperations.GetAspectGroupNameAndDesc (aspectGroupID, out aspectGroupName, out aspectGroupDesc);
+                _mfsOperations.AspectGroup.Get (aspectGroupID, out aspectGroupName, out aspectGroupDesc);
                 Assert.AreEqual (aspectGroupNames[count], aspectGroupName, "Retrieved aspect group name does not match with original.");
                 Assert.AreEqual (aspectGroupDescs[count], aspectGroupDesc, "Retrieved aspect group description does not match with original.");
                 ++count;
             }
 
             foreach (ulong aspectGroupID in aspectGroupIDs) {
-                _mfsOperations.DeleteAspectGroup (aspectGroupID);
+                _mfsOperations.AspectGroup.Delete (aspectGroupID);
             }
         }
 
         [Test]
         public void Test_AspectGroupIDZero_Legal () {
-            List<ulong> aspectGroups = _mfsOperations.GetChildAspectGroups (0);
+            List<ulong> aspectGroups = _mfsOperations.AspectGroup.ChildAspectGroups (0);
             Assert.IsNotNull (aspectGroups, "Null list returned.");
             Assert.AreEqual (1, aspectGroups.Count, "List should have precisely one entry for root aspect group.");
         }
@@ -210,7 +210,7 @@ namespace MnemonicFS.Tests.AspectGroups {
         public void Test_NonExistentAspectGroup_Illegal () {
             ulong veryLargeAspectGroupID = UInt64.MaxValue;
 
-            _mfsOperations.GetChildAspectGroups (veryLargeAspectGroupID);
+            _mfsOperations.AspectGroup.ChildAspectGroups (veryLargeAspectGroupID);
         }
     }
 
@@ -221,16 +221,16 @@ namespace MnemonicFS.Tests.AspectGroups {
             string aspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            ulong aspectGroupID = _mfsOperations.CreateAspectGroup (0, aspectGroupName, aspectGroupDesc);
+            ulong aspectGroupID = _mfsOperations.AspectGroup.New (0, aspectGroupName, aspectGroupDesc);
 
             string retrievedAspectGroupName;
             string retrievedAspectGroupDesc;
 
-            _mfsOperations.GetAspectGroupNameAndDesc (aspectGroupID, out retrievedAspectGroupName, out retrievedAspectGroupDesc);
+            _mfsOperations.AspectGroup.Get (aspectGroupID, out retrievedAspectGroupName, out retrievedAspectGroupDesc);
             Assert.AreEqual (aspectGroupName, retrievedAspectGroupName, "Retrieved aspect group name does not match with original.");
             Assert.AreEqual (aspectGroupDesc, retrievedAspectGroupDesc, "Retrieved aspect group description does not match with original.");
 
-            _mfsOperations.DeleteAspectGroup (aspectGroupID);
+            _mfsOperations.AspectGroup.Delete (aspectGroupID);
         }
 
         [Test]
@@ -238,7 +238,7 @@ namespace MnemonicFS.Tests.AspectGroups {
             string retrievedAspectGroupName;
             string retrievedAspectGroupDesc;
 
-            _mfsOperations.GetAspectGroupNameAndDesc (0, out retrievedAspectGroupName, out retrievedAspectGroupDesc);
+            _mfsOperations.AspectGroup.Get (0, out retrievedAspectGroupName, out retrievedAspectGroupDesc);
             Assert.IsNotNull (retrievedAspectGroupName, "Name of root aspect element is null.");
             Assert.IsNotNull (retrievedAspectGroupDesc, "Description of root aspect element is null.");
         }
@@ -251,7 +251,7 @@ namespace MnemonicFS.Tests.AspectGroups {
             string retrievedAspectGroupName;
             string retrievedAspectGroupDesc;
 
-            _mfsOperations.GetAspectGroupNameAndDesc (veryLargeAspectGroupID, out retrievedAspectGroupName, out retrievedAspectGroupDesc);
+            _mfsOperations.AspectGroup.Get (veryLargeAspectGroupID, out retrievedAspectGroupName, out retrievedAspectGroupDesc);
         }
     }
 
@@ -262,12 +262,12 @@ namespace MnemonicFS.Tests.AspectGroups {
             string aspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string aspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            ulong aspectGroupID = _mfsOperations.CreateAspectGroup (0, aspectGroupName, aspectGroupDesc);
+            ulong aspectGroupID = _mfsOperations.AspectGroup.New (0, aspectGroupName, aspectGroupDesc);
             Assert.That (aspectGroupID > 0, "Aspect group not created successfully: Invalid aspect group id returned.");
 
-            _mfsOperations.DeleteAspectGroup (aspectGroupID);
+            _mfsOperations.AspectGroup.Delete (aspectGroupID);
 
-            bool aspectGroupExists = _mfsOperations.DoesAspectGroupExist (aspectGroupID);
+            bool aspectGroupExists = _mfsOperations.AspectGroup.Exists (aspectGroupID);
             Assert.IsFalse (aspectGroupExists, "Shows aspect group as existing even though it doesn't.");
         }
 
@@ -277,18 +277,18 @@ namespace MnemonicFS.Tests.AspectGroups {
             string parentAspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string parentAspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            ulong parentAspectGroupID = _mfsOperations.CreateAspectGroup (0, parentAspectGroupName, parentAspectGroupDesc);
+            ulong parentAspectGroupID = _mfsOperations.AspectGroup.New (0, parentAspectGroupName, parentAspectGroupDesc);
 
             string childAspectGroupName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string childAspectGroupDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            ulong childAspectGroupID = _mfsOperations.CreateAspectGroup (parentAspectGroupID, childAspectGroupName, childAspectGroupDesc);
+            ulong childAspectGroupID = _mfsOperations.AspectGroup.New (parentAspectGroupID, childAspectGroupName, childAspectGroupDesc);
 
             try {
-                _mfsOperations.DeleteAspectGroup (parentAspectGroupID);
+                _mfsOperations.AspectGroup.Delete (parentAspectGroupID);
             } finally {
-                _mfsOperations.DeleteAspectGroup (childAspectGroupID);
-                _mfsOperations.DeleteAspectGroup (parentAspectGroupID);
+                _mfsOperations.AspectGroup.Delete (childAspectGroupID);
+                _mfsOperations.AspectGroup.Delete (parentAspectGroupID);
             }
         }
 
@@ -297,13 +297,13 @@ namespace MnemonicFS.Tests.AspectGroups {
         public void Test_NonExistentAspectGroup_Illegal () {
             ulong veryLargeAspectGroupID = UInt64.MaxValue;
 
-            _mfsOperations.DeleteAspectGroup (veryLargeAspectGroupID);
+            _mfsOperations.AspectGroup.Delete (veryLargeAspectGroupID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalOperationException))]
         public void Test_AspectGroupIDZero_Illegal () {
-            _mfsOperations.DeleteAspectGroup (0);
+            _mfsOperations.AspectGroup.Delete (0);
         }
     }
 }

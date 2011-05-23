@@ -42,7 +42,9 @@ namespace MnemonicFS.MfsCore {
 
         public MfsNote (string noteContent, DateTime when) {
             if (noteContent == null || noteContent.Length < 1) {
-                throw new MfsIllegalArgumentException ("Note content cannot be null.");
+                throw new MfsIllegalArgumentException (
+                    MfsErrorMessages.GetMessage (MessageType.NULL, "Note content")
+                );
             }
 
             _noteContent = noteContent;

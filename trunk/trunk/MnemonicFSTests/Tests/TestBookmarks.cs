@@ -52,29 +52,29 @@ namespace MnemonicFS.Tests.Bookmarks {
                 string url = TestUtils.GetAnyUrl ();
                 string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
-                ulong urlID = _mfsOperations.AddUrl (url, description, when);
+                ulong urlID = _mfsOperations.Url.New (url, description, when);
                 docIDs.Add (urlID);
 
                 // Of these documents, we add bookmarks to only a few, for example all even-numbered document-IDs:
                 if (urlID % 2 == 0) {
-                    _mfsOperations.BookmarkDocument (urlID);
+                    _mfsOperations.Bookmark.New (urlID);
                     bookmarkedDocIDs.Add (urlID);
                 }
             }
 
-            List<ulong> allBookmarkedDocIDs = _mfsOperations.GetAllBookmarkedDocuments ();
+            List<ulong> allBookmarkedDocIDs = _mfsOperations.Bookmark.All ();
 
             Assert.AreEqual (bookmarkedDocIDs, allBookmarkedDocIDs, "Expected bookmarked documents not returned.");
 
             foreach (ulong urlID in docIDs) {
-                _mfsOperations.DeleteUrl (urlID);
+                _mfsOperations.Url.Delete (urlID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            _mfsOperations.BookmarkDocument (0);
+            _mfsOperations.Bookmark.New (0);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace MnemonicFS.Tests.Bookmarks {
         public void Test_NonExistentDocumentID_Illegal () {
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            _mfsOperations.BookmarkDocument (veryLargeDocumentID);
+            _mfsOperations.Bookmark.New (veryLargeDocumentID);
         }
     }
 
@@ -98,21 +98,21 @@ namespace MnemonicFS.Tests.Bookmarks {
                 string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
                 MfsNote note = new MfsNote (noteContent, when);
-                ulong noteID = _mfsOperations.AddNote (note);
+                ulong noteID = _mfsOperations.Note.New (note);
                 documentIDs.Add (noteID);
 
                 if (noteID % 2 == 0) {
-                    _mfsOperations.BookmarkDocument (noteID);
+                    _mfsOperations.Bookmark.New (noteID);
                     bookmarkedDocumentIDs.Add (noteID);
                 }
             }
 
-            List<ulong> allBookmarkedDocIDs = _mfsOperations.GetAllBookmarkedDocuments ();
+            List<ulong> allBookmarkedDocIDs = _mfsOperations.Bookmark.All ();
 
             Assert.AreEqual (bookmarkedDocumentIDs, allBookmarkedDocIDs, "Expected bookmarked documents not returned.");
 
             foreach (ulong noteID in documentIDs) {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.Note.Delete (noteID);
             }
         }
 
@@ -122,14 +122,14 @@ namespace MnemonicFS.Tests.Bookmarks {
             DateTime when = DateTime.Now;
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            _mfsOperations.BookmarkDocument (fileID);
+            _mfsOperations.Bookmark.New (fileID);
 
-            List<ulong> allBookmarkedDocIDs = _mfsOperations.GetAllBookmarkedDocuments ();
+            List<ulong> allBookmarkedDocIDs = _mfsOperations.Bookmark.All ();
             Assert.Contains (fileID, allBookmarkedDocIDs, "Bookmarked file list does not contain bookmarked document.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
 
-            allBookmarkedDocIDs = _mfsOperations.GetAllBookmarkedDocuments ();
+            allBookmarkedDocIDs = _mfsOperations.Bookmark.All ();
             Assert.IsFalse (allBookmarkedDocIDs.Contains (fileID), "Bookmarked document list contains document reference after its deletion.");
         }
     }
@@ -141,23 +141,23 @@ namespace MnemonicFS.Tests.Bookmarks {
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            bool isBookmarked = _mfsOperations.IsDocumentBookmarked (urlID);
+            bool isBookmarked = _mfsOperations.Bookmark.IsBookmarked (urlID);
             Assert.IsFalse (isBookmarked, "Document is shown as bookmarked even though it isn't.");
 
-            _mfsOperations.BookmarkDocument (urlID);
+            _mfsOperations.Bookmark.New (urlID);
 
-            isBookmarked = _mfsOperations.IsDocumentBookmarked (urlID);
+            isBookmarked = _mfsOperations.Bookmark.IsBookmarked (urlID);
             Assert.IsTrue (isBookmarked, "Document is not shown as bookmarked even though it is.");
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            _mfsOperations.IsDocumentBookmarked (0);
+            _mfsOperations.Bookmark.IsBookmarked (0);
         }
 
         [Test]
@@ -165,7 +165,7 @@ namespace MnemonicFS.Tests.Bookmarks {
         public void Test_NonExistentDocumentID_Illegal () {
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            _mfsOperations.IsDocumentBookmarked (veryLargeDocumentID);
+            _mfsOperations.Bookmark.IsBookmarked (veryLargeDocumentID);
         }
     }
 
@@ -183,11 +183,11 @@ namespace MnemonicFS.Tests.Bookmarks {
                 string url = TestUtils.GetAnyUrl ();
                 string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
-                ulong urlID = _mfsOperations.AddUrl (url, description, when);
+                ulong urlID = _mfsOperations.Url.New (url, description, when);
                 documentIDs.Add (urlID);
 
                 // Bookmark each document:
-                _mfsOperations.BookmarkDocument (urlID);
+                _mfsOperations.Bookmark.New (urlID);
                 bookmarkedDocIDs.Add (urlID);
 
                 // We will delete the bookmark of one of the documents bookmarked, say the zeroeth one:
@@ -196,21 +196,21 @@ namespace MnemonicFS.Tests.Bookmarks {
                 }
             }
 
-            _mfsOperations.DeleteDocumentBookmark (docIDToBeUnbookmarked);
+            _mfsOperations.Bookmark.Delete (docIDToBeUnbookmarked);
 
-            List<ulong> allBookmarkedFileIDs = _mfsOperations.GetAllBookmarkedDocuments ();
+            List<ulong> allBookmarkedFileIDs = _mfsOperations.Bookmark.All ();
             Assert.AreEqual (bookmarkedDocIDs.Count - 1, allBookmarkedFileIDs.Count, "Document bookmark not deleted properly.");
             Assert.IsFalse (allBookmarkedFileIDs.Contains (docIDToBeUnbookmarked), "Document bookmark still in bookmarked list after deletion.");
 
             foreach (ulong urlID in documentIDs) {
-                _mfsOperations.DeleteUrl (urlID);
+                _mfsOperations.Url.Delete (urlID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            _mfsOperations.DeleteDocumentBookmark (0);
+            _mfsOperations.Bookmark.Delete (0);
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace MnemonicFS.Tests.Bookmarks {
         public void Test_NonExistentDocumentID_Illegal () {
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            _mfsOperations.DeleteDocumentBookmark (veryLargeDocumentID);
+            _mfsOperations.Bookmark.Delete (veryLargeDocumentID);
         }
     }
 
@@ -233,22 +233,22 @@ namespace MnemonicFS.Tests.Bookmarks {
                 string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
                 MfsNote note = new MfsNote (noteContent, when);
-                ulong noteID = _mfsOperations.AddNote (note);
+                ulong noteID = _mfsOperations.Note.New (note);
                 docIDs.Add (noteID);
 
-                _mfsOperations.BookmarkDocument (noteID);
+                _mfsOperations.Bookmark.New (noteID);
             }
 
-            List<ulong> allBookmarkedDocIDs = _mfsOperations.GetAllBookmarkedDocuments ();
+            List<ulong> allBookmarkedDocIDs = _mfsOperations.Bookmark.All ();
             Assert.AreEqual (docIDs.Count, allBookmarkedDocIDs.Count, "Bookmarked document list contains incorrect number of entries.");
 
-            _mfsOperations.DeleteAllDocumentBookmarks ();
+            _mfsOperations.Bookmark.DeleteAll ();
 
-            allBookmarkedDocIDs = _mfsOperations.GetAllBookmarkedDocuments ();
+            allBookmarkedDocIDs = _mfsOperations.Bookmark.All ();
             Assert.AreEqual (0, allBookmarkedDocIDs.Count, "Bookmarked document list contains entries after deletion of all document bookmarks.");
 
             foreach (ulong noteID in docIDs) {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.Note.Delete (noteID);
             }
         }
     }

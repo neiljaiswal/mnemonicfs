@@ -57,7 +57,7 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDs.Add (fileID);
             }
 
-            List<ulong> allFileIDs = _mfsOperations.GetAllFiles ();
+            List<ulong> allFileIDs = _mfsOperations.File.GetAll ();
             Assert.AreEqual (TYPICAL_MULTI_VALUE, allFileIDs.Count, "Incorrect number of files retrieved.");
 
             fileIDs.Sort ();
@@ -68,7 +68,7 @@ namespace MnemonicFS.Tests.DateTimeFilter {
             }
 
             foreach (ulong fileID in fileIDs) {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -89,12 +89,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
 
             DateTime dt1 = DateTime.Now.AddYears (-1).AddDays (-1);
             DateTime dt2 = DateTime.Now.AddYears (1).AddDays (1);
-            List<ulong> filesInDateRange = _mfsOperations.GetFilesInDateRange (dt1, dt2);
+            List<ulong> filesInDateRange = _mfsOperations.File.GetInDateRange (dt1, dt2);
 
             Assert.AreEqual (3, filesInDateRange.Count, "Number of files returned in date range are not as expected.");
 
             foreach (ulong fileID in fileIDs) {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -117,12 +117,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
             DateTime dt1 = DateTime.Now.AddHours (-1).AddSeconds (-BUFFER_SECONDS_FOR_TEST_TO_RUN);
             DateTime dt2 = DateTime.Now.AddHours (1).AddSeconds (BUFFER_SECONDS_FOR_TEST_TO_RUN);
 
-            List<ulong> filesInDateTimeRange = _mfsOperations.GetFilesInDateTimeRange (dt1, dt2);
+            List<ulong> filesInDateTimeRange = _mfsOperations.File.GetInDateTimeRange (dt1, dt2);
 
             Assert.AreEqual (3, filesInDateTimeRange.Count, "Number of files returned in date-time range are not as expected.");
 
             foreach (ulong fileID in fileIDs) {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -140,12 +140,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
             DateTime whenAfter = DateTime.Now.AddDays (1);
             ulong fileIDAfter = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenAfter, false);
 
-            List<ulong> filesOnDate = _mfsOperations.GetFilesOnDate (whenOn);
+            List<ulong> filesOnDate = _mfsOperations.File.GetOnDate (whenOn);
             Assert.AreEqual (1, filesOnDate.Count, "Number of files returned on date are not as expected.");
 
-            _mfsOperations.DeleteFile (fileIDBefore);
-            _mfsOperations.DeleteFile (fileIDOn);
-            _mfsOperations.DeleteFile (fileIDAfter);
+            _mfsOperations.File.Delete (fileIDBefore);
+            _mfsOperations.File.Delete (fileIDOn);
+            _mfsOperations.File.Delete (fileIDAfter);
         }
 
         [Test]
@@ -162,12 +162,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
             DateTime whenAfter = DateTime.Now.AddSeconds (TYPICAL_MULTI_TIME_UNIT);
             ulong fileIDAfter = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, whenAfter, false);
 
-            List<ulong> filesOnDate = _mfsOperations.GetFilesAtDateTime (whenOn);
+            List<ulong> filesOnDate = _mfsOperations.File.GetAtDateTime (whenOn);
             Assert.AreEqual (1, filesOnDate.Count, "Number of files returned on date-time are not as expected.");
 
-            _mfsOperations.DeleteFile (fileIDBefore);
-            _mfsOperations.DeleteFile (fileIDOn);
-            _mfsOperations.DeleteFile (fileIDAfter);
+            _mfsOperations.File.Delete (fileIDBefore);
+            _mfsOperations.File.Delete (fileIDOn);
+            _mfsOperations.File.Delete (fileIDAfter);
         }
 
         [Test]
@@ -196,12 +196,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDsAfter.Add (fileID);
             }
 
-            List<ulong> filesBeforeDate = _mfsOperations.GetFilesBeforeDate (now);
+            List<ulong> filesBeforeDate = _mfsOperations.File.GetBeforeDate (now);
             Assert.AreEqual (fileIDsBefore.Count, filesBeforeDate.Count, "Number of files returned before date are not as expected.");
 
             for (int i = 0; i < numFilesToSave; ++i) {
-                _mfsOperations.DeleteFile (fileIDsBefore[i]);
-                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+                _mfsOperations.File.Delete (fileIDsBefore[i]);
+                _mfsOperations.File.Delete (fileIDsAfter[i]);
             }
         }
 
@@ -231,12 +231,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDsAfter.Add (fileID);
             }
 
-            List<ulong> filesBeforeDateTime = _mfsOperations.GetFilesBeforeDateTime (now);
+            List<ulong> filesBeforeDateTime = _mfsOperations.File.GetBeforeDateTime (now);
             Assert.AreEqual (fileIDsBefore.Count, filesBeforeDateTime.Count, "Number of files returned before date-time are not as expected.");
 
             for (int i = 0; i < numFilesToSave; ++i) {
-                _mfsOperations.DeleteFile (fileIDsBefore[i]);
-                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+                _mfsOperations.File.Delete (fileIDsBefore[i]);
+                _mfsOperations.File.Delete (fileIDsAfter[i]);
             }
         }
 
@@ -266,12 +266,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDsAfter.Add (fileID);
             }
 
-            List<ulong> filesBeforeDate = _mfsOperations.GetFilesBeforeAndOnDate (now);
+            List<ulong> filesBeforeDate = _mfsOperations.File.GetBeforeAndOnDate (now);
             Assert.AreEqual (fileIDsBefore.Count, filesBeforeDate.Count, "Number of files returned before and on date are not as expected.");
 
             for (int i = 0; i < numFilesToSave; ++i) {
-                _mfsOperations.DeleteFile (fileIDsBefore[i]);
-                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+                _mfsOperations.File.Delete (fileIDsBefore[i]);
+                _mfsOperations.File.Delete (fileIDsAfter[i]);
             }
         }
 
@@ -301,12 +301,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDsAfter.Add (fileID);
             }
 
-            List<ulong> filesBeforeDateTime = _mfsOperations.GetFilesBeforeAndAtDateTime (now);
+            List<ulong> filesBeforeDateTime = _mfsOperations.File.GetBeforeAndAtDateTime (now);
             Assert.AreEqual (fileIDsBefore.Count, filesBeforeDateTime.Count, "Number of files returned before and on date-time are not as expected.");
 
             for (int i = 0; i < numFilesToSave; ++i) {
-                _mfsOperations.DeleteFile (fileIDsBefore[i]);
-                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+                _mfsOperations.File.Delete (fileIDsBefore[i]);
+                _mfsOperations.File.Delete (fileIDsAfter[i]);
             }
         }
 
@@ -336,12 +336,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDsAfter.Add (fileID);
             }
 
-            List<ulong> filesAfterDate = _mfsOperations.GetFilesAfterDate (now);
+            List<ulong> filesAfterDate = _mfsOperations.File.GetAfterDate (now);
             Assert.AreEqual (fileIDsAfter.Count, filesAfterDate.Count, "Number of files returned after date are not as expected.");
 
             for (int i = 0; i < numFilesToSave; ++i) {
-                _mfsOperations.DeleteFile (fileIDsBefore[i]);
-                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+                _mfsOperations.File.Delete (fileIDsBefore[i]);
+                _mfsOperations.File.Delete (fileIDsAfter[i]);
             }
         }
 
@@ -371,12 +371,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDsAfter.Add (fileID);
             }
 
-            List<ulong> filesAfterDateTime = _mfsOperations.GetFilesAfterDateTime (now);
+            List<ulong> filesAfterDateTime = _mfsOperations.File.GetAfterDateTime (now);
             Assert.AreEqual (fileIDsBefore.Count, filesAfterDateTime.Count, "Number of files returned after date-time are not as expected.");
 
             for (int i = 0; i < numFilesToSave; ++i) {
-                _mfsOperations.DeleteFile (fileIDsBefore[i]);
-                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+                _mfsOperations.File.Delete (fileIDsBefore[i]);
+                _mfsOperations.File.Delete (fileIDsAfter[i]);
             }
         }
 
@@ -406,12 +406,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDsAfter.Add (fileID);
             }
 
-            List<ulong> filesAfterDate = _mfsOperations.GetFilesAfterAndOnDate (now);
+            List<ulong> filesAfterDate = _mfsOperations.File.GetAfterAndOnDate (now);
             Assert.AreEqual (fileIDsAfter.Count, filesAfterDate.Count, "Number of files returned after and on date are not as expected.");
 
             for (int i = 0; i < numFilesToSave; ++i) {
-                _mfsOperations.DeleteFile (fileIDsBefore[i]);
-                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+                _mfsOperations.File.Delete (fileIDsBefore[i]);
+                _mfsOperations.File.Delete (fileIDsAfter[i]);
             }
         }
 
@@ -441,12 +441,12 @@ namespace MnemonicFS.Tests.DateTimeFilter {
                 fileIDsAfter.Add (fileID);
             }
 
-            List<ulong> filesAfterDateTime = _mfsOperations.GetFilesAfterAndAtDateTime (now);
+            List<ulong> filesAfterDateTime = _mfsOperations.File.GetAfterAndAtDateTime (now);
             Assert.AreEqual (fileIDsAfter.Count, filesAfterDateTime.Count, "Number of files returned after and on date-time are not as expected.");
 
             for (int i = 0; i < numFilesToSave; ++i) {
-                _mfsOperations.DeleteFile (fileIDsBefore[i]);
-                _mfsOperations.DeleteFile (fileIDsAfter[i]);
+                _mfsOperations.File.Delete (fileIDsBefore[i]);
+                _mfsOperations.File.Delete (fileIDsAfter[i]);
             }
         }
     }

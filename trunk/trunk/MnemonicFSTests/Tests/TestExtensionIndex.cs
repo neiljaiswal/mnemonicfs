@@ -60,21 +60,21 @@ namespace MnemonicFS.Tests.ExtensionIndex {
             string fileName3 = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + PDF_FILE_EXTENSION;
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, _fileNarration, _fileData, when, false);
 
-            List<ulong> fileIDs1 = _mfsOperations.GetFilesWithExtension (PDF_FILE_EXTENSION);
+            List<ulong> fileIDs1 = _mfsOperations.Index.GetFilesWithExtension (PDF_FILE_EXTENSION);
             Assert.AreEqual (2, fileIDs1.Count, "Did not return the actual number of files with extension.");
             Assert.That (fileIDs1.Contains (fileID1), "Returned file list does not contain expected file.");
             Assert.That (fileIDs1.Contains (fileID3), "Returned file list does not contain expected file.");
 
-            List<ulong> fileIDs2 = _mfsOperations.GetFilesWithExtension (MSDOC_FILE_EXTENSION);
+            List<ulong> fileIDs2 = _mfsOperations.Index.GetFilesWithExtension (MSDOC_FILE_EXTENSION);
             Assert.AreEqual (1, fileIDs2.Count, "Did not return the actual number of files with extension.");
             Assert.That (fileIDs2.Contains (fileID2), "Returned file list does not contain expected file.");
 
-            List<ulong> fileIDs3 = _mfsOperations.GetFilesWithExtension (MSEXCEL_FILE_EXTENSION);
+            List<ulong> fileIDs3 = _mfsOperations.Index.GetFilesWithExtension (MSEXCEL_FILE_EXTENSION);
             Assert.AreEqual (0, fileIDs3.Count, "Returned file/s with extension though none exist.");
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
 
         [Test]
@@ -85,26 +85,26 @@ namespace MnemonicFS.Tests.ExtensionIndex {
             string fileName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + "." + PDF_FILE_EXTENSION;
             ulong fileID = SaveFileToMfs (ref _mfsOperations, fileName, _fileNarration, _fileData, when, false);
 
-            List<ulong> fileIDs = _mfsOperations.GetFilesWithExtension (PDF_FILE_EXTENSION);
+            List<ulong> fileIDs = _mfsOperations.Index.GetFilesWithExtension (PDF_FILE_EXTENSION);
             Assert.That (fileIDs.Contains (fileID), "Returned file list does not contain expected file.");
 
             // Search with upper-case extension:
-            fileIDs = _mfsOperations.GetFilesWithExtension (PDF_FILE_EXTENSION.ToUpper ());
+            fileIDs = _mfsOperations.Index.GetFilesWithExtension (PDF_FILE_EXTENSION.ToUpper ());
             Assert.That (fileIDs.Contains (fileID), "Returned file list does not contain expected file.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullString_Illegal () {
-            _mfsOperations.GetFilesWithExtension (null);
+            _mfsOperations.Index.GetFilesWithExtension (null);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyString_Illegal () {
-            _mfsOperations.GetFilesWithExtension (string.Empty);
+            _mfsOperations.Index.GetFilesWithExtension (string.Empty);
         }
     }
 }

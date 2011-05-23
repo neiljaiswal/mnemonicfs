@@ -44,21 +44,21 @@ namespace MnemonicFS.Tests.Relations {
     public class TestRelations_CreatePredicate : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
-            Assert.That (predicateID > 0, "Predicate ID is not valid.");
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
+            Assert.That (predicateID > 0, "Predicate id is not valid.");
 
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsDuplicateNameException))]
         public void Test_DuplicatePredicate_SanityCheck () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.CreatePredicate (_predicate);
+                _mfsOperations.Relation.NewPredicate (_predicate);
             } finally {
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -66,9 +66,9 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_PredicateWithMaxSizeAllowed_SanityCheck () {
             string predicate = TestUtils.GetAWord (MfsOperations.MaxPredicateLength);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (predicate);
 
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_PredicateGreaterThanMaxSizeAllowed_Illegal () {
             string predicate = TestUtils.GetAWord (MfsOperations.MaxPredicateLength + 1);
 
-            _mfsOperations.CreatePredicate (predicate);
+            _mfsOperations.Relation.NewPredicate (predicate);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_NullPredicate_Illegal () {
             string nullPredicate = null;
 
-            _mfsOperations.CreatePredicate (nullPredicate);
+            _mfsOperations.Relation.NewPredicate (nullPredicate);
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_EmptyPredicate_Illegal () {
             string emptyPredicate = string.Empty;
 
-            _mfsOperations.CreatePredicate (emptyPredicate);
+            _mfsOperations.Relation.NewPredicate (emptyPredicate);
         }
     }
 
@@ -100,37 +100,37 @@ namespace MnemonicFS.Tests.Relations {
     public class TestRelations_DoesPredicateExist : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck_Exists () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            bool predicateExists = _mfsOperations.DoesPredicateExist (predicateID);
+            bool predicateExists = _mfsOperations.Relation.DoesPredicateExist (predicateID);
             Assert.IsTrue (predicateExists, "Predicate was shown as not existing, even though it does.");
 
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
         public void Test_SanityCheck_NotExists () {
             ulong veryLargePredicateID = ulong.MaxValue;
 
-            bool predicateExists = _mfsOperations.DoesPredicateExist (veryLargePredicateID);
+            bool predicateExists = _mfsOperations.Relation.DoesPredicateExist (veryLargePredicateID);
             Assert.IsFalse (predicateExists, "Predicate was shown as existing, even though it does not.");
         }
 
         [Test]
         public void Test_SanityCheck_WithPredicate_Exists () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            bool predicateExists = _mfsOperations.DoesPredicateExist (_predicate);
+            bool predicateExists = _mfsOperations.Relation.DoesPredicateExist (_predicate);
             Assert.IsTrue (predicateExists, "Predicate was shown as not existing, even though it does.");
 
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
         public void Test_SanityCheck_WithPredicate_NotExists () {
             string somePredicateName = TestUtils.GetAWord (TYPICAL_WORD_SIZE * 2);
 
-            bool predicateExists = _mfsOperations.DoesPredicateExist (somePredicateName);
+            bool predicateExists = _mfsOperations.Relation.DoesPredicateExist (somePredicateName);
             ;
             Assert.IsFalse (predicateExists, "Predicate was shown as existing, even though it does not.");
         }
@@ -138,19 +138,19 @@ namespace MnemonicFS.Tests.Relations {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_PredicateIDZero_Illegal () {
-            _mfsOperations.DoesPredicateExist (0);
+            _mfsOperations.Relation.DoesPredicateExist (0);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_PredicateNull_Illegal () {
-            _mfsOperations.DoesPredicateExist (null);
+            _mfsOperations.Relation.DoesPredicateExist (null);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_PredicateSizeZero_Illegal () {
-            _mfsOperations.DoesPredicateExist (string.Empty);
+            _mfsOperations.Relation.DoesPredicateExist (string.Empty);
         }
     }
 
@@ -158,16 +158,16 @@ namespace MnemonicFS.Tests.Relations {
     public class TestRelations_DeletePredicate : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            int numPredicatesDeleted = _mfsOperations.DeletePredicate (predicateID);
+            int numPredicatesDeleted = _mfsOperations.Relation.DeletePredicate (predicateID);
             Assert.AreEqual (1, numPredicatesDeleted, "Predicate was not deleted.");
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_PredicateIDZero_Illegal () {
-            _mfsOperations.DeletePredicate (0);
+            _mfsOperations.Relation.DeletePredicate (0);
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_NonExistentPredicateID_Illegal () {
             ulong veryLargePredicateID = UInt64.MaxValue;
 
-            _mfsOperations.DeletePredicate (veryLargePredicateID);
+            _mfsOperations.Relation.DeletePredicate (veryLargePredicateID);
         }
     }
 
@@ -183,18 +183,18 @@ namespace MnemonicFS.Tests.Relations {
     public class TestRelations_GetPredicate : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            string retrPredicate = _mfsOperations.GetPredicate (predicateID);
+            string retrPredicate = _mfsOperations.Relation.GetPredicate (predicateID);
             Assert.AreEqual (_predicate, retrPredicate, "Did not retrieve existing predicate's name.");
 
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_PredicateIDZero_Illegal () {
-            _mfsOperations.GetPredicate (0);
+            _mfsOperations.Relation.GetPredicate (0);
         }
 
         [Test]
@@ -202,7 +202,7 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_NonExistentPredicateID_Illegal () {
             ulong veryLargePredicateID = UInt64.MaxValue;
 
-            _mfsOperations.GetPredicate (veryLargePredicateID);
+            _mfsOperations.Relation.GetPredicate (veryLargePredicateID);
         }
     }
 
@@ -210,12 +210,12 @@ namespace MnemonicFS.Tests.Relations {
     public class TestRelations_GetPredicateID : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            ulong retrPredicateID = _mfsOperations.GetPredicateID (_predicate);
-            Assert.AreEqual (predicateID, retrPredicateID, "Wrong predicate ID retrieved.");
+            ulong retrPredicateID = _mfsOperations.Relation.GetPredicateID (_predicate);
+            Assert.AreEqual (predicateID, retrPredicateID, "Wrong predicate id retrieved.");
 
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -225,9 +225,9 @@ namespace MnemonicFS.Tests.Relations {
 
             do {
                 nonExistentPredicateName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (_mfsOperations.DoesPredicateExist (nonExistentPredicateName));
+            } while (_mfsOperations.Relation.DoesPredicateExist (nonExistentPredicateName));
 
-            _mfsOperations.GetPredicateID (nonExistentPredicateName);
+            _mfsOperations.Relation.GetPredicateID (nonExistentPredicateName);
         }
 
         [Test]
@@ -235,7 +235,7 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_NullPredicateName_Illegal () {
             string nullPredicateName = null;
 
-            _mfsOperations.GetPredicateID (nullPredicateName);
+            _mfsOperations.Relation.GetPredicateID (nullPredicateName);
         }
 
         [Test]
@@ -243,7 +243,7 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_EmptyPredicateName_Illegal () {
             string emptyPredicateName = string.Empty;
 
-            _mfsOperations.GetPredicateID (emptyPredicateName);
+            _mfsOperations.Relation.GetPredicateID (emptyPredicateName);
         }
     }
 
@@ -251,24 +251,18 @@ namespace MnemonicFS.Tests.Relations {
     public class TestRelations_GetAllPredicates : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            List<ulong> predicatesList = new List<ulong> ();
+            List<ulong> predicateIDs = CreateUniqueNPredicates (ref _mfsOperations, TYPICAL_MULTI_VALUE);
 
-            for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
-                string predicate;
-                ulong predicateID = CreateUniquePredicate (ref _mfsOperations, out predicate);
-                predicatesList.Add (predicateID);
-            }
+            List<ulong> retrPredicateIDs = _mfsOperations.Relation.GetAllPredicates ();
 
-            List<ulong> retrPredicateIDs = _mfsOperations.GetAllPredicates ();
-
-            predicatesList.Sort ();
+            predicateIDs.Sort ();
             retrPredicateIDs.Sort ();
 
-            Assert.AreEqual (predicatesList.Count, retrPredicateIDs.Count, "Wrong number of predicate ids retrieved.");
-            Assert.AreEqual (predicatesList, retrPredicateIDs, "Wrong predicate ids recovered.");
+            Assert.AreEqual (predicateIDs.Count, retrPredicateIDs.Count, "Wrong number of predicate ids retrieved.");
+            Assert.AreEqual (predicateIDs, retrPredicateIDs, "Wrong predicate ids recovered.");
 
-            foreach (ulong predicateID in predicatesList) {
-                _mfsOperations.DeletePredicate (predicateID);
+            foreach (ulong predicateID in predicateIDs) {
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
     }
@@ -277,30 +271,30 @@ namespace MnemonicFS.Tests.Relations {
     public class TestRelations_UpdatePredicate : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             string newPredicateName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            bool predicateUpdated = _mfsOperations.UpdatePredicate (predicateID, newPredicateName);
+            bool predicateUpdated = _mfsOperations.Relation.UpdatePredicate (predicateID, newPredicateName);
             Assert.IsTrue (predicateUpdated, "Predicate was not updated successfully.");
 
-            string predicate = _mfsOperations.GetPredicate (predicateID);
+            string predicate = _mfsOperations.Relation.GetPredicate (predicateID);
             Assert.AreEqual (newPredicateName, predicate, "Predicate was not updated successfully.");
 
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
         public void Test_PredicateWithMaxSizeAllowed_SanityCheck () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             string newPredicate = TestUtils.GetAWord (MfsOperations.MaxPredicateLength);
-            _mfsOperations.UpdatePredicate (predicateID, newPredicate);
+            _mfsOperations.Relation.UpdatePredicate (predicateID, newPredicate);
 
-            string predicate = _mfsOperations.GetPredicate (predicateID);
+            string predicate = _mfsOperations.Relation.GetPredicate (predicateID);
             Assert.AreEqual (newPredicate, predicate, "Wrong predicate returned after predicate updation.");
 
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -308,7 +302,7 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_PredicateIDZero_Illegal () {
             string any = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdatePredicate (0, any);
+            _mfsOperations.Relation.UpdatePredicate (0, any);
         }
 
         [Test]
@@ -318,48 +312,48 @@ namespace MnemonicFS.Tests.Relations {
 
             string any = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdatePredicate (veryLargePredicateID, any);
+            _mfsOperations.Relation.UpdatePredicate (veryLargePredicateID, any);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullNewPredicate_Illegal () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             string nullPredicateName = null;
 
             try {
-                _mfsOperations.UpdatePredicate (predicateID, nullPredicateName);
+                _mfsOperations.Relation.UpdatePredicate (predicateID, nullPredicateName);
             } finally {
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyNewPredicate_Illegal () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             string emptyPredicateName = string.Empty;
 
             try {
-                _mfsOperations.UpdatePredicate (predicateID, emptyPredicateName);
+                _mfsOperations.Relation.UpdatePredicate (predicateID, emptyPredicateName);
             } finally {
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_PredicateGreaterThanSystemDefined_Illegal () {
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            string veryLongPredicate = TestUtils.GetAWord (MfsOperations.MaxPredicateLength + 1);
+            string veryLongPredicateName = TestUtils.GetAWord (MfsOperations.MaxPredicateLength + 1);
 
             try {
-                _mfsOperations.UpdatePredicate (predicateID, veryLongPredicate);
+                _mfsOperations.Relation.UpdatePredicate (predicateID, veryLongPredicateName);
             } finally {
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
     }
@@ -370,10 +364,10 @@ namespace MnemonicFS.Tests.Relations {
         public void Test_SanityCheck () {
             int numPredicatesToCreate = TYPICAL_MULTI_VALUE;
 
-            List<ulong> listPredicates = CreateUniqueNPredicates (ref _mfsOperations, numPredicatesToCreate);
+            List<ulong> predicateIDs = CreateUniqueNPredicates (ref _mfsOperations, numPredicatesToCreate);
 
-            int numPredicatesDeleted = _mfsOperations.DeleteAllPredicates ();
-            Assert.AreEqual (listPredicates.Count, numPredicatesDeleted, "Did not delete the same number of predicates as were created.");
+            int numPredicatesDeleted = _mfsOperations.Relation.DeleteAllPredicates ();
+            Assert.AreEqual (predicateIDs.Count, numPredicatesDeleted, "Did not delete the same number of predicates as were created.");
         }
     }
 
@@ -384,41 +378,34 @@ namespace MnemonicFS.Tests.Relations {
             DateTime when = DateTime.Now;
 
             // Save a note:
-            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = CreateNote (ref _mfsOperations);
 
             // And save a url:
-            string url = TestUtils.GetAnyUrl ();
-            string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = CreateUrl (ref _mfsOperations);
 
             // And also create a predicate:
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             // Now create a relation between them:
-            bool relationCreated = _mfsOperations.CreateRelation (noteID, urlID, predicateID);
+            bool relationCreated = _mfsOperations.Relation.New (noteID, urlID, predicateID);
             Assert.IsTrue (relationCreated, "Relation not created.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeleteDocument (urlID);
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Document.Delete (urlID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
         public void Test_DocSelfRelation_Legal () {
-            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
-            DateTime when = DateTime.Now;
-            MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = CreateNote (ref _mfsOperations);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            bool relationCreated = _mfsOperations.CreateRelation (noteID, noteID, predicateID);
+            bool relationCreated = _mfsOperations.Relation.New (noteID, noteID, predicateID);
             Assert.IsTrue (relationCreated, "Relation not created.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -429,15 +416,15 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.CreateRelation (veryLargeDocID, noteID, predicateID);
+                _mfsOperations.Relation.New (veryLargeDocID, noteID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -447,17 +434,17 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             ulong veryLargeDocID = UInt64.MaxValue;
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.CreateRelation (noteID, veryLargeDocID, predicateID);
+                _mfsOperations.Relation.New (noteID, veryLargeDocID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -468,19 +455,19 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             ulong veryLargePredicateID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.CreateRelation (noteID, urlID, veryLargePredicateID);
+                _mfsOperations.Relation.New (noteID, urlID, veryLargePredicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeleteDocument (urlID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Document.Delete (urlID);
             }
         }
 
@@ -490,15 +477,15 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.CreateRelation (0, noteID, predicateID);
+                _mfsOperations.Relation.New (0, noteID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -508,15 +495,15 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.CreateRelation (noteID, 0, predicateID);
+                _mfsOperations.Relation.New (noteID, 0, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -527,17 +514,17 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             try {
-                _mfsOperations.CreateRelation (noteID, urlID, 0);
+                _mfsOperations.Relation.New (noteID, urlID, 0);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeleteDocument (urlID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Document.Delete (urlID);
             }
         }
     }
@@ -550,22 +537,22 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            _mfsOperations.CreateRelation (noteID, urlID, predicateID);
+            _mfsOperations.Relation.New (noteID, urlID, predicateID);
 
-            bool doesRelationExist = _mfsOperations.DoesRelationExist (noteID, urlID);
+            bool doesRelationExist = _mfsOperations.Relation.Exists (noteID, urlID);
             Assert.IsTrue (doesRelationExist, "Shows relation as not existing even though it does.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeleteDocument (urlID);
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Document.Delete (urlID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -574,17 +561,17 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            bool doesRelationExist = _mfsOperations.DoesRelationExist (noteID, urlID);
+            bool doesRelationExist = _mfsOperations.Relation.Exists (noteID, urlID);
             Assert.IsFalse (doesRelationExist, "Shows relation as existing even though it doesn't.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeleteDocument (urlID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Document.Delete (urlID);
         }
 
         [Test]
@@ -595,12 +582,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.DoesRelationExist (veryLargeDocID, noteID);
+                _mfsOperations.Relation.Exists (veryLargeDocID, noteID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -610,14 +597,14 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             ulong veryLargeDocID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.DoesRelationExist (noteID, veryLargeDocID);
+                _mfsOperations.Relation.Exists (noteID, veryLargeDocID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -627,12 +614,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.DoesRelationExist (0, noteID);
+                _mfsOperations.Relation.Exists (0, noteID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -642,12 +629,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.DoesRelationExist (noteID, 0);
+                _mfsOperations.Relation.Exists (noteID, 0);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
     }
@@ -660,22 +647,22 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            _mfsOperations.CreateRelation (noteID, urlID, predicateID);
+            _mfsOperations.Relation.New (noteID, urlID, predicateID);
 
-            bool doesRelationExist = _mfsOperations.DoesSpecificRelationExist (noteID, urlID, predicateID);
+            bool doesRelationExist = _mfsOperations.Relation.SpecificExists (noteID, urlID, predicateID);
             Assert.IsTrue (doesRelationExist, "Shows relation as not existing even though it does.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeleteDocument (urlID);
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Document.Delete (urlID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -684,20 +671,20 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            bool doesRelationExist = _mfsOperations.DoesSpecificRelationExist (noteID, urlID, predicateID);
+            bool doesRelationExist = _mfsOperations.Relation.SpecificExists (noteID, urlID, predicateID);
             Assert.IsFalse (doesRelationExist, "Shows relation as existing even though it doesn't.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeleteDocument (urlID);
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Document.Delete (urlID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -708,15 +695,15 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.DoesSpecificRelationExist (veryLargeDocID, noteID, predicateID);
+                _mfsOperations.Relation.SpecificExists (veryLargeDocID, noteID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -726,17 +713,17 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             ulong veryLargeDocID = UInt64.MaxValue;
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.DoesSpecificRelationExist (noteID, veryLargeDocID, predicateID);
+                _mfsOperations.Relation.SpecificExists (noteID, veryLargeDocID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -747,19 +734,19 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             ulong veryLargePredicateID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.DoesSpecificRelationExist (noteID, urlID, veryLargePredicateID);
+                _mfsOperations.Relation.SpecificExists (noteID, urlID, veryLargePredicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeleteDocument (urlID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Document.Delete (urlID);
             }
         }
 
@@ -769,14 +756,14 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.DoesSpecificRelationExist (0, noteID, predicateID);
+                _mfsOperations.Relation.SpecificExists (0, noteID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -786,14 +773,14 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.DoesSpecificRelationExist (noteID, 0, predicateID);
+                _mfsOperations.Relation.SpecificExists (noteID, 0, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -804,17 +791,17 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             try {
-                _mfsOperations.DoesSpecificRelationExist (noteID, urlID, 0);
+                _mfsOperations.Relation.SpecificExists (noteID, urlID, 0);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeleteDocument (urlID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Document.Delete (urlID);
             }
         }
     }
@@ -827,32 +814,32 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             List<ulong> predicates = new List<ulong> ();
             char ch = 'a';
             for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
                 string predicate = _predicate + ch++;
-                ulong predicateID = _mfsOperations.CreatePredicate (predicate);
-                _mfsOperations.CreateRelation (noteID, urlID, predicateID);
+                ulong predicateID = _mfsOperations.Relation.NewPredicate (predicate);
+                _mfsOperations.Relation.New (noteID, urlID, predicateID);
                 predicates.Add (predicateID);
             }
 
-            List<ulong> relationsList = _mfsOperations.GetRelations (noteID, urlID);
+            List<ulong> relationsList = _mfsOperations.Relation.Get (noteID, urlID);
             Assert.AreEqual (predicates.Count, relationsList.Count, "Shows incorrect number of relations.");
 
             predicates.Sort ();
             relationsList.Sort ();
             Assert.AreEqual (predicates, relationsList, "Wrong relations returned.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeleteDocument (urlID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Document.Delete (urlID);
             foreach (ulong predicateID in predicates) {
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -864,12 +851,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.GetRelations (veryLargeDocID, noteID);
+                _mfsOperations.Relation.Get (veryLargeDocID, noteID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -881,12 +868,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.GetRelations (noteID, veryLargeDocID);
+                _mfsOperations.Relation.Get (noteID, veryLargeDocID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -896,12 +883,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.GetRelations (0, noteID);
+                _mfsOperations.Relation.Get (0, noteID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -911,12 +898,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.GetRelations (noteID, 0);
+                _mfsOperations.Relation.Get (noteID, 0);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
     }
@@ -929,26 +916,26 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            bool relationCreated = _mfsOperations.CreateRelation (noteID, urlID, predicateID);
+            bool relationCreated = _mfsOperations.Relation.New (noteID, urlID, predicateID);
             Assert.IsTrue (relationCreated, "Relation not created successfully.");
 
-            bool relationRemoved = _mfsOperations.RemoveSpecificRelation (noteID, urlID, predicateID);
+            bool relationRemoved = _mfsOperations.Relation.RemoveSpecific (noteID, urlID, predicateID);
             Assert.IsTrue (relationRemoved, "Specific relation not removed successfully.");
 
-            bool relationExists = _mfsOperations.DoesSpecificRelationExist (noteID, urlID, predicateID);
+            bool relationExists = _mfsOperations.Relation.SpecificExists (noteID, urlID, predicateID);
             Assert.IsFalse (relationExists, "Shows specific relation as existing even though it doesn't.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeleteDocument (urlID);
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Document.Delete (urlID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -959,15 +946,15 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.RemoveSpecificRelation (veryLargeDocID, noteID, predicateID);
+                _mfsOperations.Relation.RemoveSpecific (veryLargeDocID, noteID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -977,17 +964,17 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             ulong veryLargeDocID = UInt64.MaxValue;
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.RemoveSpecificRelation (noteID, veryLargeDocID, predicateID);
+                _mfsOperations.Relation.RemoveSpecific (noteID, veryLargeDocID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -998,19 +985,19 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             ulong veryLargePredicateID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.RemoveSpecificRelation (noteID, urlID, veryLargePredicateID);
+                _mfsOperations.Relation.RemoveSpecific (noteID, urlID, veryLargePredicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeleteDocument (urlID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Document.Delete (urlID);
             }
         }
 
@@ -1020,15 +1007,15 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.RemoveSpecificRelation (0, noteID, predicateID);
+                _mfsOperations.Relation.RemoveSpecific (0, noteID, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -1038,15 +1025,15 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
             try {
-                _mfsOperations.DoesSpecificRelationExist (noteID, 0, predicateID);
+                _mfsOperations.Relation.SpecificExists (noteID, 0, predicateID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeletePredicate (predicateID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Relation.DeletePredicate (predicateID);
             }
         }
 
@@ -1057,17 +1044,17 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             try {
-                _mfsOperations.DoesSpecificRelationExist (noteID, urlID, 0);
+                _mfsOperations.Relation.SpecificExists (noteID, urlID, 0);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
-                _mfsOperations.DeleteDocument (urlID);
+                _mfsOperations.Document.Delete (noteID);
+                _mfsOperations.Document.Delete (urlID);
             }
         }
     }
@@ -1080,26 +1067,26 @@ namespace MnemonicFS.Tests.Relations {
 
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            ulong predicateID = _mfsOperations.CreatePredicate (_predicate);
+            ulong predicateID = _mfsOperations.Relation.NewPredicate (_predicate);
 
-            bool relationCreated = _mfsOperations.CreateRelation (noteID, urlID, predicateID);
+            bool relationCreated = _mfsOperations.Relation.New (noteID, urlID, predicateID);
             Assert.IsTrue (relationCreated, "Relation not created successfully.");
 
-            bool relationRemoved = _mfsOperations.RemoveAllRelations (noteID, urlID);
+            bool relationRemoved = _mfsOperations.Relation.RemoveAll (noteID, urlID);
             Assert.IsTrue (relationRemoved, "Relation not removed successfully.");
 
-            bool relationExists = _mfsOperations.DoesRelationExist (noteID, urlID);
+            bool relationExists = _mfsOperations.Relation.Exists (noteID, urlID);
             Assert.IsFalse (relationExists, "Shows relation as existing even though none does.");
 
-            _mfsOperations.DeleteDocument (noteID);
-            _mfsOperations.DeleteDocument (urlID);
-            _mfsOperations.DeletePredicate (predicateID);
+            _mfsOperations.Document.Delete (noteID);
+            _mfsOperations.Document.Delete (urlID);
+            _mfsOperations.Relation.DeletePredicate (predicateID);
         }
 
         [Test]
@@ -1110,12 +1097,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.RemoveAllRelations (veryLargeDocID, noteID);
+                _mfsOperations.Relation.RemoveAll (veryLargeDocID, noteID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -1125,14 +1112,14 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             ulong veryLargeDocID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.RemoveAllRelations (noteID, veryLargeDocID);
+                _mfsOperations.Relation.RemoveAll (noteID, veryLargeDocID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -1142,12 +1129,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.RemoveAllRelations (0, noteID);
+                _mfsOperations.Relation.RemoveAll (0, noteID);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
 
@@ -1157,12 +1144,12 @@ namespace MnemonicFS.Tests.Relations {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.RemoveAllRelations (noteID, 0);
+                _mfsOperations.Relation.RemoveAll (noteID, 0);
             } finally {
-                _mfsOperations.DeleteDocument (noteID);
+                _mfsOperations.Document.Delete (noteID);
             }
         }
     }

@@ -50,7 +50,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             // Last file version number and its data stream are retrieved:
             int lastVersionNumber;
-            byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+            byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
 
             // The client now has the responsibilty of saving _both_ the file data as well as the version number
             // in its local cache.
@@ -64,10 +64,10 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             // And saves it to the repository. Since no new version has been checked in by any other user,
             // we know for sure that the new version number should be one.
-            int versionNumber = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
+            int versionNumber = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
             Assert.AreEqual (1, versionNumber, "First modified version number was not one.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             int lastVersionNumber = 0;
 
-            _mfsOperations.SaveAsNextVersion (0, fileDataModified, comments, lastVersionNumber);
+            _mfsOperations.File.SaveAsNextVersion (0, fileDataModified, comments, lastVersionNumber);
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.SaveAsNextVersion (veryLargeFileID, fileDataModified, comments, lastVersionNumber);
+            _mfsOperations.File.SaveAsNextVersion (veryLargeFileID, fileDataModified, comments, lastVersionNumber);
         }
 
         [Test]
@@ -100,15 +100,15 @@ namespace MnemonicFS.Tests.FileVersioning {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int lastVersionNumber;
-            byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+            byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
 
             byte[] nullFileData = null;
             string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
             try {
-                _mfsOperations.SaveAsNextVersion (fileID, nullFileData, comments, lastVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, nullFileData, comments, lastVersionNumber);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -120,15 +120,15 @@ namespace MnemonicFS.Tests.FileVersioning {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int lastVersionNumber;
-            byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+            byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
 
             byte[] emptyFileData = TestUtils.GetAnyFileData (FileSize.ZERO_FILE_SIZE);
             string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
             try {
-                _mfsOperations.SaveAsNextVersion (fileID, emptyFileData, comments, lastVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, emptyFileData, comments, lastVersionNumber);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -148,15 +148,15 @@ namespace MnemonicFS.Tests.FileVersioning {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int lastVersionNumber;
-            byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+            byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
 
             byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             string nullComments = null;
 
             try {
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, nullComments, lastVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, nullComments, lastVersionNumber);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -167,15 +167,15 @@ namespace MnemonicFS.Tests.FileVersioning {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             int lastVersionNumber;
-            byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+            byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
 
             byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             string emptyComments = string.Empty;
 
             try {
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, emptyComments, lastVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, emptyComments, lastVersionNumber);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -192,9 +192,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             int someNegativeIllegalVersionNumber = -1;
 
             try {
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, someNegativeIllegalVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, someNegativeIllegalVersionNumber);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -211,9 +211,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             int veryLargeVersionNumber = Int32.MaxValue;
 
             try {
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, veryLargeVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, veryLargeVersionNumber);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -229,10 +229,10 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             // Last file version number and its data stream are retrieved:
             int lastVersionNumber;
-            byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+            byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
             Assert.AreEqual (0, lastVersionNumber, "Last version number is not zero, though there have been no other check-ins.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
@@ -242,17 +242,17 @@ namespace MnemonicFS.Tests.FileVersioning {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             // Check out last file version:
-            int currentHeadVersionNumber = _mfsOperations.GetLastFileVersionNumber (fileID);
+            int currentHeadVersionNumber = _mfsOperations.File.GetLastVersionNumber (fileID);
 
             // Make some modifications to current file.
             // Assuming that the new file data object has the modified version of the old file:
             byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             // Add a comment to the new version:
             string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            int versionNumber = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, currentHeadVersionNumber);
+            int versionNumber = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, currentHeadVersionNumber);
             Assert.AreEqual (1, versionNumber, "First modified version number was not one.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
@@ -264,12 +264,12 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             // Last file version number and its data stream are retrieved:
             int lastVersionNumber;
-            byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+            byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
             for (int i = 0; i < fileData.Length; ++i) {
                 Assert.AreEqual (_fileData[i], fileData[i], "Did not retrieve the file data correctly.");
             }
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
@@ -277,7 +277,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_FileIDZero_Illegal () {
             int lastVersionNumber;
 
-            _mfsOperations.RetrieveLastFileVersion (0, out lastVersionNumber);
+            _mfsOperations.File.RetrieveLastVersion (0, out lastVersionNumber);
         }
 
         [Test]
@@ -287,7 +287,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.RetrieveLastFileVersion (veryLargeFileID, out lastVersionNumber);
+            _mfsOperations.File.RetrieveLastVersion (veryLargeFileID, out lastVersionNumber);
         }
     }
 
@@ -308,7 +308,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             for (int i = 0; i < numVersionsToSave; ++i) {
                 // Last file version number and its data stream are retrieved:
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
 
                 // User next makes some modifications to the locally cached file.
                 // Assuming that the new file data (document) is the modified version of the old file:
@@ -324,7 +324,7 @@ namespace MnemonicFS.Tests.FileVersioning {
                 string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
                 // And saves it to the repository:
-                lastVersionNumber = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
+                lastVersionNumber = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
             }
 
             Assert.AreEqual (
@@ -332,13 +332,13 @@ namespace MnemonicFS.Tests.FileVersioning {
                 string.Format ("Last file version number retrieved should have been {0}.", numVersionsToSave)
                 );
 
-            byte[] fileDataRetr = _mfsOperations.GetFileVersion (fileID, numVersionToCheckFor);
+            byte[] fileDataRetr = _mfsOperations.File.RetrieveVersion (fileID, numVersionToCheckFor);
 
             for (int i = 0; i < fileDataRetr.Length; ++i) {
                 Assert.AreEqual (dataToCheckFor[i], fileDataRetr[i], "Did not correctly retrieve file data for version sought.");
             }
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
@@ -346,7 +346,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_FileIDZero_Illegal () {
             int versionNumber = 0;
 
-            _mfsOperations.GetFileVersion (0, versionNumber);
+            _mfsOperations.File.RetrieveVersion (0, versionNumber);
         }
 
         [Test]
@@ -356,7 +356,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.GetFileVersion (veryLargeFileID, versionNumber);
+            _mfsOperations.File.RetrieveVersion (veryLargeFileID, versionNumber);
         }
 
         [Test]
@@ -369,9 +369,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             int someNegativeIllegalVersionNumber = -1;
 
             try {
-                _mfsOperations.GetFileVersion (fileID, someNegativeIllegalVersionNumber);
+                _mfsOperations.File.RetrieveVersion (fileID, someNegativeIllegalVersionNumber);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -385,9 +385,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             int veryLargeVersionNumber = Int32.MaxValue;
 
             try {
-                _mfsOperations.GetFileVersion (fileID, veryLargeVersionNumber);
+                _mfsOperations.File.RetrieveVersion (fileID, veryLargeVersionNumber);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -415,7 +415,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             for (int i = 0; i < numVersionsToSave; ++i) {
                 // Last file version number and its data stream are retrieved:
                 int currentHeadVersionNumberInRepo;
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out currentHeadVersionNumberInRepo);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out currentHeadVersionNumberInRepo);
 
                 // User next makes some modifications to the locally cached file.
                 // Assuming that the new file data (document) is the modified version of the old file:
@@ -427,13 +427,13 @@ namespace MnemonicFS.Tests.FileVersioning {
                     fileDataModified = dataToCheckFor;
                     comments = commentToCheckFor;
                     // And saves it to the repository:
-                    int newHeadVersionNumberInRepo = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, currentHeadVersionNumberInRepo);
+                    int newHeadVersionNumberInRepo = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, currentHeadVersionNumberInRepo);
                     numVersionNumberToCheck = newHeadVersionNumberInRepo;
                 } else {
                     fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                     comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                     // And saves it to the repository:
-                    int newHeadVersionNumberInRepo = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, currentHeadVersionNumberInRepo);
+                    int newHeadVersionNumberInRepo = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, currentHeadVersionNumberInRepo);
                 }
 
                 if (i != atNumber) {
@@ -443,11 +443,11 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             string userComments;
             DateTime whenDateTime;
-            _mfsOperations.GetFileVersionDetails (fileID, numVersionNumberToCheck, out userComments, out whenDateTime);
+            _mfsOperations.File.GetVersionDetails (fileID, numVersionNumberToCheck, out userComments, out whenDateTime);
             Assert.AreEqual (commentToCheckFor, userComments, "User comments retrieved are not as expected.");
             Assert.That (whenDateTime >= beforeDateTime && whenDateTime <= afterDateTime, "Timestamp on file version is incorrect.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
@@ -458,7 +458,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             string comments;
             DateTime whenDateTime;
 
-            _mfsOperations.GetFileVersionDetails (0, versionNumber, out comments, out whenDateTime);
+            _mfsOperations.File.GetVersionDetails (0, versionNumber, out comments, out whenDateTime);
         }
 
         [Test]
@@ -471,7 +471,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.GetFileVersionDetails (veryLargeFileID, versionNumber, out comments, out whenDateTime);
+            _mfsOperations.File.GetVersionDetails (veryLargeFileID, versionNumber, out comments, out whenDateTime);
         }
 
         [Test]
@@ -487,9 +487,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             int someNegativeIllegalVersionNumber = -1;
 
             try {
-                _mfsOperations.GetFileVersionDetails (fileID, someNegativeIllegalVersionNumber, out comments, out whenDateTime);
+                _mfsOperations.File.GetVersionDetails (fileID, someNegativeIllegalVersionNumber, out comments, out whenDateTime);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -506,9 +506,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             int veryLargeVersionNumber = Int32.MaxValue;
 
             try {
-                _mfsOperations.GetFileVersionDetails (fileID, veryLargeVersionNumber, out comments, out whenDateTime);
+                _mfsOperations.File.GetVersionDetails (fileID, veryLargeVersionNumber, out comments, out whenDateTime);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -534,28 +534,28 @@ namespace MnemonicFS.Tests.FileVersioning {
             for (int i = 0; i < numVersionsToSave; ++i) {
                 // Last file version number and its data stream are retrieved:
                 int currentHeadVersionNumberInRepo;
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out currentHeadVersionNumberInRepo);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out currentHeadVersionNumberInRepo);
 
                 // User next makes some modifications to the locally cached file.
                 // Assuming that the new file data (document) is the modified version of the old file:
                 byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 comments[i] = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 dateTimes[i] = DateTime.Now;
-                int newHeadVersionNumberInRepo = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments[i], currentHeadVersionNumberInRepo);
+                int newHeadVersionNumberInRepo = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments[i], currentHeadVersionNumberInRepo);
             }
 
             DateTime afterDateTime = DateTime.Now.AddSeconds (BUFFER_SECONDS);
 
             string[] versionComments;
             DateTime[] versionDateTimes;
-            _mfsOperations.GetFileVersionHistoryLog (fileID, out versionComments, out versionDateTimes);
+            _mfsOperations.File.GetVersionHistoryLog (fileID, out versionComments, out versionDateTimes);
 
             for (int i = 0; i < numVersionsToSave; ++i) {
                 Assert.AreEqual (comments[i], versionComments[i], "Comments in file version history log were not accurate.");
                 Assert.That (versionDateTimes[i] >= beforeDateTime && versionDateTimes[i] <= afterDateTime, "Timestamp in file version history log is incorrect.");
             }
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
@@ -564,7 +564,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             string[] comments;
             DateTime[] whenDateTime;
 
-            _mfsOperations.GetFileVersionHistoryLog (0, out comments, out whenDateTime);
+            _mfsOperations.File.GetVersionHistoryLog (0, out comments, out whenDateTime);
         }
 
         [Test]
@@ -575,7 +575,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.GetFileVersionHistoryLog (veryLargeFileID, out comments, out whenDateTime);
+            _mfsOperations.File.GetVersionHistoryLog (veryLargeFileID, out comments, out whenDateTime);
         }
     }
 
@@ -591,11 +591,11 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             // Last file version number and its data stream are retrieved by user1:
             int lastVersionNumber_user1;
-            byte[] fileData_user1 = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber_user1);
+            byte[] fileData_user1 = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber_user1);
 
             // Simulateneously, user2 also decides to retrieve the last file version:
             int lastVersionNumber_user2;
-            byte[] fileData_user2 = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber_user2);
+            byte[] fileData_user2 = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber_user2);
 
             // User2 makes changes and commits those changes to the repository first.
             // Assuming that the new file data (document) is the modified version of the old file:
@@ -606,7 +606,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             // And saves it to the repository. Since no new version has been checked in by any other user,
             // we know for sure that the new version number should be one.
-            int nextVersionNumber_user2 = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified_user2, comments_user2, lastVersionNumber_user2);
+            int nextVersionNumber_user2 = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified_user2, comments_user2, lastVersionNumber_user2);
             Assert.AreEqual (1, nextVersionNumber_user2, "First modified version number was not one.");
 
             // Next, user1 also tries to save his locally cached (modified) file as next version, but
@@ -620,9 +620,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             // And tries to save it to the repository. Since a new version has already been checked in by user2,
             // the system should throw an exception.
             try {
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified_user1, comments_user1, lastVersionNumber_user1);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified_user1, comments_user1, lastVersionNumber_user1);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -638,11 +638,11 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             // Last file version number and its data stream are retrieved by user1:
             int lastVersionNumber_user1;
-            byte[] fileData_user1 = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber_user1);
+            byte[] fileData_user1 = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber_user1);
 
             // Simulateneously, user2 also decides to retrieve the last file version:
             int lastVersionNumber_user2;
-            byte[] fileData_user2 = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber_user2);
+            byte[] fileData_user2 = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber_user2);
 
             // User2 makes changes and commits those changes to the repository first.
             // Assuming that the new file data (document) is the modified version of the old file:
@@ -653,7 +653,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             // And saves it to the repository. Since no new version has been checked in by any other user,
             // we know for sure that the new version number should be one.
-            int nextVersionNumber_user2 = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified_user2, comments_user2, lastVersionNumber_user2);
+            int nextVersionNumber_user2 = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified_user2, comments_user2, lastVersionNumber_user2);
             Assert.AreEqual (1, nextVersionNumber_user2, "First modified version number was not one.");
 
             // Next, user1 also tries to save his locally cached (modified) file as next version, but
@@ -667,27 +667,27 @@ namespace MnemonicFS.Tests.FileVersioning {
             // And tries to save it to the repository. Since a new version has already been checked in by user2,
             // the system should throw an exception.
             try {
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified_user1, comments_user1, lastVersionNumber_user1);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified_user1, comments_user1, lastVersionNumber_user1);
             } catch (MfsFileVersionConflictException) {
                 // User1 is informed that there is a conflict.
             }
 
             // User1 now checks out the last version:
-            fileData_user1 = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber_user1);
+            fileData_user1 = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber_user1);
             Assert.AreEqual (1, lastVersionNumber_user1, "Checked out file does not have version number as expected.");
 
             // User1 next merges the changes, and tries to save the file again.
             // Assuming that the new file data (document) is the merged version:
             fileDataModified_user1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
 
-            int nextVersionNumber_user1 = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified_user2, comments_user2, lastVersionNumber_user1);
+            int nextVersionNumber_user1 = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified_user2, comments_user2, lastVersionNumber_user1);
             Assert.AreEqual (2, nextVersionNumber_user1, "Second modified version number was not two.");
 
             // We also check to see if the system returns this as the next (head) version number:
-            int lastVersionNumber = _mfsOperations.GetLastFileVersionNumber (fileID);
+            int lastVersionNumber = _mfsOperations.File.GetLastVersionNumber (fileID);
             Assert.AreEqual (2, lastVersionNumber, "Last version number retrieved was not as expected.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
     }
 
@@ -706,7 +706,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             for (int i = 0; i < numVersionsToSave; ++i) {
                 // Last file version number and its data stream are retrieved:
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
 
                 // User next makes some modifications to the locally cached file.
                 // Assuming that the new file data (document) is the modified version of the old file:
@@ -716,7 +716,7 @@ namespace MnemonicFS.Tests.FileVersioning {
                 string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
                 // And saves it to the repository:
-                lastVersionNumber = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
+                lastVersionNumber = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
             }
 
             Assert.AreEqual (
@@ -731,11 +731,11 @@ namespace MnemonicFS.Tests.FileVersioning {
             int versionNumber1 = numVersionsToSave / 2;
             int versionNumber2 = numVersionsToSave;
 
-            _mfsOperations.GetVersionDiff (fileID, versionNumber1, versionNumber2, out fileData1, out fileData2);
+            _mfsOperations.File.GetVersionDiff (fileID, versionNumber1, versionNumber2, out fileData1, out fileData2);
 
             // Now the client has the responsibility to invoke the associated app at its end to get a diff of the two versions.
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
@@ -746,7 +746,7 @@ namespace MnemonicFS.Tests.FileVersioning {
             byte[] fileData1;
             byte[] fileData2;
 
-            _mfsOperations.GetVersionDiff (0, versionNumber1, versionNumber2, out fileData1, out fileData2);
+            _mfsOperations.File.GetVersionDiff (0, versionNumber1, versionNumber2, out fileData1, out fileData2);
         }
 
         [Test]
@@ -759,7 +759,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.GetVersionDiff (veryLargeFileID, versionNumber1, versionNumber2, out fileData1, out fileData2);
+            _mfsOperations.File.GetVersionDiff (veryLargeFileID, versionNumber1, versionNumber2, out fileData1, out fileData2);
         }
 
         [Test]
@@ -775,9 +775,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             byte[] fileData2;
 
             try {
-                _mfsOperations.GetVersionDiff (fileID, versionNumber1, versionNumber2, out fileData1, out fileData2);
+                _mfsOperations.File.GetVersionDiff (fileID, versionNumber1, versionNumber2, out fileData1, out fileData2);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -792,10 +792,10 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             for (int i = 0; i < numVersionsToSave; ++i) {
                 int lastVersionNumber;
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
                 byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
             }
 
             int someNegativeIllegalVersionNumber = -1;
@@ -804,9 +804,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             byte[] fileData2;
 
             try {
-                _mfsOperations.GetVersionDiff (fileID, someNegativeIllegalVersionNumber, versionNumber2, out fileData1, out fileData2);
+                _mfsOperations.File.GetVersionDiff (fileID, someNegativeIllegalVersionNumber, versionNumber2, out fileData1, out fileData2);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -821,10 +821,10 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             for (int i = 0; i < numVersionsToSave; ++i) {
                 int lastVersionNumber;
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
                 byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
             }
 
             int veryLargeVersionNumber = Int32.MaxValue;
@@ -833,9 +833,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             byte[] fileData2;
 
             try {
-                _mfsOperations.GetVersionDiff (fileID, veryLargeVersionNumber, versionNumber2, out fileData1, out fileData2);
+                _mfsOperations.File.GetVersionDiff (fileID, veryLargeVersionNumber, versionNumber2, out fileData1, out fileData2);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -850,10 +850,10 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             for (int i = 0; i < numVersionsToSave; ++i) {
                 int lastVersionNumber;
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
                 byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
             }
 
             int versionNumber1 = 1;
@@ -862,9 +862,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             byte[] fileData2;
 
             try {
-                _mfsOperations.GetVersionDiff (fileID, versionNumber1, someNegativeIllegalVersionNumber, out fileData1, out fileData2);
+                _mfsOperations.File.GetVersionDiff (fileID, versionNumber1, someNegativeIllegalVersionNumber, out fileData1, out fileData2);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -879,10 +879,10 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             for (int i = 0; i < numVersionsToSave; ++i) {
                 int lastVersionNumber;
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
                 byte[] fileDataModified = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
                 string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-                _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
+                _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
             }
 
             int versionNumber1 = 1;
@@ -891,9 +891,9 @@ namespace MnemonicFS.Tests.FileVersioning {
             byte[] fileData2;
 
             try {
-                _mfsOperations.GetVersionDiff (fileID, versionNumber1, veryLargeVersionNumber, out fileData1, out fileData2);
+                _mfsOperations.File.GetVersionDiff (fileID, versionNumber1, veryLargeVersionNumber, out fileData1, out fileData2);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -913,7 +913,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             for (int i = 0; i < numVersionsToSave; ++i) {
                 // Last file version number and its data stream are retrieved:
-                byte[] fileData = _mfsOperations.RetrieveLastFileVersion (fileID, out lastVersionNumber);
+                byte[] fileData = _mfsOperations.File.RetrieveLastVersion (fileID, out lastVersionNumber);
 
                 // User next makes some modifications to the locally cached file.
                 // Assuming that the new file data (document) is the modified version of the old file:
@@ -923,19 +923,19 @@ namespace MnemonicFS.Tests.FileVersioning {
                 string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
                 // And saves it to the repository:
-                lastVersionNumber = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
+                lastVersionNumber = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, lastVersionNumber);
             }
 
-            int lastVersion = _mfsOperations.GetLastFileVersionNumber (fileID);
+            int lastVersion = _mfsOperations.File.GetLastVersionNumber (fileID);
             Assert.AreEqual (lastVersionNumber, lastVersion, "Last file version number is not as expected.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_FileIDZero_Illegal () {
-            _mfsOperations.GetLastFileVersionNumber (0);
+            _mfsOperations.File.GetLastVersionNumber (0);
         }
 
         [Test]
@@ -943,7 +943,7 @@ namespace MnemonicFS.Tests.FileVersioning {
         public void Test_NonExistentFileID_Illegal () {
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.GetLastFileVersionNumber (veryLargeFileID);
+            _mfsOperations.File.GetLastVersionNumber (veryLargeFileID);
         }
     }
 
@@ -959,7 +959,7 @@ namespace MnemonicFS.Tests.FileVersioning {
 
             int numVersionsToSave = 10;
             for (int i = 0; i < numVersionsToSave; ++i) {
-                int currentVersionNumber = _mfsOperations.GetLastFileVersionNumber (fileID);
+                int currentVersionNumber = _mfsOperations.File.GetLastVersionNumber (fileID);
 
                 // Make some modifications to current file.
                 // Assuming that the new file dat object has the modified version of the old file:
@@ -967,13 +967,13 @@ namespace MnemonicFS.Tests.FileVersioning {
                 // Add a comment to the new version:
                 string comments = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-                int versionNumber = _mfsOperations.SaveAsNextVersion (fileID, fileDataModified, comments, currentVersionNumber);
+                int versionNumber = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataModified, comments, currentVersionNumber);
             }
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
 
             // This line will throw an exception:
-            _mfsOperations.GetLastFileVersionNumber (fileID);
+            _mfsOperations.File.GetLastVersionNumber (fileID);
         }
     }
 }
