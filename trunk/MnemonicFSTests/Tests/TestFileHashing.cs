@@ -53,16 +53,16 @@ namespace MnemonicFS.Tests.FileHashing {
 
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            string fileHashReturned = _mfsOperations.GetFileHash (fileID);
+            string fileHashReturned = _mfsOperations.File.GetHash (fileID);
             Assert.AreEqual (fileHash, fileHashReturned, "File hash returned is incorrect.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_FileIDZero_Illegal () {
-            _mfsOperations.GetFileHash (0);
+            _mfsOperations.File.GetHash (0);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace MnemonicFS.Tests.FileHashing {
         public void Test_NonExistentFileID_Illegal () {
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.GetFileHash (veryLargeFileID);
+            _mfsOperations.File.GetHash (veryLargeFileID);
         }
     }
 
@@ -88,18 +88,18 @@ namespace MnemonicFS.Tests.FileHashing {
             // Get the file data hash:
             string newVersionHash = TestUtils.GetFileHash (fileDataNewVersion);
 
-            int versionNumber = _mfsOperations.SaveAsNextVersion (fileID, fileDataNewVersion, someComment, 0);
+            int versionNumber = _mfsOperations.File.SaveAsNextVersion (fileID, fileDataNewVersion, someComment, 0);
 
-            string fileHashReturned = _mfsOperations.GetFileVersionHash (fileID, versionNumber);
+            string fileHashReturned = _mfsOperations.File.GetFileVersionHash (fileID, versionNumber);
             Assert.AreEqual (newVersionHash, fileHashReturned, "Versioned file hash returned is incorrect.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_FileIDZero_Illegal () {
-            _mfsOperations.GetFileVersionHash (0, 0);
+            _mfsOperations.File.GetFileVersionHash (0, 0);
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace MnemonicFS.Tests.FileHashing {
         public void Test_NonExistentFileID_Illegal () {
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.GetFileVersionHash (veryLargeFileID, 0);
+            _mfsOperations.File.GetFileVersionHash (veryLargeFileID, 0);
         }
 
         [Test]
@@ -120,9 +120,9 @@ namespace MnemonicFS.Tests.FileHashing {
             int negativeFileVersionID = Int32.MinValue;
 
             try {
-                _mfsOperations.GetFileVersionHash (fileID, negativeFileVersionID);
+                _mfsOperations.File.GetFileVersionHash (fileID, negativeFileVersionID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -136,9 +136,9 @@ namespace MnemonicFS.Tests.FileHashing {
             int veryLargeFileVersionID = Int32.MaxValue;
 
             try {
-                _mfsOperations.GetFileVersionHash (fileID, veryLargeFileVersionID);
+                _mfsOperations.File.GetFileVersionHash (fileID, veryLargeFileVersionID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -175,14 +175,14 @@ namespace MnemonicFS.Tests.FileHashing {
 
             Dictionary<ulong, double> filesScores = null;
 
-            filesScores = _mfsOperations.GetDuplicateFiles (fileID1);
+            filesScores = _mfsOperations.File.GetDuplicates (fileID1);
             Assert.IsEmpty (filesScores, "Returned non-empty collection of duplicate files, though none expected.");
 
-            filesScores = _mfsOperations.GetDuplicateFiles (fileID3);
+            filesScores = _mfsOperations.File.GetDuplicates (fileID3);
             Assert.IsEmpty (filesScores, "Returned non-empty collection of duplicate files, though none expected.");
 
             // Recall that fileID2 and fileID4 are the same file with different names and narrations:
-            filesScores = _mfsOperations.GetDuplicateFiles (fileID2);
+            filesScores = _mfsOperations.File.GetDuplicates (fileID2);
             Assert.IsNotEmpty (filesScores, "Returned empty collection of duplicate files, though exactly one file was expected.");
             Assert.AreEqual (SINGLE_VALUE, filesScores.Count, "Returned more than one duplicate file, though exactly one was expected.");
 
@@ -194,16 +194,16 @@ namespace MnemonicFS.Tests.FileHashing {
             }
             Assert.AreEqual (0.75, score, "Heuristic score is not as expected.");
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
-            _mfsOperations.DeleteFile (fileID4);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
+            _mfsOperations.File.Delete (fileID4);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_FileIDZero_Illegal () {
-            _mfsOperations.GetDuplicateFiles (0);
+            _mfsOperations.File.GetDuplicates (0);
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace MnemonicFS.Tests.FileHashing {
         public void Test_NonExistentFileID_Illegal () {
             ulong veryLargeFileID = UInt64.MaxValue;
 
-            _mfsOperations.GetDuplicateFiles (veryLargeFileID);
+            _mfsOperations.File.GetDuplicates (veryLargeFileID);
         }
 
         [Test]
@@ -226,14 +226,14 @@ namespace MnemonicFS.Tests.FileHashing {
 
             Dictionary<ulong, double> filesScores = null;
 
-            filesScores = _mfsOperations.GetDuplicateFiles (fileID1);
+            filesScores = _mfsOperations.File.GetDuplicates (fileID1);
             Assert.IsEmpty (filesScores, "Returned non-empty collection of files, even though none expected.");
 
-            filesScores = _mfsOperations.GetDuplicateFiles (fileID2);
+            filesScores = _mfsOperations.File.GetDuplicates (fileID2);
             Assert.IsEmpty (filesScores, "Returned non-empty collection of files, even though none expected.");
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
         }
 
         [Test]
@@ -249,7 +249,7 @@ namespace MnemonicFS.Tests.FileHashing {
 
             Dictionary<ulong, double> filesScores = null;
 
-            filesScores = _mfsOperations.GetDuplicateFiles (fileID1);
+            filesScores = _mfsOperations.File.GetDuplicates (fileID1);
             Dictionary<ulong, double>.KeyCollection keys = filesScores.Keys;
             double score = 0;
             foreach (ulong fileID in keys) {
@@ -257,8 +257,8 @@ namespace MnemonicFS.Tests.FileHashing {
             }
             Assert.AreEqual (0.85, score, "Heuristic score is not as expected.");
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
         }
 
         [Test]
@@ -274,7 +274,7 @@ namespace MnemonicFS.Tests.FileHashing {
 
             Dictionary<ulong, double> filesScores = null;
 
-            filesScores = _mfsOperations.GetDuplicateFiles (fileID1);
+            filesScores = _mfsOperations.File.GetDuplicates (fileID1);
             Dictionary<ulong, double>.KeyCollection keys = filesScores.Keys;
             double score = 0;
             foreach (ulong fileID in keys) {
@@ -282,8 +282,8 @@ namespace MnemonicFS.Tests.FileHashing {
             }
             Assert.AreEqual (0.9, score, "Heuristic score is not as expected.");
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
         }
 
         [Test]
@@ -296,7 +296,7 @@ namespace MnemonicFS.Tests.FileHashing {
 
             Dictionary<ulong, double> filesScores = null;
 
-            filesScores = _mfsOperations.GetDuplicateFiles (fileID1);
+            filesScores = _mfsOperations.File.GetDuplicates (fileID1);
             Dictionary<ulong, double>.KeyCollection keys = filesScores.Keys;
             double score = 0;
             foreach (ulong fileID in keys) {
@@ -304,8 +304,8 @@ namespace MnemonicFS.Tests.FileHashing {
             }
             Assert.AreEqual (1.0, score, "Heuristic score is not as expected.");
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
         }
     }
 }

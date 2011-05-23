@@ -57,6 +57,7 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         private const string PROP_MAX_SCHEMA_FREE_DOC_NAME_LENGTH = "max_schema_free_doc_name_length";
         private const string PROP_MAX_PREDICATE_LENGTH = "max_predicate_length";
         private const string PROP_USERNAME_REGEX = "username_regex";
+        private const string PROP_ENFORCE_MASTER_PASSWORD = "enforce_master_password";
 
         // Properties with default values:
         private static int _maxFileNameLength = 128;
@@ -82,6 +83,8 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         private static string _userNameRegex = @"\w+@(\w+\.)+\w+";
 
         private static string _basePath = @"C:\storage\";
+
+        private static string _enforceMasterPassword = @"True";
 
         private static PropertiesFileReader _propertiesFileReader;
 
@@ -148,6 +151,9 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
 
                 "# User Name Regex:\n" +
                 PROP_USERNAME_REGEX + "=" + _userNameRegex + "\n\n" +
+
+                "# Enforce Master Password:\n" +
+                PROP_ENFORCE_MASTER_PASSWORD + "=" + _enforceMasterPassword + "\n\n" +
 
                 "# Base storage directory:\n" +
                 "# ACHTUNG! Please use Windows separator (backslash: \\) only!\n" +
@@ -321,6 +327,18 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
             }
 
             return _userNameRegex;
+        }
+
+        internal static bool EnforceMasterPassword () {
+            try {
+                _enforceMasterPassword = _propertiesFileReader.GetValueForKey (PROP_ENFORCE_MASTER_PASSWORD);
+                Debug.Print ("Got value for enforce master password: " + _enforceMasterPassword);
+            } catch (Exception) {
+                Trace.TraceError ("Error reading property: " + PROP_ENFORCE_MASTER_PASSWORD + ". Using default value instead.");
+            }
+
+            return _enforceMasterPassword.Equals ("True", StringComparison.CurrentCultureIgnoreCase)
+                    || _enforceMasterPassword.Equals ("T", StringComparison.CurrentCultureIgnoreCase);
         }
 
         internal static string GetStorageBasePath () {

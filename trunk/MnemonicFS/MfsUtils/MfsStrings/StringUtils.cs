@@ -35,15 +35,20 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
+using MnemonicFS.MfsExceptions;
 
 namespace MnemonicFS.MfsUtils.MfsStrings {
     internal static class StringUtils {
         public static List<string> BreakStringIntoTokens (string ipString, int numCharsInEachPiece) {
             if (ipString == null) {
-                throw new ApplicationException ("Invalid input.");
+                throw new MfsIllegalArgumentException (
+                    MfsErrorMessages.GetMessage (MessageType.NULL, "Input string")
+                );
             }
             if (numCharsInEachPiece < 1 || numCharsInEachPiece > ipString.Length) {
-                throw new ApplicationException ("Invalid number of chars in input.");
+                throw new MfsIllegalArgumentException (
+                    MfsErrorMessages.GetMessage (MessageType.INADEQUATE, "Num chars in input string")
+                );
             }
 
             List<string> list = new List<string> ();

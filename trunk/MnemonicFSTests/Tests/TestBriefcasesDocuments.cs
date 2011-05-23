@@ -44,40 +44,39 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
     public class Tests_BriefcasesMethod_GlobalBriefcase : TestMfsOperationsBase {
         [Test]
         public void Test_NewDocumentShouldBeInGlobalBriefcaseByDefault_SanityCheck () {
-            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             DateTime when = DateTime.Now;
-            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
+            ulong docID = _mfsOperations.Sfd.New (_schemaFreeDocName, when);
 
-            ulong briefcaseID = _mfsOperations.GetContainingBriefcase (fileID);
-            Assert.AreEqual (MfsOperations.GlobalBriefcase, briefcaseID, "Freshly added briefcase is not in global briefcase by default.");
+            ulong briefcaseID = _mfsOperations.Briefcase.GetContaining (docID);
+            Assert.AreEqual (MfsOperations.GlobalBriefcase, briefcaseID, "Freshly added document is not in global briefcase by default.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.Sfd.Delete (docID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalOperationException))]
         public void Test_GlobalBriefcaseShouldNotBeDeletable_SanityCheck () {
-            _mfsOperations.DeleteBriefcase (MfsOperations.GlobalBriefcase);
+            _mfsOperations.Briefcase.Delete (MfsOperations.GlobalBriefcase);
         }
 
         [Test]
-        public void Test_FileShouldBeMovedBackToGlobalBriefcase_SanityCheck () {
+        public void Test_DocumentShouldBeMovedBackToGlobalBriefcase_SanityCheck () {
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
+            ulong briefcaseID = _mfsOperations.Briefcase.New (_briefcaseName, _briefcaseDesc);
 
-            _mfsOperations.MoveDocumentToBriefcase (urlID, briefcaseID);
+            _mfsOperations.Briefcase.MoveTo (urlID, briefcaseID);
 
-            bool removedFromBriefcase = _mfsOperations.RemoveDocumentFromBriefcase (urlID);
+            bool removedFromBriefcase = _mfsOperations.Briefcase.MoveToGlobal (urlID);
 
-            ulong retrievedBriefcaseID = _mfsOperations.GetContainingBriefcase (urlID);
+            ulong retrievedBriefcaseID = _mfsOperations.Briefcase.GetContaining (urlID);
             Assert.AreEqual (MfsOperations.GlobalBriefcase, retrievedBriefcaseID, "Document moved out of briefcase is not put back in global briefcase.");
 
-            _mfsOperations.DeleteUrl (urlID);
-            _mfsOperations.DeleteBriefcase (briefcaseID);
+            _mfsOperations.Url.Delete (urlID);
+            _mfsOperations.Briefcase.Delete (briefcaseID);
         }
     }
 
@@ -88,24 +87,24 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
+            ulong briefcaseID = _mfsOperations.Briefcase.New (_briefcaseName, _briefcaseDesc);
 
-            bool fileMoved = _mfsOperations.MoveDocumentToBriefcase (noteID, briefcaseID);
+            bool fileMoved = _mfsOperations.Briefcase.MoveTo (noteID, briefcaseID);
             Assert.IsTrue (fileMoved, "Document was not moved successfully to briefcase.");
 
-            ulong retrievedBriefcaseID = _mfsOperations.GetContainingBriefcase (noteID);
+            ulong retrievedBriefcaseID = _mfsOperations.Briefcase.GetContaining (noteID);
             Assert.AreEqual (briefcaseID, retrievedBriefcaseID, "Document's retrieved briefcase is not the same as the one moved to.");
 
-            _mfsOperations.DeleteNote (noteID);
-            _mfsOperations.DeleteBriefcase (briefcaseID);
+            _mfsOperations.Note.Delete (noteID);
+            _mfsOperations.Briefcase.Delete (briefcaseID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            _mfsOperations.GetContainingBriefcase (0);
+            _mfsOperations.Briefcase.GetContaining (0);
         }
 
         [Test]
@@ -113,7 +112,7 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
         public void Test_NonExistentDocumentID_Illegal () {
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            _mfsOperations.GetContainingBriefcase (veryLargeDocumentID);
+            _mfsOperations.Briefcase.GetContaining (veryLargeDocumentID);
         }
     }
 
@@ -124,51 +123,51 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong briefcaseID1 = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
+            ulong briefcaseID1 = _mfsOperations.Briefcase.New (_briefcaseName, _briefcaseDesc);
 
-            _mfsOperations.MoveDocumentToBriefcase (noteID, briefcaseID1);
+            _mfsOperations.Briefcase.MoveTo (noteID, briefcaseID1);
 
-            ulong retrievedBriefcaseID1 = _mfsOperations.GetContainingBriefcase (noteID);
+            ulong retrievedBriefcaseID1 = _mfsOperations.Briefcase.GetContaining (noteID);
             Assert.AreEqual (briefcaseID1, retrievedBriefcaseID1, "Document's retrieved briefcase is not the same as the one moved to.");
 
             string briefcaseName2 = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            ulong briefcaseID2 = _mfsOperations.CreateBriefcase (briefcaseName2, _briefcaseDesc);
+            ulong briefcaseID2 = _mfsOperations.Briefcase.New (briefcaseName2, _briefcaseDesc);
 
-            _mfsOperations.MoveDocumentToBriefcase (noteID, briefcaseID2);
+            _mfsOperations.Briefcase.MoveTo (noteID, briefcaseID2);
 
-            ulong retrievedBriefcaseID2 = _mfsOperations.GetContainingBriefcase (noteID);
+            ulong retrievedBriefcaseID2 = _mfsOperations.Briefcase.GetContaining (noteID);
             Assert.AreEqual (briefcaseID2, retrievedBriefcaseID2, "Document's retrieved briefcase is not the same as the one moved to.");
 
-            _mfsOperations.DeleteNote (noteID);
-            _mfsOperations.DeleteBriefcase (briefcaseID1);
-            _mfsOperations.DeleteBriefcase (briefcaseID2);
+            _mfsOperations.Note.Delete (noteID);
+            _mfsOperations.Briefcase.Delete (briefcaseID1);
+            _mfsOperations.Briefcase.Delete (briefcaseID2);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
+            ulong briefcaseID = _mfsOperations.Briefcase.New (_briefcaseName, _briefcaseDesc);
 
             try {
-                _mfsOperations.MoveDocumentToBriefcase (0, briefcaseID);
+                _mfsOperations.Briefcase.MoveTo (0, briefcaseID);
             } finally {
-                _mfsOperations.DeleteBriefcase (briefcaseID);
+                _mfsOperations.Briefcase.Delete (briefcaseID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentDocumentID_Illegal () {
-            ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
+            ulong briefcaseID = _mfsOperations.Briefcase.New (_briefcaseName, _briefcaseDesc);
 
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.MoveDocumentToBriefcase (veryLargeDocumentID, briefcaseID);
+                _mfsOperations.Briefcase.MoveTo (veryLargeDocumentID, briefcaseID);
             } finally {
-                _mfsOperations.DeleteBriefcase (briefcaseID);
+                _mfsOperations.Briefcase.Delete (briefcaseID);
             }
         }
 
@@ -180,9 +179,9 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                _mfsOperations.MoveDocumentToBriefcase (fileID, 0);
+                _mfsOperations.Briefcase.MoveTo (fileID, 0);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -192,14 +191,14 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             ulong veryLargeBriefcaseID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.MoveDocumentToBriefcase (urlID, veryLargeBriefcaseID);
+                _mfsOperations.Briefcase.MoveTo (urlID, veryLargeBriefcaseID);
             } finally {
-                _mfsOperations.DeleteUrl (urlID);
+                _mfsOperations.Url.Delete (urlID);
             }
         }
     }
@@ -208,7 +207,7 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
     public class Tests_BriefcasesMethod_GetDocumentsInBriefcase : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
+            ulong briefcaseID = _mfsOperations.Briefcase.New (_briefcaseName, _briefcaseDesc);
 
             int numDocsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> docIDs = new List<ulong> ();
@@ -216,13 +215,13 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
                 string url = TestUtils.GetAnyUrl ();
                 string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
-                ulong urlID = _mfsOperations.AddUrl (url, description, when);
+                ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-                _mfsOperations.MoveDocumentToBriefcase (urlID, briefcaseID);
+                _mfsOperations.Briefcase.MoveTo (urlID, briefcaseID);
                 docIDs.Add (urlID);
             }
 
-            List<ulong> docIDsInBriefcase = _mfsOperations.GetDocumentsInBriefcase (briefcaseID);
+            List<ulong> docIDsInBriefcase = _mfsOperations.Briefcase.All (briefcaseID);
             Assert.AreEqual (numDocsToCreate, docIDsInBriefcase.Count, "Number of documents returned do not match.");
 
             docIDs.Sort ();
@@ -233,16 +232,16 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
             }
 
             foreach (ulong urlID in docIDs) {
-                _mfsOperations.DeleteUrl (urlID);
+                _mfsOperations.Url.Delete (urlID);
             }
 
-            _mfsOperations.DeleteBriefcase (briefcaseID);
+            _mfsOperations.Briefcase.Delete (briefcaseID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_BriefcaseIDZero_Illegal () {
-            _mfsOperations.GetDocumentsInBriefcase (0);
+            _mfsOperations.Briefcase.All (0);
         }
 
         [Test]
@@ -250,7 +249,7 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
         public void Test_NonExistentBriefcaseID_Illegal () {
             ulong veryLargeBriefcaseID = UInt64.MaxValue;
 
-            _mfsOperations.GetDocumentsInBriefcase (veryLargeBriefcaseID);
+            _mfsOperations.Briefcase.All (veryLargeBriefcaseID);
         }
     }
 
@@ -261,25 +260,25 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
+            ulong briefcaseID = _mfsOperations.Briefcase.New (_briefcaseName, _briefcaseDesc);
 
-            _mfsOperations.MoveDocumentToBriefcase (noteID, briefcaseID);
+            _mfsOperations.Briefcase.MoveTo (noteID, briefcaseID);
 
-            bool removedFromBriefcase = _mfsOperations.RemoveDocumentFromBriefcase (noteID);
+            bool removedFromBriefcase = _mfsOperations.Briefcase.MoveToGlobal (noteID);
 
-            ulong retrievedBriefcaseID = _mfsOperations.GetContainingBriefcase (noteID);
+            ulong retrievedBriefcaseID = _mfsOperations.Briefcase.GetContaining (noteID);
             Assert.AreEqual (MfsOperations.GlobalBriefcase, retrievedBriefcaseID, "Removing document from briefcase does not delete its reference.");
 
-            _mfsOperations.DeleteNote (noteID);
-            _mfsOperations.DeleteBriefcase (briefcaseID);
+            _mfsOperations.Note.Delete (noteID);
+            _mfsOperations.Briefcase.Delete (briefcaseID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            _mfsOperations.RemoveDocumentFromBriefcase (0);
+            _mfsOperations.Briefcase.MoveToGlobal (0);
         }
 
         [Test]
@@ -287,7 +286,7 @@ namespace MnemonicFS.Tests.BriefcasesDocuments {
         public void Test_NonExistentDocumentID_Illegal () {
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            _mfsOperations.RemoveDocumentFromBriefcase (veryLargeDocumentID);
+            _mfsOperations.Briefcase.MoveToGlobal (veryLargeDocumentID);
         }
     }
 }

@@ -40,10 +40,13 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -87,18 +90,39 @@
     <Compile Include="MfsCore\MfsDBOperations.cs" />
     <Compile Include="MfsCore\MfsNote.cs" />
     <Compile Include="MfsCore\MfsOperations.cs" />
+    <Compile Include="MfsCore\MfsOperations_Url.cs" />
+    <Compile Include="MfsCore\MfsOperations_Archive.cs" />
+    <Compile Include="MfsCore\MfsOperations_Aspect.cs" />
+    <Compile Include="MfsCore\MfsOperations_AspectGroup.cs" />
+    <Compile Include="MfsCore\MfsOperations_Bookmark.cs" />
+    <Compile Include="MfsCore\MfsOperations_Briefcase.cs" />
+    <Compile Include="MfsCore\MfsOperations_Bytestream.cs" />
+    <Compile Include="MfsCore\MfsOperations_Collection.cs" />
+    <Compile Include="MfsCore\MfsOperations_Config.cs" />
+    <Compile Include="MfsCore\MfsOperations_Credentials.cs" />
+    <Compile Include="MfsCore\MfsOperations_Document.cs" />
+    <Compile Include="MfsCore\MfsOperations_File.cs" />
+    <Compile Include="MfsCore\MfsOperations_Filter.cs" />
+    <Compile Include="MfsCore\MfsOperations_Index.cs" />
+    <Compile Include="MfsCore\MfsOperations_Log.cs" />
+    <Compile Include="MfsCore\MfsOperations_MasterPassword.cs" />
+    <Compile Include="MfsCore\MfsOperations_Note.cs" />
+    <Compile Include="MfsCore\MfsOperations_Users.cs" />
+    <Compile Include="MfsCore\MfsOperations_Relation.cs" />
+    <Compile Include="MfsCore\MfsOperations_Sfd.cs" />
+    <Compile Include="MfsCore\MfsOperations_VCards.cs" />
     <Compile Include="MfsCore\MfsStorageDevice.cs" />
     <Compile Include="MfsCore\MfsVCard.cs" />
     <Compile Include="MfsExceptions\MfsBadContentException.cs" />
     <Compile Include="MfsExceptions\MfsAuthenticationException.cs" />
     <Compile Include="MfsExceptions\MfsDBException.cs" />
-    <Compile Include="MfsExceptions\MfsDuplicateNameException.cs" />
-    <Compile Include="MfsExceptions\MfsDuplicationException.cs" />
+    <Compile Include="MfsExceptions\MfsDuplicateException.cs" />
     <Compile Include="MfsExceptions\MfsFileDataException.cs" />
     <Compile Include="MfsExceptions\MfsFileVersionConflictException.cs" />
     <Compile Include="MfsExceptions\MfsFileVersionException.cs" />
     <Compile Include="MfsExceptions\MfsIllegalArgumentException.cs" />
     <Compile Include="MfsExceptions\MfsIllegalOperationException.cs" />
+    <Compile Include="MfsExceptions\MfsErrorMessages.cs" />
     <Compile Include="MfsExceptions\MfsNonExistentResourceException.cs" />
     <Compile Include="MfsExceptions\MfsNonExistentUserException.cs" />
     <Compile Include="MfsExceptions\MfsStorageCorruptedException.cs" />

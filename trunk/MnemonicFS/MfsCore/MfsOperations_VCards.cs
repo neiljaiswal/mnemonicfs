@@ -33,13 +33,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MnemonicFS.MfsExceptions;
 
-namespace MnemonicFS.MfsExceptions {
-    public class MfsDuplicationException : Exception {
-        public MfsDuplicationException () : base () {
-        }
+namespace MnemonicFS.MfsCore {
+    public partial class MfsOperations {
+        [Serializable]
+        public class _VCard : IDisposable {
+            private MfsOperations _parent;
+            private MfsDBOperations _dbOperations;
 
-        public MfsDuplicationException (string message) : base (message) {
+            private _VCard (MfsOperations parent) {
+                _parent = parent;
+                _dbOperations = new MfsDBOperations (_parent._userID, _parent._userSpecificPath);
+            }
+
+            private static _VCard _theObject = null;
+
+            internal static _VCard GetObject (MfsOperations parent) {
+                if (_theObject == null) {
+                    _theObject = new _VCard (parent);
+                }
+
+                return _theObject;
+            }
+
+            #region << IDisposable Members >>
+
+            public void Dispose () {
+                _theObject = null;
+            }
+
+            #endregion << IDisposable Members >>
         }
     }
 }

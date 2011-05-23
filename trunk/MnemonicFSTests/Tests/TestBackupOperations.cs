@@ -52,12 +52,12 @@ namespace MnemonicFS.Tests.Backup {
             for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
                 string aspectName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-                if (_mfsOperations.DoesAspectExist (aspectName)) {
+                if (_mfsOperations.Aspect.Exists (aspectName)) {
                     --i;
                     continue;
                 }
 
-                ulong aspectID = _mfsOperations.CreateAspect (aspectName, aspectDesc);
+                ulong aspectID = _mfsOperations.Aspect.New (aspectName, aspectDesc);
                 aspectsList.Add (aspectID);
             }
 
@@ -72,7 +72,7 @@ namespace MnemonicFS.Tests.Backup {
 
             // Also map some of the files to some of the aspects:
             for (int i = 0; i < TYPICAL_MULTI_VALUE; ++i) {
-                _mfsOperations.ApplyAspectToDocument (aspectsList[i], filesList[i]);
+                _mfsOperations.Aspect.Apply (aspectsList[i], filesList[i]);
             }
 
             // Prepare to do a backup:
@@ -99,11 +99,11 @@ namespace MnemonicFS.Tests.Backup {
             File.Delete (backupFileNameWithPath);
 
             foreach (ulong aspectID in aspectsList) {
-                _mfsOperations.DeleteAspect (aspectID);
+                _mfsOperations.Aspect.Delete (aspectID);
             }
 
             foreach (ulong fileID in filesList) {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }

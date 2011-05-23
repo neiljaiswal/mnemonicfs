@@ -47,26 +47,26 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
-            bool addSuccess = _mfsOperations.AddDocumentToCollection (urlID, collectionID);
+            bool addSuccess = _mfsOperations.Collection.AddDocument (urlID, collectionID);
             Assert.IsTrue (addSuccess, "Document was not successfully added to collection.");
 
-            _mfsOperations.DeleteCollection (collectionID);
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Collection.Delete (collectionID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             try {
-                _mfsOperations.AddDocumentToCollection (0, collectionID);
+                _mfsOperations.Collection.AddDocument (0, collectionID);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -78,9 +78,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                _mfsOperations.AddDocumentToCollection (fileID, 0);
+                _mfsOperations.Collection.AddDocument (fileID, 0);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -89,12 +89,12 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
         public void Test_NonExistentDocumentID_Illegal () {
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             try {
-                _mfsOperations.AddDocumentToCollection (veryLargeDocumentID, collectionID);
+                _mfsOperations.Collection.AddDocument (veryLargeDocumentID, collectionID);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -108,9 +108,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.AddDocumentToCollection (fileID, veryLargeCollectionID);
+                _mfsOperations.Collection.AddDocument (fileID, veryLargeCollectionID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -122,17 +122,17 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
-            _mfsOperations.AddDocumentToCollection (noteID, collectionID);
+            _mfsOperations.Collection.AddDocument (noteID, collectionID);
 
-            bool isAdded = _mfsOperations.IsDocumentInCollection (noteID, collectionID);
+            bool isAdded = _mfsOperations.Collection.IsDocumentIn (noteID, collectionID);
             Assert.IsTrue (isAdded, "Indicated that document is not in collection, even though it is.");
 
-            _mfsOperations.DeleteCollection (collectionID);
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Collection.Delete (collectionID);
+            _mfsOperations.Note.Delete (noteID);
         }
 
         [Test]
@@ -141,24 +141,24 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             DateTime when = DateTime.Now;
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
-            bool isAdded = _mfsOperations.IsDocumentInCollection (fileID, collectionID);
+            bool isAdded = _mfsOperations.Collection.IsDocumentIn (fileID, collectionID);
             Assert.IsFalse (isAdded, "Indicated that document has been added to collection, even though it isn't.");
 
-            _mfsOperations.DeleteCollection (collectionID);
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.Collection.Delete (collectionID);
+            _mfsOperations.File.Delete (fileID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             try {
-                _mfsOperations.IsDocumentInCollection (0, collectionID);
+                _mfsOperations.Collection.IsDocumentIn (0, collectionID);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -168,26 +168,26 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             try {
-                _mfsOperations.IsDocumentInCollection (urlID, 0);
+                _mfsOperations.Collection.IsDocumentIn (urlID, 0);
             } finally {
-                _mfsOperations.DeleteUrl (urlID);
+                _mfsOperations.Url.Delete (urlID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentDocumentID_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.IsDocumentInCollection (veryLargeDocumentID, collectionID);
+                _mfsOperations.Collection.IsDocumentIn (veryLargeDocumentID, collectionID);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -201,9 +201,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.IsDocumentInCollection (fileID, veryLargeCollectionID);
+                _mfsOperations.Collection.IsDocumentIn (fileID, veryLargeCollectionID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -215,31 +215,31 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
-            _mfsOperations.AddDocumentToCollection (noteID, collectionID);
+            _mfsOperations.Collection.AddDocument (noteID, collectionID);
 
-            bool isRemoved = _mfsOperations.RemoveDocumentFromCollection (noteID, collectionID);
+            bool isRemoved = _mfsOperations.Collection.RemoveFrom (noteID, collectionID);
             Assert.IsTrue (isRemoved, "Document was not successfully removed from collection.");
 
-            bool isInCollection = _mfsOperations.IsDocumentInCollection (noteID, collectionID);
+            bool isInCollection = _mfsOperations.Collection.IsDocumentIn (noteID, collectionID);
             Assert.IsFalse (isInCollection, "Attempt to remove document from collection was not successful.");
 
-            _mfsOperations.DeleteCollection (collectionID);
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Collection.Delete (collectionID);
+            _mfsOperations.Note.Delete (noteID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             try {
-                _mfsOperations.RemoveDocumentFromCollection (0, collectionID);
+                _mfsOperations.Collection.RemoveFrom (0, collectionID);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -249,26 +249,26 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             try {
-                _mfsOperations.RemoveDocumentFromCollection (urlID, 0);
+                _mfsOperations.Collection.RemoveFrom (urlID, 0);
             } finally {
-                _mfsOperations.DeleteUrl (urlID);
+                _mfsOperations.Url.Delete (urlID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentDocumentID_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.RemoveDocumentFromCollection (veryLargeDocumentID, collectionID);
+                _mfsOperations.Collection.RemoveFrom (veryLargeDocumentID, collectionID);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -282,9 +282,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.RemoveDocumentFromCollection (fileID, veryLargeCollectionID);
+                _mfsOperations.Collection.RemoveFrom (fileID, veryLargeCollectionID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -300,9 +300,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             int numCollectionsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> collectionIDs = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
 
-            _mfsOperations.AddDocumentToCollections (fileID, collectionIDs);
+            _mfsOperations.Collection.AddToMultiple (fileID, collectionIDs);
 
-            List<ulong> retrievedCollectionIDs = _mfsOperations.GetCollectionsWithDocument (fileID);
+            List<ulong> retrievedCollectionIDs = _mfsOperations.Collection.CollectionsWith (fileID);
 
             Assert.AreEqual (collectionIDs.Count, retrievedCollectionIDs.Count, "Did not retrieve exact number of collections that a document belongs to.");
 
@@ -313,17 +313,17 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
                 Assert.AreEqual (collectionIDs[i], retrievedCollectionIDs[i], "Got invalid collection id.");
             }
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
 
             foreach (ulong collectionID in collectionIDs) {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            _mfsOperations.GetCollectionsWithDocument (0);
+            _mfsOperations.Collection.CollectionsWith (0);
         }
 
         [Test]
@@ -331,7 +331,7 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
         public void Test_NonExistentDocumentID_Illegal () {
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
-            _mfsOperations.GetCollectionsWithDocument (veryLargeDocumentID);
+            _mfsOperations.Collection.CollectionsWith (veryLargeDocumentID);
         }
     }
 
@@ -339,7 +339,7 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
     public class Tests_CollectionsMethod_GetDocumentsInCollection : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             int numDocsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> docIDs = new List<ulong> ();
@@ -349,12 +349,12 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
                 DateTime when = DateTime.Now;
                 ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-                _mfsOperations.AddDocumentToCollection (fileID, collectionID);
+                _mfsOperations.Collection.AddDocument (fileID, collectionID);
 
                 docIDs.Add (fileID);
             }
 
-            List<ulong> retrievedDocIDs = _mfsOperations.GetDocumentsInCollection (collectionID);
+            List<ulong> retrievedDocIDs = _mfsOperations.Collection.GetDocuments (collectionID);
 
             Assert.AreEqual (docIDs.Count, retrievedDocIDs.Count, "Did not retrieve exact number of documents within a collection.");
 
@@ -365,17 +365,17 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
                 Assert.AreEqual (docIDs[i], retrievedDocIDs[i], "Got invalid document id.");
             }
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
 
             foreach (ulong fileID in docIDs) {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionIDZero_Illegal () {
-            _mfsOperations.GetDocumentsInCollection (0);
+            _mfsOperations.Collection.GetDocuments (0);
         }
 
         [Test]
@@ -383,7 +383,7 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
         public void Test_NonExistentCollectionID_Illegal () {
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
-            _mfsOperations.GetDocumentsInCollection (veryLargeCollectionID);
+            _mfsOperations.Collection.GetDocuments (veryLargeCollectionID);
         }
     }
 
@@ -394,14 +394,14 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             int numCollectionsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> collectionIDs = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
 
-            _mfsOperations.AddDocumentToCollections (urlID, collectionIDs);
+            _mfsOperations.Collection.AddToMultiple (urlID, collectionIDs);
 
-            List<ulong> retrievedCollectionIDs = _mfsOperations.GetCollectionsWithDocument (urlID);
+            List<ulong> retrievedCollectionIDs = _mfsOperations.Collection.CollectionsWith (urlID);
 
             Assert.AreEqual (collectionIDs.Count, retrievedCollectionIDs.Count, "Did not retrieve exact number of collections.");
 
@@ -412,10 +412,10 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
                 Assert.AreEqual (collectionIDs[i], retrievedCollectionIDs[i], "Got invalid collection id.");
             }
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
 
             foreach (ulong collectionID in collectionIDs) {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -427,9 +427,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                _mfsOperations.AddDocumentToCollections (fileID, null);
+                _mfsOperations.Collection.AddToMultiple (fileID, null);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -439,19 +439,19 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             try {
-                _mfsOperations.AddDocumentToCollections (noteID, new List<ulong> ());
+                _mfsOperations.Collection.AddToMultiple (noteID, new List<ulong> ());
             } finally {
-                _mfsOperations.DeleteNote (noteID);
+                _mfsOperations.Note.Delete (noteID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentDocumentID_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             List<ulong> collectionIDs = new List<ulong> ();
             collectionIDs.Add (collectionID);
@@ -459,9 +459,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             ulong veryLargeDocumentID = UInt64.MaxValue;
 
             try {
-                _mfsOperations.AddDocumentToCollections (veryLargeDocumentID, collectionIDs);
+                _mfsOperations.Collection.AddToMultiple (veryLargeDocumentID, collectionIDs);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
     }
@@ -470,7 +470,7 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
     public class Tests_CollectionsMethod_AddDocumentsToCollection : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             int numDocsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> docIDs = new List<ulong> ();
@@ -479,14 +479,14 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
                 string url = TestUtils.GetAnyUrl ();
                 string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
-                ulong urlID = _mfsOperations.AddUrl (url, description, when);
+                ulong urlID = _mfsOperations.Url.New (url, description, when);
 
                 docIDs.Add (urlID);
             }
 
-            _mfsOperations.AddDocumentsToCollection (docIDs, collectionID);
+            _mfsOperations.Collection.AddTo (docIDs, collectionID);
 
-            List<ulong> retrievedDocIDs = _mfsOperations.GetDocumentsInCollection (collectionID);
+            List<ulong> retrievedDocIDs = _mfsOperations.Collection.GetDocuments (collectionID);
             Assert.AreEqual (docIDs.Count, retrievedDocIDs.Count, "Did not retrieve exact number of documents added to a collection.");
 
             retrievedDocIDs.Sort ();
@@ -496,34 +496,34 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
                 Assert.AreEqual (docIDs[i], retrievedDocIDs[i], "Got invalid document id.");
             }
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
 
             foreach (ulong urlID in docIDs) {
-                _mfsOperations.DeleteUrl (urlID);
+                _mfsOperations.Url.Delete (urlID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullDocumentList_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             try {
-                _mfsOperations.AddDocumentsToCollection (null, collectionID);
+                _mfsOperations.Collection.AddTo (null, collectionID);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyDocumentList_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             try {
-                _mfsOperations.AddDocumentsToCollection (new List<ulong> (), collectionID);
+                _mfsOperations.Collection.AddTo (new List<ulong> (), collectionID);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
     }
@@ -539,7 +539,7 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
                 string url = TestUtils.GetAnyUrl ();
                 string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
                 DateTime when = DateTime.Now;
-                ulong urlID = _mfsOperations.AddUrl (url, description, when);
+                ulong urlID = _mfsOperations.Url.New (url, description, when);
 
                 docIDs.Add (urlID);
             }
@@ -547,54 +547,54 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             int numCollectionsToCreate = 3;
             List<ulong> collectionIDs = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
 
-            _mfsOperations.AddDocumentsToCollections (docIDs, collectionIDs);
+            _mfsOperations.Collection.AddToMultiple (docIDs, collectionIDs);
 
             foreach (ulong fileID in docIDs) {
-                List<ulong> retrCollections = _mfsOperations.GetCollectionsWithDocument (fileID);
+                List<ulong> retrCollections = _mfsOperations.Collection.CollectionsWith (fileID);
                 Assert.AreEqual (collectionIDs.Count, retrCollections.Count, "Collection count for document does not match.");
             }
 
             foreach (ulong collectionID in collectionIDs) {
-                List<ulong> retrFiles = _mfsOperations.GetDocumentsInCollection (collectionID);
+                List<ulong> retrFiles = _mfsOperations.Collection.GetDocuments (collectionID);
                 Assert.AreEqual (docIDs.Count, retrFiles.Count, "Document count for collection does not match.");
             }
 
             foreach (ulong urlID in docIDs) {
-                _mfsOperations.DeleteUrl (urlID);
+                _mfsOperations.Url.Delete (urlID);
             }
 
             foreach (ulong collectionID in collectionIDs) {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullDocumentList_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             List<ulong> collectionIDs = new List<ulong> ();
             collectionIDs.Add (collectionID);
 
             try {
-                _mfsOperations.AddDocumentsToCollections (null, collectionIDs);
+                _mfsOperations.Collection.AddToMultiple (null, collectionIDs);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyDocumentList_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             List<ulong> collectionIDs = new List<ulong> ();
             collectionIDs.Add (collectionID);
 
             try {
-                _mfsOperations.AddDocumentsToCollections (new List<ulong> (), collectionIDs);
+                _mfsOperations.Collection.AddToMultiple (new List<ulong> (), collectionIDs);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -609,9 +609,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             docIDs.Add (fileID);
 
             try {
-                _mfsOperations.AddDocumentsToCollections (docIDs, null);
+                _mfsOperations.Collection.AddToMultiple (docIDs, null);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -626,9 +626,9 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             docIDs.Add (fileID);
 
             try {
-                _mfsOperations.AddDocumentsToCollections (docIDs, new List<ulong> ());
+                _mfsOperations.Collection.AddToMultiple (docIDs, new List<ulong> ());
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
     }
@@ -640,30 +640,30 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
             int numCollectionsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> collectionIDs = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
 
-            _mfsOperations.AddDocumentToCollections (noteID, collectionIDs);
+            _mfsOperations.Collection.AddToMultiple (noteID, collectionIDs);
 
-            int numCollectionsRemovedFrom = _mfsOperations.RemoveDocumentFromAllCollections (noteID);
+            int numCollectionsRemovedFrom = _mfsOperations.Collection.RemoveDocumentFromAll (noteID);
             Assert.AreEqual (numCollectionsToCreate, numCollectionsRemovedFrom, "Attempt to remove document from all collections was unsuccessful.");
 
-            List<ulong> allCollections = _mfsOperations.GetCollectionsWithDocument (noteID);
+            List<ulong> allCollections = _mfsOperations.Collection.CollectionsWith (noteID);
             Assert.AreEqual (0, allCollections.Count, "Incorrect number of collections from which document was removed.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Note.Delete (noteID);
 
             foreach (ulong collectionID in collectionIDs) {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocumentIDZero_Illegal () {
-            _mfsOperations.RemoveDocumentFromAllCollections (0);
+            _mfsOperations.Collection.RemoveDocumentFromAll (0);
         }
 
         [Test]
@@ -671,7 +671,7 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
         public void Test_NonExistentDocumentID_Illegal () {
             ulong veryLargeDocID = UInt64.MaxValue;
 
-            _mfsOperations.RemoveDocumentFromAllCollections (veryLargeDocID);
+            _mfsOperations.Collection.RemoveDocumentFromAll (veryLargeDocID);
         }
     }
 
@@ -679,7 +679,7 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
     public class Tests_CollectionsMethod_RemoveAllDocumentsFromCollection : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             int numDocsToCreate = TYPICAL_MULTI_VALUE;
             List<ulong> docIDs = new List<ulong> ();
@@ -692,25 +692,25 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
                 docIDs.Add (fileID);
             }
 
-            _mfsOperations.AddDocumentsToCollection (docIDs, collectionID);
+            _mfsOperations.Collection.AddTo (docIDs, collectionID);
 
-            int numFilesUnappliedFrom = _mfsOperations.RemoveAllDocumentsFromCollection (collectionID);
+            int numFilesUnappliedFrom = _mfsOperations.Collection.RemoveAllDocuments (collectionID);
             Assert.AreEqual (numDocsToCreate, numFilesUnappliedFrom, "Attempt to remove all documents from collection was unsuccessful.");
 
-            List<ulong> allDocs = _mfsOperations.GetDocumentsInCollection (collectionID);
+            List<ulong> allDocs = _mfsOperations.Collection.GetDocuments (collectionID);
             Assert.AreEqual (0, allDocs.Count, "Incorrect number of documents that were removed from collection.");
 
             foreach (ulong fileID in docIDs) {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionIDZero_Illegal () {
-            _mfsOperations.RemoveAllDocumentsFromCollection (0);
+            _mfsOperations.Collection.RemoveAllDocuments (0);
         }
 
         [Test]
@@ -718,7 +718,7 @@ namespace MnemonicFS.Tests.CollectionsDocuments {
         public void Test_NonExistentCollectionID_Illegal () {
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
-            _mfsOperations.RemoveAllDocumentsFromCollection (veryLargeCollectionID);
+            _mfsOperations.Collection.RemoveAllDocuments (veryLargeCollectionID);
         }
     }
 }

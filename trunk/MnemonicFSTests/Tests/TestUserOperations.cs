@@ -50,11 +50,11 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            ulong userID = MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            ulong userID = MfsOperations.User.New (userIDStr, passwordHash);
 
             Assert.That (userID > 0, "User id returned was less than zero.");
 
-            MfsOperations.DeleteUser (userIDStr, true, true);
+            MfsOperations.User.Delete (userIDStr, true, true);
         }
 
         [Test]
@@ -65,12 +65,12 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
             try {
-                MfsOperations.CreateNewUser (userIDStr, passwordHash);
+                MfsOperations.User.New (userIDStr, passwordHash);
             } finally {
-                MfsOperations.DeleteUser (userIDStr, true, true);
+                MfsOperations.User.Delete (userIDStr, true, true);
             }
         }
 
@@ -82,17 +82,17 @@ namespace MnemonicFS.Tests.UserOperations {
             string anyUserID = GetANonExistentUserID ();
 
             // Check to see if your user id complies with it:
-            bool doesComply = MfsOperations.IsUserNameCompliant (anyUserID);
+            bool doesComply = MfsOperations.User.IsNameCompliant (anyUserID);
             Assert.IsTrue (doesComply, "User id was shown as non-compliant even though it is.");
 
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
             // The system should accept this string as a valid user id:
-            ulong userID = MfsOperations.CreateNewUser (anyUserID, passwordHash);
+            ulong userID = MfsOperations.User.New (anyUserID, passwordHash);
             Assert.That (userID > 0, "A valid user id was not returned.");
 
-            MfsOperations.DeleteUser (anyUserID, true, true);
+            MfsOperations.User.Delete (anyUserID, true, true);
         }
 
         [Test]
@@ -101,14 +101,14 @@ namespace MnemonicFS.Tests.UserOperations {
             string wrongFormatUserID = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
             // Check to see if your user id conplies with it:
-            bool doesComply = MfsOperations.IsUserNameCompliant (wrongFormatUserID);
+            bool doesComply = MfsOperations.User.IsNameCompliant (wrongFormatUserID);
             Assert.IsFalse (doesComply, "User id was shown as compliant even though it isn't.");
 
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
             // The system should not accept this string as a valid user id:
-            MfsOperations.CreateNewUser (wrongFormatUserID, passwordHash);
+            MfsOperations.User.New (wrongFormatUserID, passwordHash);
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (nullUserIDStr, passwordHash);
+            MfsOperations.User.New (nullUserIDStr, passwordHash);
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (emptyUserIDStr, passwordHash);
+            MfsOperations.User.New (emptyUserIDStr, passwordHash);
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace MnemonicFS.Tests.UserOperations {
 
             string passwordHash = null;
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
         }
 
         [Test]
@@ -146,9 +146,7 @@ namespace MnemonicFS.Tests.UserOperations {
         public void Test_PasswordHashIncorrectSize_Illegal () {
             string userIDStr = GetANonExistentUserID ();
 
-            string passwordHashLessThan40Chars = "NOT_A_LEGAL_HASH";
-
-            MfsOperations.CreateNewUser (userIDStr, passwordHashLessThan40Chars);
+            MfsOperations.User.New (userIDStr, ILLEGAL_HASH);
         }
 
         [Test]
@@ -158,7 +156,7 @@ namespace MnemonicFS.Tests.UserOperations {
 
             string passwordHash = string.Empty;
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
         }
     }
 
@@ -171,12 +169,12 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
             MfsOperations mfsOperations = new MfsOperations (userIDStr, passwordHash);
             Assert.IsNotNull (mfsOperations, "MfsOperations object was shown as null even though it isn't.");
 
-            MfsOperations.DeleteUser (userIDStr, true, true);
+            MfsOperations.User.Delete (userIDStr, true, true);
         }
     }
 
@@ -189,12 +187,12 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
             MfsOperations mfsOperations = new MfsOperations (userIDStr, passwordHash);
             Assert.IsNotNull (mfsOperations, "MfsOperations object was not created even though password was correct.");
 
-            MfsOperations.DeleteUser (userIDStr, true, true);
+            MfsOperations.User.Delete (userIDStr, true, true);
         }
 
         [Test]
@@ -205,15 +203,15 @@ namespace MnemonicFS.Tests.UserOperations {
             // First create the user:
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
-            string wrongPassword = "WRONG_PASSWORD";
+            string wrongPassword = Hasher.GetSHA1 (password + password);
             string wrongPasswordHash = Hasher.GetSHA1 (wrongPassword);
 
             try {
                 new MfsOperations (userIDStr, wrongPasswordHash);
             } finally {
-                MfsOperations.DeleteUser (userIDStr, true, true);
+                MfsOperations.User.Delete (userIDStr, true, true);
             }
         }
     }
@@ -233,11 +231,11 @@ namespace MnemonicFS.Tests.UserOperations {
                 string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 string passwordHash = Hasher.GetSHA1 (password);
 
-                MfsOperations.CreateNewUser (userIDStr, passwordHash);
+                MfsOperations.User.New (userIDStr, passwordHash);
                 userIDStrs.Add (userIDStr);
             }
 
-            List<string> users = MfsOperations.GetMfsUsers ();
+            List<string> users = MfsOperations.User.All ();
             // Why users.Count - 1? Because the SetUp() method also creates a user.
             // We do not want to count that here.
             Assert.AreEqual (userIDStrs.Count, users.Count - 1, "User count not as expected.");
@@ -255,7 +253,7 @@ namespace MnemonicFS.Tests.UserOperations {
                     continue;
                 }
 
-                MfsOperations.DeleteUser (userIDStr, true, true);
+                MfsOperations.User.Delete (userIDStr, true, true);
             }
         }
     }
@@ -269,19 +267,19 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
-            bool doesUserExist = MfsOperations.DoesUserExist (userIDStr);
+            bool doesUserExist = MfsOperations.User.Exists (userIDStr);
             Assert.IsTrue (doesUserExist, "Shows user as not existing even though user does.");
 
-            MfsOperations.DeleteUser (userIDStr, true, true);
+            MfsOperations.User.Delete (userIDStr, true, true);
         }
 
         [Test]
         public void Test_SanityCheck_NotExists () {
             string userIDStr = GetANonExistentUserID ();
 
-            bool doesUserExist = MfsOperations.DoesUserExist (userIDStr);
+            bool doesUserExist = MfsOperations.User.Exists (userIDStr);
             Assert.IsFalse (doesUserExist, "Shows user as existing even though user does not.");
         }
     }
@@ -295,9 +293,9 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
-            int numDeleted = MfsOperations.DeleteUser (userIDStr, true, true);
+            int numDeleted = MfsOperations.User.Delete (userIDStr, true, true);
             Assert.AreEqual (1, numDeleted, "Did not delete user as expected.");
         }
 
@@ -306,7 +304,7 @@ namespace MnemonicFS.Tests.UserOperations {
         public void Test_SanityCheck_NotExists () {
             string userIDStr = GetANonExistentUserID ();
 
-            MfsOperations.DeleteUser (userIDStr, true, true);
+            MfsOperations.User.Delete (userIDStr, true, true);
         }
 
         [Test]
@@ -325,12 +323,12 @@ namespace MnemonicFS.Tests.UserOperations {
                 string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 string passwordHash = Hasher.GetSHA1 (password);
 
-                MfsOperations.CreateNewUser (userIDStr, passwordHash);
+                MfsOperations.User.New (userIDStr, passwordHash);
                 userIDs.Add (userIDStr);
             }
 
             // Next, get a list of all users in the system:
-            List<string> returnedMfsUsers = MfsOperations.GetMfsUsers ();
+            List<string> returnedMfsUsers = MfsOperations.User.All ();
             int numUsers = returnedMfsUsers.Count;
 
             // The first user in the list is the one created by SetUp(). But just to be safe, we check to see
@@ -352,8 +350,8 @@ namespace MnemonicFS.Tests.UserOperations {
                     continue;
                 }
 
-                MfsOperations.DeleteUser (userID, true, true);
-                numUsers = MfsOperations.GetUserCount ();
+                MfsOperations.User.Delete (userID, true, true);
+                numUsers = MfsOperations.User.GetCount ();
                 Assert.AreEqual (count, numUsers, "Number of users is not the as expected.");
             }
         }
@@ -368,14 +366,14 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
             MfsOperations mfsOperations = new MfsOperations (userIDStr, passwordHash);
             Assert.IsNotNull (mfsOperations);
 
             // Update user password; just get a hash of last password's hash:
             string newPasswordHash = Hasher.GetSHA1 (passwordHash);
-            MfsOperations.UpdateUserPassword (userIDStr, newPasswordHash);
+            MfsOperations.User.UpdatePassword (userIDStr, newPasswordHash);
 
             // Try creating an object with the old password:
             try {
@@ -387,7 +385,7 @@ namespace MnemonicFS.Tests.UserOperations {
             // Try opening with correct password:
             new MfsOperations (userIDStr, newPasswordHash);
 
-            MfsOperations.DeleteUser (userIDStr, true, true);
+            MfsOperations.User.Delete (userIDStr, true, true);
         }
 
         [Test]
@@ -397,7 +395,7 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.UpdateUserPassword (userIDStr, passwordHash);
+            MfsOperations.User.UpdatePassword (userIDStr, passwordHash);
         }
 
         [Test]
@@ -407,7 +405,7 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.UpdateUserPassword (nullUserIDStr, passwordHash);
+            MfsOperations.User.UpdatePassword (nullUserIDStr, passwordHash);
         }
 
         [Test]
@@ -418,14 +416,14 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
             string wrongPasswordHash = "NOT_A_LEGAL_HASH";
 
             try {
-                MfsOperations.UpdateUserPassword (userIDStr, wrongPasswordHash);
+                MfsOperations.User.UpdatePassword (userIDStr, wrongPasswordHash);
             } finally {
-                MfsOperations.DeleteUser (userIDStr, true, true);
+                MfsOperations.User.Delete (userIDStr, true, true);
             }
         }
 
@@ -437,14 +435,14 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
             string nullPasswordHash = null;
 
             try {
-                MfsOperations.UpdateUserPassword (userIDStr, nullPasswordHash);
+                MfsOperations.User.UpdatePassword (userIDStr, nullPasswordHash);
             } finally {
-                MfsOperations.DeleteUser (userIDStr, true, true);
+                MfsOperations.User.Delete (userIDStr, true, true);
             }
         }
     }
@@ -458,7 +456,7 @@ namespace MnemonicFS.Tests.UserOperations {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (userIDStr, passwordHash);
+            MfsOperations.User.New (userIDStr, passwordHash);
 
             MfsOperations mfsOperations = new MfsOperations (userIDStr, passwordHash);
 
@@ -468,7 +466,7 @@ namespace MnemonicFS.Tests.UserOperations {
             Assert.IsEmpty (fName);
             Assert.IsEmpty (lName);
 
-            MfsOperations.DeleteUser (userIDStr, true, true);
+            MfsOperations.User.Delete (userIDStr, true, true);
         }
     }
 

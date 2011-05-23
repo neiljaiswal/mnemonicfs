@@ -44,22 +44,22 @@ namespace MnemonicFS.Tests.Collections {
     public class Tests_CollectionsMethod_CreateCollection : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             Assert.That (collectionID > 0, "Collection not created successfully: Invalid collection id returned.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsDuplicateNameException))]
         public void Test_DuplicateCollectionName_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             try {
-                _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+                _mfsOperations.Collection.New (_collectionName, _collectionDesc);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
@@ -67,18 +67,18 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_CollectionNameWithMaxSizeAllowed_SanityCheck () {
             string collectionName = TestUtils.GetAWord (MfsOperations.MaxCollectionNameLength);
 
-            ulong collectionID = _mfsOperations.CreateCollection (collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (collectionName, _collectionDesc);
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         public void Test_CollectionDescWithMaxSizeAllowed_SanityCheck () {
             string collectionDesc = TestUtils.GetAWord (MfsOperations.MaxCollectionNameLength);
 
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, collectionDesc);
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_NullCollectionName_Illegal () {
             string nullCollectionName = null;
 
-            _mfsOperations.CreateCollection (nullCollectionName, _collectionDesc);
+            _mfsOperations.Collection.New (nullCollectionName, _collectionDesc);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_NullCollectionDesc_Illegal () {
             string nullCollectionDesc = null;
 
-            _mfsOperations.CreateCollection (_collectionName, nullCollectionDesc);
+            _mfsOperations.Collection.New (_collectionName, nullCollectionDesc);
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_EmptyCollectionName_Illegal () {
             string emptyCollectionName = string.Empty;
 
-            _mfsOperations.CreateCollection (emptyCollectionName, _collectionDesc);
+            _mfsOperations.Collection.New (emptyCollectionName, _collectionDesc);
         }
 
         [Test]
@@ -112,18 +112,18 @@ namespace MnemonicFS.Tests.Collections {
 
             string longCollectionName = TestUtils.GetAWord (maxCharsInCollectionName + 1);
 
-            _mfsOperations.CreateCollection (longCollectionName, _collectionDesc);
+            _mfsOperations.Collection.New (longCollectionName, _collectionDesc);
         }
 
         [Test]
         public void Test_EmptyCollectionDesc_Legal () {
             string emptyCollectionDesc = string.Empty;
 
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, emptyCollectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, emptyCollectionDesc);
 
             Assert.That (collectionID > 0, "Failed to save collection though empty collection description is allowed.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace MnemonicFS.Tests.Collections {
 
             string longCollectionDesc = TestUtils.GetAWord (maxCharsInCollectionDesc + 1);
 
-            _mfsOperations.CreateCollection (_collectionName, longCollectionDesc);
+            _mfsOperations.Collection.New (_collectionName, longCollectionDesc);
         }
     }
 
@@ -141,40 +141,40 @@ namespace MnemonicFS.Tests.Collections {
     public class Tests_CollectionsMethod_DoesCollectionExist : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck_Exists () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
-            bool collectionExists = _mfsOperations.DoesCollectionExist (collectionID);
+            bool collectionExists = _mfsOperations.Collection.Exists (collectionID);
 
             Assert.IsTrue (collectionExists, "Collection was shown as not existing, even though it does.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         public void Test_SanityCheck_NotExists () {
             ulong veryLargeCollectionID = ulong.MaxValue;
 
-            bool collectionExists = _mfsOperations.DoesCollectionExist (veryLargeCollectionID);
+            bool collectionExists = _mfsOperations.Collection.Exists (veryLargeCollectionID);
 
             Assert.IsFalse (collectionExists, "Collection was shown as existing, even though it does not.");
         }
 
         [Test]
         public void Test_SanityCheck_CollectionName_Exists () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
-            bool collectionExists = _mfsOperations.DoesCollectionExist (_collectionName);
+            bool collectionExists = _mfsOperations.Collection.Exists (_collectionName);
 
             Assert.IsTrue (collectionExists, "Collection was shown as not existing, even though it does.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         public void Test_SanityCheck_CollectionName_NotExists () {
             string someCollectionName = TestUtils.GetAWord (TYPICAL_WORD_SIZE * 2);
 
-            bool collectionExists = _mfsOperations.DoesCollectionExist (someCollectionName);
+            bool collectionExists = _mfsOperations.Collection.Exists (someCollectionName);
 
             Assert.IsFalse (collectionExists, "Collection was shown as existing, even though it does not.");
         }
@@ -182,19 +182,19 @@ namespace MnemonicFS.Tests.Collections {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionIDZero_Illegal () {
-            _mfsOperations.DoesCollectionExist (0);
+            _mfsOperations.Collection.Exists (0);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionNameNull_Illegal () {
-            _mfsOperations.DoesCollectionExist (null);
+            _mfsOperations.Collection.Exists (null);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionNameSizeZero_Illegal () {
-            _mfsOperations.DoesCollectionExist (string.Empty);
+            _mfsOperations.Collection.Exists (string.Empty);
         }
     }
 
@@ -202,9 +202,9 @@ namespace MnemonicFS.Tests.Collections {
     public class Tests_CollectionsMethod_DeleteCollection : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
-            int numCollectionsDeleted = _mfsOperations.DeleteCollection (collectionID);
+            int numCollectionsDeleted = _mfsOperations.Collection.Delete (collectionID);
 
             Assert.AreEqual (1, numCollectionsDeleted, "Collection was not deleted.");
         }
@@ -212,7 +212,7 @@ namespace MnemonicFS.Tests.Collections {
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionIDZero_Illegal () {
-            _mfsOperations.DeleteCollection (0);
+            _mfsOperations.Collection.Delete (0);
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace MnemonicFS.Tests.Collections {
 
             string anyDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            _mfsOperations.DeleteCollection (veryLargeCollectionID);
+            _mfsOperations.Collection.Delete (veryLargeCollectionID);
         }
     }
 
@@ -230,21 +230,21 @@ namespace MnemonicFS.Tests.Collections {
     public class Tests_CollectionsMethod_GetCollectionName : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string collectionName, collectionDesc;
-            _mfsOperations.GetCollectionNameAndDesc (collectionID, out collectionName, out collectionDesc);
+            _mfsOperations.Collection.Get (collectionID, out collectionName, out collectionDesc);
 
             Assert.AreEqual (_collectionName, collectionName, "Did not retrieve collection's name.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionIDZero_Illegal () {
             string collectionName, collectionDesc;
-            _mfsOperations.GetCollectionNameAndDesc (0, out collectionName, out collectionDesc);
+            _mfsOperations.Collection.Get (0, out collectionName, out collectionDesc);
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace MnemonicFS.Tests.Collections {
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
             string collectionName, collectionDesc;
-            _mfsOperations.GetCollectionNameAndDesc (veryLargeCollectionID, out collectionName, out collectionDesc);
+            _mfsOperations.Collection.Get (veryLargeCollectionID, out collectionName, out collectionDesc);
         }
     }
 
@@ -261,21 +261,21 @@ namespace MnemonicFS.Tests.Collections {
     public class Tests_CollectionsMethod_GetCollectionDesc : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string collectionName, collectionDesc;
-            _mfsOperations.GetCollectionNameAndDesc (collectionID, out collectionName, out collectionDesc);
+            _mfsOperations.Collection.Get (collectionID, out collectionName, out collectionDesc);
 
             Assert.AreEqual (_collectionDesc, collectionDesc, "Did not retrieve collection's description.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionIDZero_Illegal () {
             string collectionName, collectionDesc;
-            _mfsOperations.GetCollectionNameAndDesc (0, out collectionName, out collectionDesc);
+            _mfsOperations.Collection.Get (0, out collectionName, out collectionDesc);
         }
 
         [Test]
@@ -284,7 +284,7 @@ namespace MnemonicFS.Tests.Collections {
             ulong veryLargeCollectionID = UInt64.MaxValue;
 
             string collectionName, collectionDesc;
-            _mfsOperations.GetCollectionNameAndDesc (veryLargeCollectionID, out collectionName, out collectionDesc);
+            _mfsOperations.Collection.Get (veryLargeCollectionID, out collectionName, out collectionDesc);
         }
     }
 
@@ -294,10 +294,10 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_SanityCheck () {
             ulong collectionID = CreateUniqueCollection (ref _mfsOperations, out _collectionName, out _collectionDesc);
 
-            ulong retrCollectionID = _mfsOperations.GetCollectionIDFromName (_collectionName);
-            Assert.AreEqual (collectionID, retrCollectionID, "Wrong collection ID retrieved.");
+            ulong retrCollectionID = _mfsOperations.Collection.IDFromName (_collectionName);
+            Assert.AreEqual (collectionID, retrCollectionID, "Wrong collection id retrieved.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
@@ -307,9 +307,9 @@ namespace MnemonicFS.Tests.Collections {
 
             do {
                 nonExistentCollectionName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (_mfsOperations.DoesCollectionExist (nonExistentCollectionName));
+            } while (_mfsOperations.Collection.Exists (nonExistentCollectionName));
 
-            _mfsOperations.GetCollectionIDFromName (nonExistentCollectionName);
+            _mfsOperations.Collection.IDFromName (nonExistentCollectionName);
         }
 
         [Test]
@@ -317,7 +317,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_NullCollectionName_Illegal () {
             string nullCollectionName = null;
 
-            _mfsOperations.GetCollectionIDFromName (nullCollectionName);
+            _mfsOperations.Collection.IDFromName (nullCollectionName);
         }
 
         [Test]
@@ -325,7 +325,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_EmptyCollectionName_Illegal () {
             string emptyCollectionName = string.Empty;
 
-            _mfsOperations.GetCollectionIDFromName (emptyCollectionName);
+            _mfsOperations.Collection.IDFromName (emptyCollectionName);
         }
     }
 
@@ -341,7 +341,7 @@ namespace MnemonicFS.Tests.Collections {
                 collectionsList.Add (collectionID);
             }
 
-            List<ulong> retrCollectionIDs = _mfsOperations.GetAllCollections ();
+            List<ulong> retrCollectionIDs = _mfsOperations.Collection.All ();
 
             collectionsList.Sort ();
             retrCollectionIDs.Sort ();
@@ -350,7 +350,7 @@ namespace MnemonicFS.Tests.Collections {
             Assert.AreEqual (collectionsList, retrCollectionIDs, "Wrong collection ids recovered.");
 
             foreach (ulong collectionID in collectionsList) {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
     }
@@ -359,31 +359,31 @@ namespace MnemonicFS.Tests.Collections {
     public class Tests_CollectionsMethod_UpdateCollectionName : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string newCollectionName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            bool collectionNameUpdated = _mfsOperations.UpdateCollectionName (collectionID, newCollectionName);
+            bool collectionNameUpdated = _mfsOperations.Collection.UpdateName (collectionID, newCollectionName);
 
             Assert.IsTrue (collectionNameUpdated, "Collection name was not updated successfully.");
 
             string collectionName, collectionDesc;
-            _mfsOperations.GetCollectionNameAndDesc (collectionID, out collectionName, out collectionDesc);
+            _mfsOperations.Collection.Get (collectionID, out collectionName, out collectionDesc);
 
             Assert.AreEqual (newCollectionName, collectionName, "Collection name was not updated successfully.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         public void Test_CollectionNameWithMaxSizeAllowed_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string newCollectionName = TestUtils.GetAWord (MfsOperations.MaxCollectionNameLength);
 
-            _mfsOperations.UpdateCollectionName (collectionID, newCollectionName);
+            _mfsOperations.Collection.UpdateName (collectionID, newCollectionName);
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
@@ -391,7 +391,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_CollectionIDZero_Illegal () {
             string anyName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdateCollectionName (0, anyName);
+            _mfsOperations.Collection.UpdateName (0, anyName);
         }
 
         [Test]
@@ -401,48 +401,48 @@ namespace MnemonicFS.Tests.Collections {
 
             string anyName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdateCollectionName (veryLargeCollectionID, anyName);
+            _mfsOperations.Collection.UpdateName (veryLargeCollectionID, anyName);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullNewCollectionName_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string nullCollectionName = null;
 
             try {
-                _mfsOperations.UpdateCollectionName (collectionID, nullCollectionName);
+                _mfsOperations.Collection.UpdateName (collectionID, nullCollectionName);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyNewCollectionName_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string emptyCollectionName = string.Empty;
 
             try {
-                _mfsOperations.UpdateCollectionName (collectionID, emptyCollectionName);
+                _mfsOperations.Collection.UpdateName (collectionID, emptyCollectionName);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionNameGreaterThanSystemDefined_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string veryLongCollectionName = TestUtils.GetAWord (MfsOperations.MaxCollectionNameLength + 1);
 
             try {
-                _mfsOperations.UpdateCollectionName (collectionID, veryLongCollectionName);
+                _mfsOperations.Collection.UpdateName (collectionID, veryLongCollectionName);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
     }
@@ -451,31 +451,31 @@ namespace MnemonicFS.Tests.Collections {
     public class Tests_CollectionsMethod_UpdateCollectionDesc : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string newCollectionDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            bool collectionDescUpdated = _mfsOperations.UpdateCollectionDesc (collectionID, newCollectionDesc);
+            bool collectionDescUpdated = _mfsOperations.Collection.UpdateDesc (collectionID, newCollectionDesc);
 
             Assert.IsTrue (collectionDescUpdated, "Collection description was not updated successfully.");
 
             string collectionName, collectionDesc;
-            _mfsOperations.GetCollectionNameAndDesc (collectionID, out collectionName, out collectionDesc);
+            _mfsOperations.Collection.Get (collectionID, out collectionName, out collectionDesc);
 
             Assert.AreEqual (newCollectionDesc, collectionDesc, "Collection description was not updated successfully.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         public void Test_CollectionDescWithMaxSizeAllowed_SanityCheck () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string newCollectionDesc = TestUtils.GetAWord (MfsOperations.MaxCollectionDescLength);
 
-            _mfsOperations.UpdateCollectionDesc (collectionID, newCollectionDesc);
+            _mfsOperations.Collection.UpdateDesc (collectionID, newCollectionDesc);
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
@@ -483,7 +483,7 @@ namespace MnemonicFS.Tests.Collections {
         public void Test_CollectionIDZero_Illegal () {
             string anyDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdateCollectionDesc (0, anyDesc);
+            _mfsOperations.Collection.UpdateDesc (0, anyDesc);
         }
 
         [Test]
@@ -493,45 +493,45 @@ namespace MnemonicFS.Tests.Collections {
 
             string anyDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
 
-            _mfsOperations.UpdateCollectionDesc (veryLargeCollectionID, anyDesc);
+            _mfsOperations.Collection.UpdateDesc (veryLargeCollectionID, anyDesc);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullNewCollectionDesc_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string nullCollectionDesc = null;
 
             try {
-                _mfsOperations.UpdateCollectionDesc (collectionID, nullCollectionDesc);
+                _mfsOperations.Collection.UpdateDesc (collectionID, nullCollectionDesc);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
 
         [Test]
         public void Test_EmptyNewCollectionDesc_Legal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string emptyCollectionDesc = string.Empty;
 
-            _mfsOperations.UpdateCollectionDesc (collectionID, emptyCollectionDesc);
+            _mfsOperations.Collection.UpdateDesc (collectionID, emptyCollectionDesc);
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_CollectionDescGreaterThanSystemDefined_Illegal () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string veryLongCollectionDesc = TestUtils.GetAWord (MfsOperations.MaxCollectionDescLength + 1);
 
             try {
-                _mfsOperations.UpdateCollectionDesc (collectionID, veryLongCollectionDesc);
+                _mfsOperations.Collection.UpdateDesc (collectionID, veryLongCollectionDesc);
             } finally {
-                _mfsOperations.DeleteCollection (collectionID);
+                _mfsOperations.Collection.Delete (collectionID);
             }
         }
     }
@@ -544,10 +544,10 @@ namespace MnemonicFS.Tests.Collections {
 
             List<ulong> listCollections = CreateUniqueNCollections (ref _mfsOperations, numCollectionsToCreate);
 
-            int numCollectionsDeleted = _mfsOperations.DeleteAllCollectionsInSystem ();
+            int numCollectionsDeleted = _mfsOperations.Collection.DeleteAll ();
             Assert.AreEqual (listCollections.Count, numCollectionsDeleted, "Did not delete the same number of collections as were created.");
 
-            List<ulong> collectionsList = _mfsOperations.GetAllCollections ();
+            List<ulong> collectionsList = _mfsOperations.Collection.All ();
             Assert.AreEqual (0, collectionsList.Count, "Did not delete all collections in the system.");
         }
     }

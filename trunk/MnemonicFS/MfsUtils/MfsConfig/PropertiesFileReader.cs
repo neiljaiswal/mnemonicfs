@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using MnemonicFS.MfsExceptions;
 
 namespace MnemonicFS.MfsUtils.MfsConfig {
     /// <summary>
@@ -62,7 +63,9 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
                 }
             }
 
-            throw new Exception ("Key not found.");
+            throw new MfsNonExistentResourceException (
+                MfsErrorMessages.GetMessage (MessageType.NON_EXISTENT_RES, key)
+            );
         }
 
         public List<string> GetAllKeys () {

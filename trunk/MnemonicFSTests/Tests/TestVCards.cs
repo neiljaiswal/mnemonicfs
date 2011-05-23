@@ -53,7 +53,7 @@ namespace MnemonicFS.Tests.VCards {
     public class TestVCards_VCardMethod_AddVCard : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            MfsVCard vCard = CreateVCard ();
+            // TODO
         }
     }
 }

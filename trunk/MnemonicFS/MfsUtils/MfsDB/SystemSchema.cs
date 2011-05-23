@@ -46,7 +46,7 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [PasswordHash] VARCHAR(40) NOT NULL,
                 [UserSpecificPath] NVARCHAR(1024) NOT NULL,
                 [WhenDateTime] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                [MasterPasswordHash] VARCHAR(40),
+                [MasterPasswordHash] VARCHAR(40) DEFAULT NULL,
                 [UserDeleted] SHORT DEFAULT 0
                 );
 

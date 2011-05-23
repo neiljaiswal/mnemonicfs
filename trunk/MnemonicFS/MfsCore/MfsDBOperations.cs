@@ -83,7 +83,7 @@ namespace MnemonicFS.MfsCore {
             myCommand.ExecuteNonQuery ();
             Trace.TraceInformation ("Done creating system db!");
 
-            cnn.Close ();
+            cnn.Dispose ();
             Debug.Print ("Closed connection for creating system db.");
         }
 
@@ -131,13 +131,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -166,10 +169,12 @@ namespace MnemonicFS.MfsCore {
                 return true;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -197,10 +202,12 @@ namespace MnemonicFS.MfsCore {
                 }
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
 
@@ -227,17 +234,19 @@ namespace MnemonicFS.MfsCore {
                 return dt.Rows[0][0].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
 
         internal static int UpdateUserPassword (string userIDStr, string newPasswordHash) {
             string sql = "update L_Users set PasswordHash=@newPasswordHash where UserIDStr=@userIDStr";
-            Debug.Print ("Delete user: " + sql);
+            Debug.Print ("Update user password: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -254,13 +263,16 @@ namespace MnemonicFS.MfsCore {
                 return updatedRows;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -284,10 +296,12 @@ namespace MnemonicFS.MfsCore {
                 return int.Parse (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -310,13 +324,16 @@ namespace MnemonicFS.MfsCore {
                 return updatedRows;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -345,10 +362,12 @@ namespace MnemonicFS.MfsCore {
                 return ulong.Parse (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -377,10 +396,12 @@ namespace MnemonicFS.MfsCore {
                 return dt.Rows[0][0].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -445,7 +466,7 @@ namespace MnemonicFS.MfsCore {
             myCommand.ExecuteNonQuery ();
             Trace.TraceInformation ("Done creating user db!");
 
-            cnn.Close ();
+            cnn.Dispose ();
             Debug.Print ("Closed connection for creating user db.");
         }
 
@@ -461,11 +482,11 @@ namespace MnemonicFS.MfsCore {
 
         #endregion << User Instantiation Methods & Variables >>
 
-        #region << Next Document ID >>
+        #region << Next Document id >>
 
         private ulong GetNextDocumentID () {
             string sql = "select LastID from Table_LastDocumentID";
-            Debug.Print ("Get Last Document ID: " + sql);
+            Debug.Print ("Get Last Document id: " + sql);
 
             SQLiteConnection cnn = null;
             ulong lastVal = 0;
@@ -483,10 +504,12 @@ namespace MnemonicFS.MfsCore {
                 lastVal = UInt64.Parse (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
 
@@ -498,7 +521,7 @@ namespace MnemonicFS.MfsCore {
 
         private bool SetLastDocumentID (ulong nextID) {
             string sql = "delete from Table_LastDocumentID; insert into Table_LastDocumentID (LastID) values (" + nextID + ")";
-            Debug.Print ("Set Last Document ID: " + sql);
+            Debug.Print ("Set Last Document id: " + sql);
 
             SQLiteConnection cnn = null;
             SQLiteTransaction transaction = null;
@@ -512,18 +535,21 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
 
-        #endregion << Next Document ID >>
+        #endregion << Next Document id >>
 
         #region << Class-level Storage Operations >>
 
@@ -552,13 +578,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -587,10 +616,12 @@ namespace MnemonicFS.MfsCore {
                 Debug.Print (archivePath);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -613,10 +644,12 @@ namespace MnemonicFS.MfsCore {
                 return Int32.Parse (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -640,10 +673,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -663,13 +698,16 @@ namespace MnemonicFS.MfsCore {
                 myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -711,10 +749,12 @@ namespace MnemonicFS.MfsCore {
                 return listExpiredFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -744,10 +784,12 @@ namespace MnemonicFS.MfsCore {
                 lName = dt.Rows[0][1].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -790,23 +832,26 @@ namespace MnemonicFS.MfsCore {
                 cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
                 cnn.Open ();
                 transaction = cnn.BeginTransaction ();
-                
+
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@fileName", fileName);
                 myCommand.Parameters.AddWithValue ("@fileNarration", fileNarration);
 
                 myCommand.ExecuteNonQuery ();
-                
+
                 return fileID;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -829,13 +874,16 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -868,10 +916,12 @@ namespace MnemonicFS.MfsCore {
                 return dt.Rows.Count > 0;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -895,10 +945,12 @@ namespace MnemonicFS.MfsCore {
                 return dt.Rows.Count > 0 ? UInt64.Parse ((dt.Rows[0][0]).ToString ()) : 0;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -926,13 +978,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -966,10 +1021,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -997,10 +1054,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1023,10 +1082,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1049,10 +1110,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1075,10 +1138,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1106,10 +1171,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1137,10 +1204,12 @@ namespace MnemonicFS.MfsCore {
                 return int.Parse (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1168,10 +1237,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1235,10 +1306,12 @@ namespace MnemonicFS.MfsCore {
                 return opFilesScores;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1269,10 +1342,12 @@ namespace MnemonicFS.MfsCore {
                 return (DateTime.Parse (dtTmStr));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1300,10 +1375,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1326,10 +1403,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1357,10 +1436,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1409,13 +1490,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1450,13 +1534,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1503,10 +1590,12 @@ namespace MnemonicFS.MfsCore {
                 return dateTime;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1536,13 +1625,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1572,13 +1664,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1613,13 +1708,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1654,13 +1752,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1687,13 +1788,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1726,10 +1830,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1772,10 +1878,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1818,10 +1926,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1864,10 +1974,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1903,10 +2015,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1942,10 +2056,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -1981,10 +2097,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2020,10 +2138,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2059,10 +2179,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2098,10 +2220,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2137,10 +2261,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2176,10 +2302,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2215,10 +2343,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2235,7 +2365,13 @@ namespace MnemonicFS.MfsCore {
             if (DoesUrlExist (docID)) {
                 return DocumentType.URL;
             }
-            return DocumentType.VCARD;
+            if (DoesVCardExist (docID)) {
+                return DocumentType.VCARD;
+            }
+            if (DoesSfdExist (docID)) {
+                return DocumentType.SFD;
+            }
+            return DocumentType.NONE;
         }
 
         #region << Aspect-related Operations >>
@@ -2270,13 +2406,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2305,10 +2444,12 @@ namespace MnemonicFS.MfsCore {
                 aspectDesc = dt.Rows[0][1].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2337,10 +2478,12 @@ namespace MnemonicFS.MfsCore {
                 return allAspects;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2370,13 +2513,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2400,19 +2546,22 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@newAspectDesc", newAspectDesc);
-                
+
                 int updatedRows = myCommand.ExecuteNonQuery ();
 
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2440,10 +2589,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2464,7 +2615,7 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@aspectName", aspectName);
-                
+
                 SQLiteDataReader reader = myCommand.ExecuteReader ();
 
                 DataTable dt = new DataTable ();
@@ -2473,10 +2624,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2507,20 +2660,23 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
 
         internal ulong GetAspectIDFromName (string aspectName) {
             string sql = "select key_AspectID from L_Aspects where AspectName=@aspectName";
-            Debug.Print ("Get aspect ID: " + sql);
+            Debug.Print ("Get aspect id: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -2538,10 +2694,12 @@ namespace MnemonicFS.MfsCore {
                 return UInt64.Parse ((dt.Rows[0][0]).ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2571,13 +2729,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2610,13 +2771,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2640,10 +2804,12 @@ namespace MnemonicFS.MfsCore {
                 return dt.Rows.Count > 0;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2667,10 +2833,12 @@ namespace MnemonicFS.MfsCore {
                 aspectGroupDesc = dt.Rows[0][1].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2693,10 +2861,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2725,10 +2895,12 @@ namespace MnemonicFS.MfsCore {
                 return childAspectGroups;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2751,10 +2923,12 @@ namespace MnemonicFS.MfsCore {
                 return Int32.Parse (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2777,10 +2951,12 @@ namespace MnemonicFS.MfsCore {
                 return Int32.Parse (dt.Rows[0][0].ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2800,13 +2976,16 @@ namespace MnemonicFS.MfsCore {
                 return myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2844,17 +3023,20 @@ namespace MnemonicFS.MfsCore {
                 myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
-        
+
         internal int GetLastFileVersionNumber (ulong fileID) {
             string sql = "select max(VersionNumber) from M_Files_Versions where fkey_FileID=" + fileID;
             Debug.Print ("Get last file version: " + sql);
@@ -2889,10 +3071,12 @@ namespace MnemonicFS.MfsCore {
                 return lastVersionNumber;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2917,10 +3101,12 @@ namespace MnemonicFS.MfsCore {
                 return fileHash;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2959,10 +3145,12 @@ namespace MnemonicFS.MfsCore {
                 return (versionNumber <= lastVersionNumber);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -2992,10 +3180,12 @@ namespace MnemonicFS.MfsCore {
                 return versionedFileNamesWithPath;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3018,10 +3208,12 @@ namespace MnemonicFS.MfsCore {
                 return dt.Rows[0][0].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3048,10 +3240,12 @@ namespace MnemonicFS.MfsCore {
                 Debug.Print (whenDateTime.ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3082,10 +3276,12 @@ namespace MnemonicFS.MfsCore {
                 }
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3110,13 +3306,16 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3139,10 +3338,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3163,13 +3364,16 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3189,13 +3393,16 @@ namespace MnemonicFS.MfsCore {
                 return myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3216,13 +3423,16 @@ namespace MnemonicFS.MfsCore {
                 return myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3251,10 +3461,12 @@ namespace MnemonicFS.MfsCore {
                 return allAspects;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3283,10 +3495,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3325,13 +3539,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3362,13 +3579,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3396,10 +3616,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3420,7 +3642,7 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@briefcaseName", briefcaseName);
-                
+
                 SQLiteDataReader reader = myCommand.ExecuteReader ();
 
                 DataTable dt = new DataTable ();
@@ -3429,10 +3651,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3461,17 +3685,19 @@ namespace MnemonicFS.MfsCore {
                 briefcaseDesc = dt.Rows[0][1].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
 
         internal ulong GetBriefcaseIDFromName (string briefcaseName) {
             string sql = "select key_BriefcaseID from L_Briefcases where BriefcaseName=@briefcaseName";
-            Debug.Print ("Get briefcase ID: " + sql);
+            Debug.Print ("Get briefcase id: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -3489,10 +3715,12 @@ namespace MnemonicFS.MfsCore {
                 return UInt64.Parse ((dt.Rows[0][0]).ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3521,10 +3749,12 @@ namespace MnemonicFS.MfsCore {
                 return allBriefcases;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3554,13 +3784,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3584,19 +3817,22 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@newBriefcaseDesc", newBriefcaseDesc);
-                
+
                 int updatedRows = myCommand.ExecuteNonQuery ();
 
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3626,13 +3862,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3651,17 +3890,20 @@ namespace MnemonicFS.MfsCore {
             DocumentType docType = GetDocumentType (documentID);
             switch (docType) {
                 case DocumentType.FILE:
-                sql = "select fkey_BriefcaseID from L_Files where key_FileID=" + documentID;
-                break;
+                    sql = "select fkey_BriefcaseID from L_Files where key_FileID=" + documentID;
+                    break;
                 case DocumentType.NOTE:
-                sql = "select fkey_BriefcaseID from L_Notes where key_NoteID=" + documentID;
-                break;
+                    sql = "select fkey_BriefcaseID from L_Notes where key_NoteID=" + documentID;
+                    break;
                 case DocumentType.URL:
-                sql = "select fkey_BriefcaseID from L_Urls where key_UrlID=" + documentID;
-                break;
+                    sql = "select fkey_BriefcaseID from L_Urls where key_UrlID=" + documentID;
+                    break;
                 case DocumentType.VCARD:
-                sql = "select fkey_BriefcaseID from L_VCards where key_VCardID=" + documentID;
-                break;
+                    sql = "select fkey_BriefcaseID from L_VCards where key_VCardID=" + documentID;
+                    break;
+                case DocumentType.SFD:
+                    sql = "select fkey_BriefcaseID from L_SchemaFreeDocuments where key_DocID=" + documentID;
+                    break;
             }
             Debug.Print ("Get containing briefcase: " + sql);
 
@@ -3679,10 +3921,12 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3725,13 +3969,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3773,13 +4020,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3819,10 +4069,12 @@ namespace MnemonicFS.MfsCore {
                 return docsInBriefcase;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3852,7 +4104,7 @@ namespace MnemonicFS.MfsCore {
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@collectionName", collectionName);
                 myCommand.Parameters.AddWithValue ("@collectionDesc", collectionDesc);
-                
+
                 SQLiteDataReader reader = myCommand.ExecuteReader ();
 
                 DataTable dt = new DataTable ();
@@ -3861,13 +4113,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3898,13 +4153,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3932,10 +4190,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3956,7 +4216,7 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@collectionName", collectionName);
-                
+
                 SQLiteDataReader reader = myCommand.ExecuteReader ();
 
                 DataTable dt = new DataTable ();
@@ -3965,10 +4225,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -3997,17 +4259,19 @@ namespace MnemonicFS.MfsCore {
                 collectionDesc = dt.Rows[0][1].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
 
         internal ulong GetCollectionIDFromName (string collectionName) {
             string sql = "select key_CollectionID from L_Collections where CollectionName=@collectionName";
-            Debug.Print ("Get collection ID: " + sql);
+            Debug.Print ("Get collection id: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -4025,10 +4289,12 @@ namespace MnemonicFS.MfsCore {
                 return UInt64.Parse ((dt.Rows[0][0]).ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4057,10 +4323,12 @@ namespace MnemonicFS.MfsCore {
                 return allCollections;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4084,19 +4352,22 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@newCollectionName", newCollectionName);
-                
+
                 int updatedRows = myCommand.ExecuteNonQuery ();
 
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4120,19 +4391,22 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 myCommand.Parameters.AddWithValue ("@newCollectionDesc", newCollectionDesc);
-                
+
                 int updatedRows = myCommand.ExecuteNonQuery ();
 
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4154,7 +4428,7 @@ namespace MnemonicFS.MfsCore {
 
                 SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
                 int val = myCommand.ExecuteNonQuery ();
-                
+
                 string referencedQuery1 = "delete from M_Documents_Collections";
                 SQLiteCommand myCommand1 = new SQLiteCommand (referencedQuery1, cnn);
                 myCommand1.ExecuteNonQuery ();
@@ -4162,13 +4436,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4193,13 +4470,16 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4222,10 +4502,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4246,13 +4528,16 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4281,10 +4566,12 @@ namespace MnemonicFS.MfsCore {
                 return allCollections;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4313,10 +4600,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4336,13 +4625,16 @@ namespace MnemonicFS.MfsCore {
                 return myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4363,13 +4655,16 @@ namespace MnemonicFS.MfsCore {
                 return myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4406,13 +4701,16 @@ namespace MnemonicFS.MfsCore {
                 return urlID;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4440,10 +4738,12 @@ namespace MnemonicFS.MfsCore {
                 when = DateTime.Parse (dtTmStr);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4467,13 +4767,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4497,13 +4800,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4532,13 +4838,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4569,17 +4878,20 @@ namespace MnemonicFS.MfsCore {
                 myCommand1.ExecuteNonQuery ();
                 myCommand2.ExecuteNonQuery ();
                 myCommand3.ExecuteNonQuery ();
-                
+
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4614,13 +4926,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4643,10 +4958,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4669,10 +4986,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4709,13 +5028,16 @@ namespace MnemonicFS.MfsCore {
                 return noteID;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4750,13 +5072,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4783,10 +5108,12 @@ namespace MnemonicFS.MfsCore {
                 return (new MfsNote (noteContent, DateTime.Parse (dtTmStr)));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4812,10 +5139,12 @@ namespace MnemonicFS.MfsCore {
                 return (DateTime.Parse (dtTmStr));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4838,10 +5167,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4866,13 +5197,16 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4901,10 +5235,12 @@ namespace MnemonicFS.MfsCore {
                 return allFiles;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4927,10 +5263,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4952,13 +5290,16 @@ namespace MnemonicFS.MfsCore {
                 return updatedRows;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -4980,13 +5321,16 @@ namespace MnemonicFS.MfsCore {
                 return updatedRows;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5025,13 +5369,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5063,13 +5410,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5095,13 +5445,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5124,10 +5477,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5152,10 +5507,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5178,17 +5535,19 @@ namespace MnemonicFS.MfsCore {
                 docName = dt.Rows[0][0].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
 
         internal ulong GetSfdIDFromName (string docName) {
             string sql = "select key_DocID from L_SchemaFreeDocuments where DocName=@docName";
-            Debug.Print ("Get schema-free document ID: " + sql);
+            Debug.Print ("Get schema-free document id: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -5206,10 +5565,12 @@ namespace MnemonicFS.MfsCore {
                 return UInt64.Parse ((dt.Rows[0][0]).ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5235,10 +5596,12 @@ namespace MnemonicFS.MfsCore {
                 return (DateTime.Parse (dtTmStr));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5267,10 +5630,12 @@ namespace MnemonicFS.MfsCore {
                 return allDocs;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5293,13 +5658,16 @@ namespace MnemonicFS.MfsCore {
                 myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5324,10 +5692,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5352,10 +5722,12 @@ namespace MnemonicFS.MfsCore {
                 return dt.Rows[0][0].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5380,13 +5752,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5408,13 +5783,16 @@ namespace MnemonicFS.MfsCore {
                 return myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5443,10 +5821,12 @@ namespace MnemonicFS.MfsCore {
                 return allKeys;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5484,13 +5864,16 @@ namespace MnemonicFS.MfsCore {
                 return (ulong.Parse (dt.Rows[0][0].ToString ()));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5519,13 +5902,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5557,20 +5943,23 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
 
         internal ulong GetPredicateID (string predicate) {
             string sql = "select key_PredicateID from L_Predicates where Predicate=@predicate";
-            Debug.Print ("Get predicate ID: " + sql);
+            Debug.Print ("Get predicate id: " + sql);
 
             SQLiteConnection cnn = null;
             try {
@@ -5588,10 +5977,12 @@ namespace MnemonicFS.MfsCore {
                 return UInt64.Parse ((dt.Rows[0][0]).ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5619,10 +6010,12 @@ namespace MnemonicFS.MfsCore {
                 return dt.Rows[0][0].ToString ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5645,10 +6038,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5673,10 +6068,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5705,10 +6102,12 @@ namespace MnemonicFS.MfsCore {
                 return allDocs;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5732,13 +6131,16 @@ namespace MnemonicFS.MfsCore {
                 return (updatedRows > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5764,13 +6166,16 @@ namespace MnemonicFS.MfsCore {
                 return val;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5792,13 +6197,16 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5822,10 +6230,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5849,10 +6259,12 @@ namespace MnemonicFS.MfsCore {
                 return (dt.Rows.Count > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5882,10 +6294,12 @@ namespace MnemonicFS.MfsCore {
                 return listRelations;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5907,13 +6321,16 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
@@ -5935,17 +6352,348 @@ namespace MnemonicFS.MfsCore {
                 return (myCommand.ExecuteNonQuery () > 0);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
+                    transaction.Dispose ();
                 }
                 if (cnn != null) {
-                    cnn.Close ();
+                    cnn.Dispose ();
                 }
             }
         }
 
         #endregion << Relationship Operations >>
+
+        #region << Master Password Operations >>
+
+        internal bool IsMasterPasswordSet () {
+            string sql = "select MasterPasswordHash from L_Users where UserIDStr=@userIDStr";
+            Debug.Print ("User has master password: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (SYSTEMDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@userIDStr", _userIDStr);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                object obj = dt.Rows[0][0];
+                return !string.IsNullOrEmpty (obj.ToString ());
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal int SetMasterPassword (string newMasterPasswordHash) {
+            string sql = "update L_Users set MasterPasswordHash=@newMasterPasswordHash where UserIDStr=@userIDStr";
+            Debug.Print ("Update user master password: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (SYSTEMDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@newMasterPasswordHash", newMasterPasswordHash);
+                myCommand.Parameters.AddWithValue ("@userIDStr", _userIDStr);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+                return updatedRows;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                    transaction.Dispose ();
+                }
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal int ResetMasterPassword () {
+            string sql = "update L_Users set MasterPasswordHash=null where UserIDStr=@userIDStr";
+            Debug.Print ("Reset user master password: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (SYSTEMDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@userIDStr", _userIDStr);
+
+                int updatedRows = myCommand.ExecuteNonQuery ();
+                return updatedRows;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                    transaction.Dispose ();
+                }
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal string GetMasterPasswordHash () {
+            string sql = "select MasterPasswordHash from L_Users where UserIDStr=@userIDStr";
+            Debug.Print ("Get user master password hash: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (SYSTEMDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@userIDStr", _userIDStr);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                string passwordHash = dt.Rows[0][0].ToString ();
+                if (string.IsNullOrEmpty (passwordHash)) {
+                    return null;
+                }
+                return passwordHash;
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal bool AuthenticateMasterPassword (string passwordHash) {
+            string sql = "select MasterPasswordHash from L_Users where UserIDStr=@userIDStr and MasterPasswordHash=@masterPasswordHash";
+            Debug.Print ("Authenticate user master password hash: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (SYSTEMDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@userIDStr", _userIDStr);
+                myCommand.Parameters.AddWithValue ("@masterPasswordHash", passwordHash);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        #endregion << Master Password Operations >>
+
+        #region << Credentials Operations >>
+
+        internal ulong AddCredentials (string appUrl, string username, string accessKey) {
+            ulong credentialID = GetNextDocumentID ();
+            string sql = "insert into L_Credentials (key_CredentialID, AppUrl, LoginName, AccessKey) values (" + credentialID
+                + ", @appUrl, @username, @accessKey); select last_insert_rowid() from L_Credentials";
+            Debug.Print ("Add Credentials: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@appUrl", appUrl);
+                myCommand.Parameters.AddWithValue ("@username", username);
+                myCommand.Parameters.AddWithValue ("@accessKey", accessKey);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                    transaction.Dispose ();
+                }
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal int DeleteCredentials (ulong credentialID) {
+            string sql = "delete from L_Credentials where key_CredentialID=" + credentialID;
+            Debug.Print ("Delete credentials: " + sql);
+
+            SQLiteConnection cnn = null;
+            SQLiteTransaction transaction = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_WRITING);
+                cnn.Open ();
+                transaction = cnn.BeginTransaction ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+
+                return myCommand.ExecuteNonQuery ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (transaction != null) {
+                    transaction.Commit ();
+                    transaction.Dispose ();
+                }
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal bool DoesCredentialExist (ulong credentialID) {
+            string sql = "select AppUrl from L_Credentials where key_CredentialID=" + credentialID;
+            Debug.Print ("Does credential exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal bool DoesCredentialExist (string appUrl, string username) {
+            string sql = "select AccessKey from L_Credentials where AppUrl=@appUrl and LoginName=@username";
+            Debug.Print ("Does credential exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@appUrl", appUrl);
+                myCommand.Parameters.AddWithValue ("@username", username);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return (dt.Rows.Count > 0);
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal string GetAccessKey (string appUrl, string username) {
+            string sql = "select AccessKey from L_Credentials where AppUrl=@appUrl and LoginName=@username";
+            Debug.Print ("Does credential exist: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                myCommand.Parameters.AddWithValue ("@appUrl", appUrl);
+                myCommand.Parameters.AddWithValue ("@username", username);
+
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                return dt.Rows[0][0].ToString ();
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        #endregion << Credentials Operations >>
     }
 }

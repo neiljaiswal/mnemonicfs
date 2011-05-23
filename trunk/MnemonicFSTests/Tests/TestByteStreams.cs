@@ -50,10 +50,10 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
             Assert.That (byteStreamID > 0, "Returned byte stream id is not valid.");
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = null;
             int refNo = 1;
 
-            MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = string.Empty;
             int refNo = 1;
 
-            MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
         }
 
         [Test]
@@ -102,10 +102,10 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
             Assert.That (byteStreamID > 0, "Byte stream not stored even though any reference number is allowed.");
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
         }
     }
 
@@ -117,10 +117,10 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
             int returnedRefNo;
-            byte[] returnedStream = MfsOperations.RetrieveByteStream (byteStreamID, passphrase, out returnedRefNo);
+            byte[] returnedStream = MfsOperations.Bytestream.Retrieve (byteStreamID, passphrase, out returnedRefNo);
             Assert.AreEqual (_fileData.Length, returnedStream.Length, "Size of data returned is not correct.");
             Assert.AreEqual (refNo, returnedRefNo, "Reference number returned is not correct.");
 
@@ -128,7 +128,7 @@ namespace MnemonicFS.Tests.ByteStreams {
                 Assert.AreEqual (_fileData[i], returnedStream[i], "Returned stream is not identical to the saved stream.");
             }
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
         }
 
         [Test]
@@ -136,7 +136,7 @@ namespace MnemonicFS.Tests.ByteStreams {
         public void Test_ByteStreamIDZero_Illegal () {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int returnedRefNo;
-            MfsOperations.RetrieveByteStream (0, passphrase, out returnedRefNo);
+            MfsOperations.Bytestream.Retrieve (0, passphrase, out returnedRefNo);
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace MnemonicFS.Tests.ByteStreams {
             ulong veryLargeByteStreamID = UInt64.MaxValue;
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int returnedRefNo;
-            MfsOperations.RetrieveByteStream (veryLargeByteStreamID, passphrase, out returnedRefNo);
+            MfsOperations.Bytestream.Retrieve (veryLargeByteStreamID, passphrase, out returnedRefNo);
         }
 
         [Test]
@@ -155,14 +155,14 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
             int returnedRefNo;
             string nullPassphrase = null;
             try {
-                MfsOperations.RetrieveByteStream (byteStreamID, nullPassphrase, out returnedRefNo);
+                MfsOperations.Bytestream.Retrieve (byteStreamID, nullPassphrase, out returnedRefNo);
             } finally {
-                MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+                MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
             }
         }
 
@@ -173,14 +173,14 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
             int returnedRefNo;
             string emptyPassphrase = string.Empty;
             try {
-                MfsOperations.RetrieveByteStream (byteStreamID, emptyPassphrase, out returnedRefNo);
+                MfsOperations.Bytestream.Retrieve (byteStreamID, emptyPassphrase, out returnedRefNo);
             } finally {
-                MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+                MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
             }
         }
     }
@@ -193,25 +193,25 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
-            int returnedRefNo = MfsOperations.GetByteStreamReferenceNumber (byteStreamID);
+            int returnedRefNo = MfsOperations.Bytestream.GetReferenceNumber (byteStreamID);
             Assert.AreEqual (refNo, returnedRefNo, "Reference number returned is not correct.");
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_ByteStreamIDZero_Illegal () {
-            MfsOperations.GetByteStreamReferenceNumber (0);
+            MfsOperations.Bytestream.GetReferenceNumber (0);
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentResourceException))]
         public void Test_NonExistentByteStreamID_Illegal () {
             ulong veryLargeByteStreamID = UInt64.MaxValue;
-            MfsOperations.GetByteStreamReferenceNumber (veryLargeByteStreamID);
+            MfsOperations.Bytestream.GetReferenceNumber (veryLargeByteStreamID);
         }
     }
 
@@ -223,11 +223,11 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
 
-            bool byteStreamExists = MfsOperations.DoesByteStreamExist (byteStreamID);
+            bool byteStreamExists = MfsOperations.Bytestream.Exists (byteStreamID);
             Assert.IsFalse (byteStreamExists, "Byte stream not deleted properly.");
         }
 
@@ -235,7 +235,7 @@ namespace MnemonicFS.Tests.ByteStreams {
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_ByteStreamIDZero_Illegal () {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
-            MfsOperations.DeleteByteStream (0, passphrase);
+            MfsOperations.Bytestream.Delete (0, passphrase);
         }
 
         [Test]
@@ -243,7 +243,7 @@ namespace MnemonicFS.Tests.ByteStreams {
         public void Test_NonExistentByteStreamID_Illegal () {
             ulong veryLargeByteStreamID = UInt64.MaxValue;
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
-            MfsOperations.DeleteByteStream (veryLargeByteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (veryLargeByteStreamID, passphrase);
         }
 
         [Test]
@@ -253,11 +253,11 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = null;
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
 
-            bool byteStreamExists = MfsOperations.DoesByteStreamExist (byteStreamID);
+            bool byteStreamExists = MfsOperations.Bytestream.Exists (byteStreamID);
             Assert.IsFalse (byteStreamExists, "Byte stream not deleted properly even though null passphrase is allowed.");
         }
 
@@ -268,13 +268,13 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = null;
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
             string emptyPassphrase = string.Empty;
             try {
-                MfsOperations.DeleteByteStream (byteStreamID, emptyPassphrase);
+                MfsOperations.Bytestream.Delete (byteStreamID, emptyPassphrase);
             } finally {
-                MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+                MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
             }
         }
     }
@@ -287,12 +287,12 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
-            bool byteStreamExists = MfsOperations.DoesByteStreamExist (byteStreamID);
+            bool byteStreamExists = MfsOperations.Bytestream.Exists (byteStreamID);
             Assert.IsTrue (byteStreamExists, "Shows byte stream does not exist even though it does.");
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
         }
 
         [Test]
@@ -301,12 +301,12 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
 
-            bool byteStreamExists = MfsOperations.DoesByteStreamExist (byteStreamID);
+            bool byteStreamExists = MfsOperations.Bytestream.Exists (byteStreamID);
             Assert.IsTrue (byteStreamExists, "Shows byte stream does not exist even though it does.");
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
         }
 
         [Test]
@@ -315,20 +315,20 @@ namespace MnemonicFS.Tests.ByteStreams {
             string passphrase = TestUtils.GetRandomString (TYPICAL_WORD_SIZE);
             int refNo = 1;
 
-            ulong byteStreamID = MfsOperations.StoreByteStream (_fileData, passphrase, refNo);
-            bool byteStreamExists = MfsOperations.DoesByteStreamExist (byteStreamID);
+            ulong byteStreamID = MfsOperations.Bytestream.Store (_fileData, passphrase, refNo);
+            bool byteStreamExists = MfsOperations.Bytestream.Exists (byteStreamID);
             Assert.IsTrue (byteStreamExists, "Shows byte stream does not exist even though it does.");
 
-            MfsOperations.DeleteByteStream (byteStreamID, passphrase);
+            MfsOperations.Bytestream.Delete (byteStreamID, passphrase);
 
-            byteStreamExists = MfsOperations.DoesByteStreamExist (byteStreamID);
+            byteStreamExists = MfsOperations.Bytestream.Exists (byteStreamID);
             Assert.IsFalse (byteStreamExists, "Shows byte stream exists even though it does not.");
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_ByteStreamIDZero_Illegal () {
-            MfsOperations.DoesByteStreamExist (0);
+            MfsOperations.Bytestream.Exists (0);
         }
     }
 }

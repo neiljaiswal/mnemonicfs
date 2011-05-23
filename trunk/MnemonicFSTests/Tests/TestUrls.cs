@@ -48,10 +48,10 @@ namespace MnemonicFS.Tests.Urls {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
-            Assert.That (urlID > 0, "Url ID returned is not a valid value.");
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
+            Assert.That (urlID > 0, "Url id returned is not a valid value.");
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
@@ -60,10 +60,10 @@ namespace MnemonicFS.Tests.Urls {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
-            Assert.That (urlID > 0, "Url ID returned is not a valid value.");
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
+            Assert.That (urlID > 0, "Url id returned is not a valid value.");
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace MnemonicFS.Tests.Urls {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
 
-            _mfsOperations.AddUrl (nullUrl, description, when);
+            _mfsOperations.Url.New (nullUrl, description, when);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace MnemonicFS.Tests.Urls {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
 
-            _mfsOperations.AddUrl (longUrl, description, when);
+            _mfsOperations.Url.New (longUrl, description, when);
         }
 
         [Test]
@@ -94,10 +94,10 @@ namespace MnemonicFS.Tests.Urls {
             string description = null;
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
-            Assert.That (urlID > 0, "Url ID returned is not a valid value.");
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
+            Assert.That (urlID > 0, "Url id returned is not a valid value.");
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
         }
     }
 
@@ -109,22 +109,22 @@ namespace MnemonicFS.Tests.Urls {
             string description = null;
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            bool urlExists = _mfsOperations.DoesUrlExist (urlID);
+            bool urlExists = _mfsOperations.Url.Exists (urlID);
             Assert.IsTrue (urlExists, "Shows url as not existing even though it does.");
 
-            int numDeleted = _mfsOperations.DeleteUrl (urlID);
+            int numDeleted = _mfsOperations.Url.Delete (urlID);
             Assert.AreEqual (1, numDeleted, "Did not delete the url.");
 
-            urlExists = _mfsOperations.DoesUrlExist (urlID);
+            urlExists = _mfsOperations.Url.Exists (urlID);
             Assert.IsFalse (urlExists, "Shows url as existing even though it does not.");
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_UrlIDZero_Illegal () {
-            _mfsOperations.DoesUrlExist (0);
+            _mfsOperations.Url.Exists (0);
         }
     }
 
@@ -136,16 +136,16 @@ namespace MnemonicFS.Tests.Urls {
             string description = null;
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
-            int numDeleted = _mfsOperations.DeleteUrl (urlID);
+            int numDeleted = _mfsOperations.Url.Delete (urlID);
             Assert.AreEqual (1, numDeleted, "Did not delete single url.");
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_UrlIDZero_Illegal () {
-            _mfsOperations.DeleteUrl (0);
+            _mfsOperations.Url.Delete (0);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace MnemonicFS.Tests.Urls {
         public void Test_NonExistentUrl_Illegal () {
             ulong veryLargeUrlID = UInt64.MaxValue;
 
-            _mfsOperations.DeleteUrl (veryLargeUrlID);
+            _mfsOperations.Url.Delete (veryLargeUrlID);
         }
     }
 
@@ -165,12 +165,12 @@ namespace MnemonicFS.Tests.Urls {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             string retrUrl;
             string retrDescription;
             DateTime retrWhen;
-            _mfsOperations.GetUrlDetails (urlID, out retrUrl, out retrDescription, out retrWhen);
+            _mfsOperations.Url.GetDetails (urlID, out retrUrl, out retrDescription, out retrWhen);
             Assert.AreEqual (url, retrUrl, "Retrieved url is not the same as the one saved.");
             Assert.AreEqual (description, retrDescription, "Retrieved url description is not the same as the one saved.");
             Assert.AreEqual (when.Year, retrWhen.Year, "Year for url was incorrect.");
@@ -180,7 +180,7 @@ namespace MnemonicFS.Tests.Urls {
             Assert.AreEqual (when.Minute, retrWhen.Minute, "Minute for url was incorrect.");
             Assert.AreEqual (when.Second, retrWhen.Second, "Second for url was incorrect.");
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace MnemonicFS.Tests.Urls {
             string retrUrl;
             string retrDescription;
             DateTime retrWhen;
-            _mfsOperations.GetUrlDetails (0, out retrUrl, out retrDescription, out retrWhen);
+            _mfsOperations.Url.GetDetails (0, out retrUrl, out retrDescription, out retrWhen);
         }
 
         [Test]
@@ -200,7 +200,7 @@ namespace MnemonicFS.Tests.Urls {
             string retrUrl;
             string retrDescription;
             DateTime retrWhen;
-            _mfsOperations.GetUrlDetails (veryLargeUrlID, out retrUrl, out retrDescription, out retrWhen);
+            _mfsOperations.Url.GetDetails (veryLargeUrlID, out retrUrl, out retrDescription, out retrWhen);
         }
     }
 
@@ -212,21 +212,21 @@ namespace MnemonicFS.Tests.Urls {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             string newUrl = TestUtils.GetAnyUrl ();
-            bool updated = _mfsOperations.UpdateUrl (urlID, newUrl);
+            bool updated = _mfsOperations.Url.Update (urlID, newUrl);
 
             Assert.IsTrue (updated, "Url was not updated.");
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_UrlIDZero_Illegal () {
             string url = TestUtils.GetAnyUrl ();
-            _mfsOperations.UpdateUrl (0, url);
+            _mfsOperations.Url.Update (0, url);
         }
 
         [Test]
@@ -235,7 +235,7 @@ namespace MnemonicFS.Tests.Urls {
             ulong veryLargeUrlID = UInt64.MaxValue;
 
             string url = TestUtils.GetAnyUrl ();
-            _mfsOperations.UpdateUrl (veryLargeUrlID, url);
+            _mfsOperations.Url.Update (veryLargeUrlID, url);
         }
     }
 
@@ -247,21 +247,21 @@ namespace MnemonicFS.Tests.Urls {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             string newDescription = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            bool updated = _mfsOperations.UpdateUrlDescription (urlID, newDescription);
+            bool updated = _mfsOperations.Url.UpdateDescription (urlID, newDescription);
 
             Assert.IsTrue (updated, "Url description was not updated.");
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_UrlIDZero_Illegal () {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            _mfsOperations.UpdateUrlDescription (0, description);
+            _mfsOperations.Url.UpdateDescription (0, description);
         }
 
         [Test]
@@ -270,7 +270,7 @@ namespace MnemonicFS.Tests.Urls {
             ulong veryLargeUrlID = UInt64.MaxValue;
 
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            _mfsOperations.UpdateUrlDescription (veryLargeUrlID, description);
+            _mfsOperations.Url.UpdateDescription (veryLargeUrlID, description);
         }
     }
 
@@ -282,21 +282,21 @@ namespace MnemonicFS.Tests.Urls {
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
 
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
 
             DateTime newDateTime = DateTime.Now.AddDays (-1);
-            bool updated = _mfsOperations.UpdateUrlDateTime (urlID, newDateTime);
+            bool updated = _mfsOperations.Url.UpdateDateTime (urlID, newDateTime);
 
             Assert.IsTrue (updated, "Url date-time was not updated.");
 
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_UrlIDZero_Illegal () {
             DateTime when = DateTime.Now;
-            _mfsOperations.UpdateUrlDateTime (0, when);
+            _mfsOperations.Url.UpdateDateTime (0, when);
         }
 
         [Test]
@@ -305,7 +305,7 @@ namespace MnemonicFS.Tests.Urls {
             ulong veryLargeUrlID = UInt64.MaxValue;
 
             DateTime when = DateTime.Now;
-            _mfsOperations.UpdateUrlDateTime (veryLargeUrlID, when);
+            _mfsOperations.Url.UpdateDateTime (veryLargeUrlID, when);
         }
     }
 }

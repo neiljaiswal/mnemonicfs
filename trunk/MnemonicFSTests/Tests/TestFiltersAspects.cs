@@ -71,16 +71,16 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID1);
 
             // Apply only two aspects to second file:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID2);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID2);
 
             // Apply only one aspect to third file:
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID3);
 
             // Put all aspects in a list:
             List<ulong> aspectIDs = new List<ulong> ();
@@ -95,19 +95,19 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             fileIDs.Add (fileID3);
 
             // Now apply AND filter:
-            List<ulong> filteredFileIDs = _mfsOperations.FilterFilesWithinAspects (aspectIDs, fileIDs, FilterType.AND);
+            List<ulong> filteredFileIDs = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, fileIDs, FilterType.AND);
             Assert.AreEqual (1, filteredFileIDs.Count, "Filter returned incorrect number of files.");
 
             ulong retrFileID = filteredFileIDs[0];
             Assert.AreEqual (fileID1, retrFileID, "Filter returned wrong file.");
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
 
         [Test]
@@ -139,18 +139,18 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID1);
 
             // Apply only two aspects to second file:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID2);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID2);
 
             // Apply all aspects to third file too:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID3);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID3);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID3);
 
             // At this point, fileID1 and fileID2 have been applied all three aspects.
 
@@ -167,7 +167,7 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             fileIDs.Add (fileID3);
 
             // Now apply AND filter:
-            List<ulong> filteredFileIDs = _mfsOperations.FilterFilesWithinAspects (aspectIDs, fileIDs, FilterType.AND);
+            List<ulong> filteredFileIDs = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, fileIDs, FilterType.AND);
             Assert.AreEqual (2, filteredFileIDs.Count, "Filter returned incorrect number of files.");
 
             foreach (ulong retrFileID in filteredFileIDs) {
@@ -176,13 +176,13 @@ namespace MnemonicFS.Tests.Filters.Aspects {
                 }
             }
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
 
         [Test]
@@ -214,17 +214,17 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to all three files:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID1);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID2);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID2);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID2);
 
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID3);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID3);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID3);
 
             // At this point, all files have been applied all three aspects.
 
@@ -241,7 +241,7 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             fileIDs.Add (fileID3);
 
             // Now apply AND filter:
-            List<ulong> filteredFileIDs = _mfsOperations.FilterFilesWithinAspects (aspectIDs, fileIDs, FilterType.AND);
+            List<ulong> filteredFileIDs = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, fileIDs, FilterType.AND);
             Assert.AreEqual (3, filteredFileIDs.Count, "Filter returned incorrect number of files.");
 
             foreach (ulong retrFileID in filteredFileIDs) {
@@ -250,13 +250,13 @@ namespace MnemonicFS.Tests.Filters.Aspects {
                 }
             }
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
 
         [Test]
@@ -288,9 +288,9 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply only one aspect to each of the files:
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID2);
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID3);
 
             // At this point, all files have been applied all three aspects.
 
@@ -307,16 +307,16 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             fileIDs.Add (fileID3);
 
             // Now apply AND filter:
-            List<ulong> filteredFileIDs = _mfsOperations.FilterFilesWithinAspects (aspectIDs, fileIDs, FilterType.AND);
+            List<ulong> filteredFileIDs = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, fileIDs, FilterType.AND);
             Assert.IsEmpty (filteredFileIDs, "Filter returned incorrect number of files.");
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
     }
 
@@ -351,11 +351,11 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply two aspects to first file:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID1);
 
             // Apply only one aspect to second file:
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID2);
 
             // Apply zero aspects to third file:
 
@@ -372,7 +372,7 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             fileIDs.Add (fileID3);
 
             // Now apply OR filter:
-            List<ulong> filteredFileIDs = _mfsOperations.FilterFilesWithinAspects (aspectIDs, fileIDs, FilterType.OR);
+            List<ulong> filteredFileIDs = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, fileIDs, FilterType.OR);
             Assert.AreEqual (2, filteredFileIDs.Count, "Filter returned incorrect number of files.");
 
             foreach (ulong retrFileID in filteredFileIDs) {
@@ -381,13 +381,13 @@ namespace MnemonicFS.Tests.Filters.Aspects {
                 }
             }
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
     }
 
@@ -422,16 +422,16 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply all aspects to first file:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID1);
 
             // Apply only two aspects to second file:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID2);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID2);
 
             // Apply only one aspect to third file:
-            _mfsOperations.ApplyAspectToDocument (aspectID2, fileID3);
+            _mfsOperations.Aspect.Apply (aspectID2, fileID3);
 
             // Put all aspects in a list:
             List<ulong> aspectIDs = new List<ulong> ();
@@ -446,10 +446,10 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             fileIDs.Add (fileID3);
 
             // Now apply AND filter:
-            List<ulong> filteredFileIDs = _mfsOperations.FilterFilesWithinAspects (aspectIDs, fileIDs, FilterType.AND);
+            List<ulong> filteredFileIDs = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, fileIDs, FilterType.AND);
 
             // And invert this o/p to get NAND filter:
-            List<ulong> nandFilteredFileIDs = MfsOperations.FilterInvert (fileIDs, filteredFileIDs);
+            List<ulong> nandFilteredFileIDs = MfsOperations.Filter.Invert (fileIDs, filteredFileIDs);
 
             Assert.AreEqual (2, nandFilteredFileIDs.Count, "Filter returned incorrect number of files.");
 
@@ -459,13 +459,13 @@ namespace MnemonicFS.Tests.Filters.Aspects {
                 }
             }
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
     }
 
@@ -500,11 +500,11 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
 
             // Apply two aspects to first file:
-            _mfsOperations.ApplyAspectToDocument (aspectID1, fileID1);
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID1, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID1);
 
             // Apply only one aspect to second file:
-            _mfsOperations.ApplyAspectToDocument (aspectID3, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID3, fileID2);
 
             // Apply zero aspects to third file:
 
@@ -521,20 +521,20 @@ namespace MnemonicFS.Tests.Filters.Aspects {
             fileIDs.Add (fileID3);
 
             // Now apply OR filter:
-            List<ulong> filteredFileIDs = _mfsOperations.FilterFilesWithinAspects (aspectIDs, fileIDs, FilterType.OR);
+            List<ulong> filteredFileIDs = _mfsOperations.Aspect.FilterFilesWithin (aspectIDs, fileIDs, FilterType.OR);
 
             // And invert this o/p to get NOR filter:
-            List<ulong> norFilteredFileIDs = MfsOperations.FilterInvert (fileIDs, filteredFileIDs);
+            List<ulong> norFilteredFileIDs = MfsOperations.Filter.Invert (fileIDs, filteredFileIDs);
             Assert.AreEqual (1, norFilteredFileIDs.Count, "Filter returned incorrect number of files.");
             Assert.AreEqual (fileID3, norFilteredFileIDs[0], "Filter returned wrong file.");
 
-            _mfsOperations.DeleteAspect (aspectID1);
-            _mfsOperations.DeleteAspect (aspectID2);
-            _mfsOperations.DeleteAspect (aspectID3);
+            _mfsOperations.Aspect.Delete (aspectID1);
+            _mfsOperations.Aspect.Delete (aspectID2);
+            _mfsOperations.Aspect.Delete (aspectID3);
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
     }
 }

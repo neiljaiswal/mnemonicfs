@@ -54,23 +54,23 @@ namespace MnemonicFS.Tests.Documents {
             // Next, save a note:
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
             Assert.That (noteID > 0, "Note id returned is not a valid value.");
 
             // And also save a url:
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
-            Assert.That (urlID > 0, "Url ID returned is not a valid value.");
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
+            Assert.That (urlID > 0, "Url id returned is not a valid value.");
 
             // Next, confirm that all document ids are different:
             Assert.AreNotEqual (fileID, noteID, "File id is the same as note id.");
             Assert.AreNotEqual (fileID, urlID, "File id is the same as url id.");
             Assert.AreNotEqual (noteID, urlID, "Note id is the same as url id.");
 
-            _mfsOperations.DeleteFile (fileID);
-            _mfsOperations.DeleteNote (noteID);
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.File.Delete (fileID);
+            _mfsOperations.Note.Delete (noteID);
+            _mfsOperations.Url.Delete (urlID);
         }
     }
 
@@ -88,33 +88,33 @@ namespace MnemonicFS.Tests.Documents {
             // Next, save a note:
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
             Assert.That (noteID > 0, "Note id returned is not a valid value.");
 
             // And also save a url:
             string url = TestUtils.GetAnyUrl ();
             string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            ulong urlID = _mfsOperations.AddUrl (url, description, when);
-            Assert.That (urlID > 0, "Url ID returned is not a valid value.");
+            ulong urlID = _mfsOperations.Url.New (url, description, when);
+            Assert.That (urlID > 0, "Url id returned is not a valid value.");
 
-            DocumentType docType1 = _mfsOperations.GetDocumentType (fileID);
+            DocumentType docType1 = _mfsOperations.Document.Type (fileID);
             Assert.That (docType1 == DocumentType.FILE, "Indicated that document type is not a file even though it is.");
 
-            DocumentType docType2 = _mfsOperations.GetDocumentType (noteID);
+            DocumentType docType2 = _mfsOperations.Document.Type (noteID);
             Assert.That (docType2 == DocumentType.NOTE, "Indicated that document type is not a note even though it is.");
 
-            DocumentType docType3 = _mfsOperations.GetDocumentType (urlID);
+            DocumentType docType3 = _mfsOperations.Document.Type (urlID);
             Assert.That (docType3 == DocumentType.URL, "Indicated that document type is not a url even though it is.");
 
-            _mfsOperations.DeleteFile (fileID);
-            _mfsOperations.DeleteNote (noteID);
-            _mfsOperations.DeleteUrl (urlID);
+            _mfsOperations.File.Delete (fileID);
+            _mfsOperations.Note.Delete (noteID);
+            _mfsOperations.Url.Delete (urlID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocIDZero_Illegal () {
-            _mfsOperations.GetDocumentType (0);
+            _mfsOperations.Document.Type (0);
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace MnemonicFS.Tests.Documents {
         public void NonExistentDocID_Illegal () {
             ulong veryLargeDocID = UInt64.MaxValue;
 
-            _mfsOperations.GetDocumentType (veryLargeDocID);
+            _mfsOperations.Document.Type (veryLargeDocID);
         }
     }
 
@@ -133,16 +133,16 @@ namespace MnemonicFS.Tests.Documents {
             string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            bool deleted = _mfsOperations.DeleteDocument (noteID);
+            bool deleted = _mfsOperations.Document.Delete (noteID);
             Assert.IsTrue (deleted, "Document not deleted though it should have been.");
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_DocIDZero_Illegal () {
-            _mfsOperations.DeleteDocument (0);
+            _mfsOperations.Document.Delete (0);
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace MnemonicFS.Tests.Documents {
         public void NonExistentDocID_Illegal () {
             ulong veryLargeDocID = UInt64.MaxValue;
 
-            _mfsOperations.DeleteDocument (veryLargeDocID);
+            _mfsOperations.Document.Delete (veryLargeDocID);
         }
     }
 }

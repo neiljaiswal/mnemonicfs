@@ -61,6 +61,8 @@ namespace MnemonicFS.Tests.Base {
 
         protected const string SINGLE_CHAR_STR = "a";
 
+        protected const string ILLEGAL_HASH = "SHORT_ILLEGAL_HASH";
+
         protected const int SINGLE_VALUE = 1;
         protected const int LARGE_NUMBER_OF_USERS = 70;
 
@@ -71,6 +73,7 @@ namespace MnemonicFS.Tests.Base {
         protected const string PDF_FILE_EXTENSION = "pdf";
         protected const string MSDOC_FILE_EXTENSION = "doc";
         protected const string MSEXCEL_FILE_EXTENSION = "xls";
+        protected const string ARCHIVE_EXTENSION = ".zip";
 
         #endregion << Typical Values >>
 
@@ -111,25 +114,25 @@ namespace MnemonicFS.Tests.Base {
             do {
                 _aspectName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 _aspectDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            } while (_mfsOperations.DoesAspectExist (_aspectName));
+            } while (_mfsOperations.Aspect.Exists (_aspectName));
 
             do {
                 _briefcaseName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 _briefcaseDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            } while (_mfsOperations.DoesBriefcaseExist (_briefcaseName));
+            } while (_mfsOperations.Briefcase.Exists (_briefcaseName));
 
             do {
                 _collectionName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 _collectionDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            } while (_mfsOperations.DoesCollectionExist (_collectionName));
+            } while (_mfsOperations.Collection.Exists (_collectionName));
 
             do {
                 _schemaFreeDocName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (_mfsOperations.DoesSfdExist (_schemaFreeDocName));
+            } while (_mfsOperations.Sfd.Exists (_schemaFreeDocName));
 
             do {
                 _predicate = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (_mfsOperations.DoesPredicateExist (_predicate));
+            } while (_mfsOperations.Relation.DoesPredicateExist (_predicate));
         }
 
         [TearDown]
@@ -160,16 +163,17 @@ namespace MnemonicFS.Tests.Base {
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
-            MfsOperations.CreateNewUser (_userID, passwordHash);
+            MfsOperations.User.New (_userID, passwordHash);
 
             _mfsOperations = new MfsOperations (_userID, passwordHash);
         }
 
         [TestFixtureTearDown]
         protected void TestFixtureTearDown () {
-            MfsOperations.DeleteUserFileLogs (_userID);
-            MfsOperations.DeleteUser (_userID, true, true);
+            MfsOperations.Log.DeleteUserFileLogs (_userID);
+            MfsOperations.User.Delete (_userID, true, true);
 
+            _mfsOperations.Dispose ();
             _mfsOperations = null;
         }
 
@@ -177,43 +181,43 @@ namespace MnemonicFS.Tests.Base {
             do {
                 aspectName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 aspectDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            } while (mfsOperations.DoesAspectExist (aspectName));
+            } while (mfsOperations.Aspect.Exists (aspectName));
 
-            return mfsOperations.CreateAspect (aspectName, aspectDesc);
+            return mfsOperations.Aspect.New (aspectName, aspectDesc);
         }
 
         protected static ulong CreateUniqueBriefcase (ref MfsOperations mfsOperations, out string briefcaseName, out string briefcaseDesc) {
             do {
                 briefcaseName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 briefcaseDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            } while (mfsOperations.DoesBriefcaseExist (briefcaseName));
+            } while (mfsOperations.Briefcase.Exists (briefcaseName));
 
-            return mfsOperations.CreateBriefcase (briefcaseName, briefcaseDesc);
+            return mfsOperations.Briefcase.New (briefcaseName, briefcaseDesc);
         }
 
         protected static ulong CreateUniqueCollection (ref MfsOperations mfsOperations, out string collectionName, out string collectionDesc) {
             do {
                 collectionName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
                 collectionDesc = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
-            } while (mfsOperations.DoesCollectionExist (collectionName));
+            } while (mfsOperations.Collection.Exists (collectionName));
 
-            return mfsOperations.CreateCollection (collectionName, collectionDesc);
+            return mfsOperations.Collection.New (collectionName, collectionDesc);
         }
 
         protected static ulong CreateUniqueSchemaFreeDocument (ref MfsOperations mfsOperations, out string schemaFreeDocName, DateTime when) {
             do {
                 schemaFreeDocName = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (mfsOperations.DoesSfdExist (schemaFreeDocName));
+            } while (mfsOperations.Sfd.Exists (schemaFreeDocName));
 
-            return mfsOperations.CreateSfd (schemaFreeDocName, when);
+            return mfsOperations.Sfd.New (schemaFreeDocName, when);
         }
 
         protected static ulong CreateUniquePredicate (ref MfsOperations mfsOperations, out string predicate) {
             do {
                 predicate = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (mfsOperations.DoesPredicateExist (predicate));
+            } while (mfsOperations.Relation.DoesPredicateExist (predicate));
 
-            return mfsOperations.CreatePredicate (predicate);
+            return mfsOperations.Relation.NewPredicate (predicate);
         }
 
         protected static List<ulong> CreateUniqueNAspects (ref MfsOperations mfsOperations, int numAspects) {
@@ -274,9 +278,23 @@ namespace MnemonicFS.Tests.Base {
             return predicatesList;
         }
 
-        protected static MfsVCard CreateVCard () {
+        protected static MfsVCard CreateVCard (ref MfsOperations mfsOperations) {
             MfsVCard vCard = new MfsVCard ();
             return vCard;
+        }
+
+        protected static ulong CreateNote (ref MfsOperations mfsOperations) {
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
+            DateTime when = DateTime.Now;
+            MfsNote note = new MfsNote (noteContent, when);
+            return mfsOperations.Note.New (note);
+        }
+
+        protected static ulong CreateUrl (ref MfsOperations mfsOperations) {
+            string url = TestUtils.GetAnyUrl ();
+            string description = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
+            DateTime when = DateTime.Now;
+            return mfsOperations.Url.New (url, description, when);
         }
 
         protected static string GetANonExistentUserID () {
@@ -284,15 +302,23 @@ namespace MnemonicFS.Tests.Base {
 
             do {
                 userID = TestUtils.GetAnyEmailID ();
-            } while (MfsOperations.DoesUserExist (userID));
+            } while (MfsOperations.User.Exists (userID));
 
             return userID;
+        }
+
+        protected static void GetNonExistingAppUrl (ref MfsOperations mfsOperations, out string appUrl, out string username) {
+            username = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+
+            do {
+                appUrl = TestUtils.GetAnyUrl ();
+            } while (mfsOperations.Credentials.Exists (appUrl, username));
         }
 
         private delegate ulong MethodSaveFile (string fileName, string fileNarration, byte[] fileData, DateTime when, bool indexFile);
 
         protected static ulong SaveFileToMfs (ref MfsOperations mfsOps, string fileName, string fileNarration, byte[] fileData, DateTime when, bool indexFile) {
-            MethodSaveFile method = mfsOps.SaveFile;
+            MethodSaveFile method = mfsOps.File.New;
             IAsyncResult res = method.BeginInvoke (fileName, fileNarration, fileData, when, indexFile, null, null);
             // [delegate].EndInvoke (IAsyncResult) is blocking:
             ulong fileID = method.EndInvoke (res);

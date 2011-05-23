@@ -123,7 +123,9 @@ namespace MnemonicFS.MfsUtils.MfsLogging {
                 myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsNonExistentResourceException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
@@ -169,7 +171,9 @@ namespace MnemonicFS.MfsUtils.MfsLogging {
                 }
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsNonExistentResourceException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
                     cnn.Close ();
@@ -215,7 +219,9 @@ namespace MnemonicFS.MfsUtils.MfsLogging {
                 }
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsNonExistentResourceException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (cnn != null) {
                     cnn.Close ();
@@ -240,7 +246,9 @@ namespace MnemonicFS.MfsUtils.MfsLogging {
                 return myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsNonExistentResourceException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();
@@ -267,7 +275,9 @@ namespace MnemonicFS.MfsUtils.MfsLogging {
                 return myCommand.ExecuteNonQuery ();
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
-                throw new MfsDBException (e.Message);
+                throw new MfsNonExistentResourceException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
             } finally {
                 if (transaction != null) {
                     transaction.Commit ();

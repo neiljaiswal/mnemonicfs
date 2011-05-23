@@ -78,10 +78,10 @@ namespace MnemonicFS.Tests.Notes {
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
 
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
             Assert.That (noteID > 0, "Note not added successfully: Invalid note id returned.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Note.Delete (noteID);
         }
 
         [Test]
@@ -90,10 +90,10 @@ namespace MnemonicFS.Tests.Notes {
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
 
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
             Assert.That (noteID > 0, "Note not added successfully: Invalid note id returned.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Note.Delete (noteID);
         }
 
         [Test]
@@ -102,10 +102,10 @@ namespace MnemonicFS.Tests.Notes {
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
 
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
             Assert.That (noteID > 0, "Note not added successfully: Invalid note id returned.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Note.Delete (noteID);
         }
 
         [Test]
@@ -114,16 +114,47 @@ namespace MnemonicFS.Tests.Notes {
             DateTime when = DateTime.Now.AddYears (-1);
             MfsNote note = new MfsNote (noteContent, when);
 
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
             Assert.That (noteID > 0, "Note not added successfully: Invalid note id returned.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Note.Delete (noteID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullNote_Illegal () {
-            _mfsOperations.AddNote (null);
+            _mfsOperations.Note.New (null);
+        }
+    }
+
+    [TestFixture]
+    public class Tests_NotesMethod_DoesNoteExist : TestMfsOperationsBase {
+        [Test]
+        public void Test_SanityCheck_Exists () {
+            string noteContent = TestUtils.GetASentence (TestMfsOperationsBase.TYPICAL_SENTENCE_SIZE, TestMfsOperationsBase.TYPICAL_WORD_SIZE);
+            DateTime when = DateTime.Now;
+            MfsNote note = new MfsNote (noteContent, when);
+
+            ulong noteID = _mfsOperations.Note.New (note);
+
+            bool noteExists = _mfsOperations.Note.Exists (noteID);
+            Assert.IsTrue (noteExists, "Note was shown as not existing, even though it does.");
+
+            _mfsOperations.Note.Delete (noteID);
+        }
+
+        [Test]
+        public void Test_SanityCheck_NotExists () {
+            ulong veryLargeNoteID = ulong.MaxValue;
+
+            bool noteExists = _mfsOperations.Note.Exists (veryLargeNoteID);
+            Assert.IsFalse (noteExists, "Note was shown as existing, even though it does not.");
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsIllegalArgumentException))]
+        public void Test_NoteIDZero_Illegal () {
+            _mfsOperations.Aspect.Exists (0);
         }
     }
 
@@ -135,16 +166,16 @@ namespace MnemonicFS.Tests.Notes {
             DateTime when = DateTime.Now.AddYears (-1);
             MfsNote note = new MfsNote (noteContent, when);
 
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            int numNotesDeleted = _mfsOperations.DeleteNote (noteID);
+            int numNotesDeleted = _mfsOperations.Note.Delete (noteID);
             Assert.AreEqual (1, numNotesDeleted, "Note was not deleted.");
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NoteIDZero_Illegal () {
-            _mfsOperations.DeleteNote (0);
+            _mfsOperations.Note.Delete (0);
         }
 
         [Test]
@@ -152,7 +183,7 @@ namespace MnemonicFS.Tests.Notes {
         public void Test_NonExistentNoteID_Illegal () {
             ulong veryLargeNoteID = UInt64.MaxValue;
 
-            _mfsOperations.DeleteNote (veryLargeNoteID);
+            _mfsOperations.Note.Delete (veryLargeNoteID);
         }
     }
 
@@ -164,9 +195,9 @@ namespace MnemonicFS.Tests.Notes {
             DateTime when = DateTime.Now;
 
             MfsNote note = new MfsNote (noteContent, when);
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            MfsNote retrNote = _mfsOperations.GetNote (noteID);
+            MfsNote retrNote = _mfsOperations.Note.Get (noteID);
 
             Assert.AreEqual (note.NoteContent, retrNote.NoteContent, "Note content not as expected.");
 
@@ -178,7 +209,7 @@ namespace MnemonicFS.Tests.Notes {
             Assert.AreEqual (note.NoteDateTime.Minute, retrNote.NoteDateTime.Minute, "Note date-time minute not as expected.");
             Assert.AreEqual (note.NoteDateTime.Second, retrNote.NoteDateTime.Second, "Note date-time second not as expected.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Note.Delete (noteID);
         }
 
         [Test]
@@ -186,7 +217,7 @@ namespace MnemonicFS.Tests.Notes {
         public void Test_NonExistentNote_Illegal () {
             ulong veryLargeNoteID = UInt64.MaxValue;
 
-            _mfsOperations.GetNote (veryLargeNoteID);
+            _mfsOperations.Note.Get (veryLargeNoteID);
         }
     }
 
@@ -198,14 +229,14 @@ namespace MnemonicFS.Tests.Notes {
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
 
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            DateTime savedDate = _mfsOperations.GetNoteDateTime (noteID);
+            DateTime savedDate = _mfsOperations.Note.GetDateTime (noteID);
             Assert.AreEqual (when.Year, savedDate.Year, "Year returned is not the same as saved year.");
             Assert.AreEqual (when.Month, savedDate.Month, "Month returned is not the same as saved month.");
             Assert.AreEqual (when.Day, savedDate.Day, "Day returned is not the same as saved day.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Note.Delete (noteID);
         }
     }
 
@@ -217,9 +248,9 @@ namespace MnemonicFS.Tests.Notes {
             DateTime when = DateTime.Now;
             MfsNote note = new MfsNote (noteContent, when);
 
-            ulong noteID = _mfsOperations.AddNote (note);
+            ulong noteID = _mfsOperations.Note.New (note);
 
-            DateTime savedDate = _mfsOperations.GetNoteDateTime (noteID);
+            DateTime savedDate = _mfsOperations.Note.GetDateTime (noteID);
             Assert.AreEqual (when.Year, savedDate.Year, "Year returned is not the same as saved year.");
             Assert.AreEqual (when.Month, savedDate.Month, "Month returned is not the same as saved month.");
             Assert.AreEqual (when.Day, savedDate.Day, "Day returned is not the same as saved day.");
@@ -227,7 +258,7 @@ namespace MnemonicFS.Tests.Notes {
             Assert.AreEqual (when.Minute, savedDate.Minute, "Minute returned is not the same as saved minute.");
             Assert.AreEqual (when.Second, savedDate.Second, "Second returned is not the same as saved second.");
 
-            _mfsOperations.DeleteNote (noteID);
+            _mfsOperations.Note.Delete (noteID);
         }
     }
 }

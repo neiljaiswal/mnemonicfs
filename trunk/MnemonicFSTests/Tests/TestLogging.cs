@@ -48,12 +48,12 @@ namespace MnemonicFS.Tests.Logging {
             DateTime when = DateTime.Now;
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            List<MfsFileLogEntry> fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
+            List<MfsFileLogEntry> fileLogEntries = MfsOperations.Log.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (1, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
 
-            fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
+            fileLogEntries = MfsOperations.Log.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (2, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
         }
     }
@@ -66,12 +66,12 @@ namespace MnemonicFS.Tests.Logging {
             DateTime when = DateTime.Now;
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            List<MfsFileLogEntry> fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
+            List<MfsFileLogEntry> fileLogEntries = MfsOperations.Log.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (1, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
 
-            fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
+            fileLogEntries = MfsOperations.Log.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (2, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
         }
 
@@ -85,9 +85,9 @@ namespace MnemonicFS.Tests.Logging {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                MfsOperations.RetrieveFileLogs (nullUserID, fileID);
+                MfsOperations.Log.RetrieveFileLogs (nullUserID, fileID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -101,9 +101,9 @@ namespace MnemonicFS.Tests.Logging {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                MfsOperations.RetrieveFileLogs (emptyUserID, fileID);
+                MfsOperations.Log.RetrieveFileLogs (emptyUserID, fileID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -117,16 +117,16 @@ namespace MnemonicFS.Tests.Logging {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                MfsOperations.RetrieveFileLogs (nonExistentUserID, fileID);
+                MfsOperations.Log.RetrieveFileLogs (nonExistentUserID, fileID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_FileIDZero_Illegal () {
-            MfsOperations.RetrieveFileLogs (_userID, 0);
+            MfsOperations.Log.RetrieveFileLogs (_userID, 0);
         }
     }
 
@@ -142,32 +142,32 @@ namespace MnemonicFS.Tests.Logging {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            List<MfsFileLogEntry> allFilesLogEntries = MfsOperations.RetrieveUserFileLogs (_userID);
+            List<MfsFileLogEntry> allFilesLogEntries = MfsOperations.Log.RetrieveUserFileLogs (_userID);
             Assert.AreEqual (2, allFilesLogEntries.Count, "Incorrect number of file log entries returned for user.");
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_UserIDNull_Illegal () {
             string nullUserID = null;
-            MfsOperations.RetrieveUserFileLogs (nullUserID);
+            MfsOperations.Log.RetrieveUserFileLogs (nullUserID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyUserID_Illegal () {
             string emptyUserID = string.Empty;
-            MfsOperations.RetrieveUserFileLogs (emptyUserID);
+            MfsOperations.Log.RetrieveUserFileLogs (emptyUserID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentUserException))]
         public void Test_NonExistentUserID_Illegal () {
             string nonExistentUserID = GetANonExistentUserID ();
-            MfsOperations.RetrieveUserFileLogs (nonExistentUserID);
+            MfsOperations.Log.RetrieveUserFileLogs (nonExistentUserID);
         }
     }
 
@@ -179,18 +179,18 @@ namespace MnemonicFS.Tests.Logging {
             DateTime when = DateTime.Now;
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            List<MfsFileLogEntry> fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
+            List<MfsFileLogEntry> fileLogEntries = MfsOperations.Log.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (1, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
 
-            _mfsOperations.DeleteFile (fileID);
+            _mfsOperations.File.Delete (fileID);
 
-            fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
+            fileLogEntries = MfsOperations.Log.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (2, fileLogEntries.Count, "Incorrect number of log entries returned for file.");
 
-            int numLogsDeleted = MfsOperations.DeleteFileLogs (_userID, fileID);
+            int numLogsDeleted = MfsOperations.Log.DeleteFileLogs (_userID, fileID);
             Assert.AreEqual (2, numLogsDeleted, "Number of logs deleted for file are incorrect.");
 
-            fileLogEntries = MfsOperations.RetrieveFileLogs (_userID, fileID);
+            fileLogEntries = MfsOperations.Log.RetrieveFileLogs (_userID, fileID);
             Assert.AreEqual (0, fileLogEntries.Count, "Did not delete file logs totally.");
         }
 
@@ -204,9 +204,9 @@ namespace MnemonicFS.Tests.Logging {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                MfsOperations.DeleteFileLogs (nullUserID, fileID);
+                MfsOperations.Log.DeleteFileLogs (nullUserID, fileID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -220,9 +220,9 @@ namespace MnemonicFS.Tests.Logging {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                MfsOperations.DeleteFileLogs (emptyUserID, fileID);
+                MfsOperations.Log.DeleteFileLogs (emptyUserID, fileID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
@@ -236,16 +236,16 @@ namespace MnemonicFS.Tests.Logging {
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
             try {
-                MfsOperations.DeleteFileLogs (nonExistentUserID, fileID);
+                MfsOperations.Log.DeleteFileLogs (nonExistentUserID, fileID);
             } finally {
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_FileIDZero_Illegal () {
-            MfsOperations.DeleteFileLogs (_userID, 0);
+            MfsOperations.Log.DeleteFileLogs (_userID, 0);
         }
     }
 
@@ -261,19 +261,19 @@ namespace MnemonicFS.Tests.Logging {
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID2 = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
 
-            List<MfsFileLogEntry> allFilesLogEntries = MfsOperations.RetrieveUserFileLogs (_userID);
+            List<MfsFileLogEntry> allFilesLogEntries = MfsOperations.Log.RetrieveUserFileLogs (_userID);
             Assert.AreEqual (2, allFilesLogEntries.Count, "Incorrect number of file log entries returned for user.");
 
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
 
-            allFilesLogEntries = MfsOperations.RetrieveUserFileLogs (_userID);
+            allFilesLogEntries = MfsOperations.Log.RetrieveUserFileLogs (_userID);
             Assert.AreEqual (4, allFilesLogEntries.Count, "Incorrect number of file log entries returned for user.");
 
-            int numLogsDeleted = MfsOperations.DeleteUserFileLogs (_userID);
+            int numLogsDeleted = MfsOperations.Log.DeleteUserFileLogs (_userID);
             Assert.AreEqual (4, numLogsDeleted, "Number of logs deleted for file are incorrect.");
 
-            allFilesLogEntries = MfsOperations.RetrieveUserFileLogs (_userID);
+            allFilesLogEntries = MfsOperations.Log.RetrieveUserFileLogs (_userID);
             Assert.AreEqual (0, allFilesLogEntries.Count, "Incorrect number of file log entries returned for user after deletion.");
         }
 
@@ -281,21 +281,21 @@ namespace MnemonicFS.Tests.Logging {
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_UserIDNull_Illegal () {
             string nullUserID = null;
-            MfsOperations.DeleteUserFileLogs (nullUserID);
+            MfsOperations.Log.DeleteUserFileLogs (nullUserID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyUserID_Illegal () {
             string emptyUserID = string.Empty;
-            MfsOperations.DeleteUserFileLogs (emptyUserID);
+            MfsOperations.Log.DeleteUserFileLogs (emptyUserID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsNonExistentUserException))]
         public void Test_NonExistentUserID_Illegal () {
             string nonExistentUserID = GetANonExistentUserID ();
-            MfsOperations.DeleteUserFileLogs (nonExistentUserID);
+            MfsOperations.Log.DeleteUserFileLogs (nonExistentUserID);
         }
     }
 }

@@ -46,40 +46,47 @@ namespace MnemonicFS.Tests.Archiving {
     public class Tests_ArchivingMethod_ArchiveFilesInGrouping : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
-
             DateTime when = DateTime.Now;
 
+            // First save some files:
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID1);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID2);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID3);
 
+            // Create an aspect:
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
+
+            // And apply that aspect to the saved files:
+            _mfsOperations.Aspect.Apply (aspectID, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID, fileID3);
+
+            // Next, define an output path for the archive:
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.ASPECT, aspectID, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
 
-            string opFileWithPath = outFilePath + archiveName;
+            // And call the archive method:
+            _mfsOperations.Archive.New (GroupingType.ASPECT, aspectID, outFilePath, archiveName, null);
 
             // Check to see if the o/p file exists:
-            Assert.IsTrue (File.Exists (opFileWithPath), "File does not exist.");
+            string opFileWithPath = outFilePath + archiveName;
+            Assert.IsTrue (File.Exists (opFileWithPath), "Archive does not exist.");
 
-            // Next check archive contents for file names:
+            // Next check if archive content is valid:
             Assert.IsTrue (ZipFile.IsZipFile (opFileWithPath), "Output file is not a valid archive.");
 
+            // And also check to see archive contains the file data:
             byte[] retrFileData1 = TestUtils.RetrieveByteArrayFromZippedFile (opFileWithPath, fileName1, null);
             Assert.AreEqual (fileData1, retrFileData1, "Retrieved file data is not as accurate.");
 
@@ -89,34 +96,60 @@ namespace MnemonicFS.Tests.Archiving {
             byte[] retrFileData3 = TestUtils.RetrieveByteArrayFromZippedFile (opFileWithPath, fileName3, null);
             Assert.AreEqual (fileData3, retrFileData3, "Retrieved file data is not as accurate.");
 
+            // Clean up:
             File.Delete (opFileWithPath);
-            _mfsOperations.DeleteAspect (aspectID);
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.Aspect.Delete (aspectID);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
+        }
+
+        [Test]
+        [ExpectedException (typeof (MfsIllegalArgumentException))]
+        public void Test_NonnExistentGroupingOption_Illegal () {
+            // Create an aspect:
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
+
+            // Next, define an output path for the archive:
+            string outFilePath = FILE_SYSTEM_LOCATION;
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+
+            try {
+                _mfsOperations.Archive.New (GroupingType.NONE, aspectID, outFilePath, archiveName, null);
+            } finally {
+                _mfsOperations.Aspect.Delete (aspectID);
+            }
         }
 
         [Test]
         public void Test_NoFilesWithAspect_NoArchive () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            // Create a fresh archive which, naturally, contains no files yet:
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
+            // Prepare an output path for the empty archive to be "saved":
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.ASPECT, aspectID, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
 
+            // And run the archive method:
+            _mfsOperations.Archive.New (GroupingType.ASPECT, aspectID, outFilePath, archiveName, null);
+
+            // Next check to see if archive has been created:
             string opFileWithPath = outFilePath + archiveName;
 
+            // It shouldn't be, since the aspect has not bee napplied to any file yet:
             Assert.IsFalse (File.Exists (opFileWithPath), "File archive created even though no files were applied aspect.");
 
-            _mfsOperations.DeleteAspect (aspectID);
+            // Clean up:
+            _mfsOperations.Aspect.Delete (aspectID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_Aspects_GroupingIDZero_Illegal () {
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.ASPECT, 0, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+
+            _mfsOperations.Archive.New (GroupingType.ASPECT, 0, outFilePath, archiveName, null);
         }
 
         [Test]
@@ -125,31 +158,33 @@ namespace MnemonicFS.Tests.Archiving {
             ulong veryLargeAspectID = ulong.MaxValue;
 
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.ASPECT, veryLargeAspectID, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+
+            _mfsOperations.Archive.New (GroupingType.ASPECT, veryLargeAspectID, outFilePath, archiveName, null);
         }
 
         [Test]
         public void Test_NoFilesInBriefcase_NoArchive () {
-            ulong briefcaseID = _mfsOperations.CreateBriefcase (_briefcaseName, _briefcaseDesc);
+            ulong briefcaseID = _mfsOperations.Briefcase.New (_briefcaseName, _briefcaseDesc);
 
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.BRIEFCASE, briefcaseID, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+            _mfsOperations.Archive.New (GroupingType.BRIEFCASE, briefcaseID, outFilePath, archiveName, null);
 
             string opFileWithPath = outFilePath + archiveName;
 
             Assert.IsFalse (File.Exists (opFileWithPath), "File archive created even though no files in briefcase.");
 
-            _mfsOperations.DeleteBriefcase (briefcaseID);
+            _mfsOperations.Briefcase.Delete (briefcaseID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_Briefcases_GroupingIDZero_Illegal () {
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.BRIEFCASE, 0, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+
+            _mfsOperations.Archive.New (GroupingType.BRIEFCASE, 0, outFilePath, archiveName, null);
         }
 
         [Test]
@@ -158,31 +193,33 @@ namespace MnemonicFS.Tests.Archiving {
             ulong veryLargeBriefcaseID = ulong.MaxValue;
 
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.BRIEFCASE, veryLargeBriefcaseID, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+
+            _mfsOperations.Archive.New (GroupingType.BRIEFCASE, veryLargeBriefcaseID, outFilePath, archiveName, null);
         }
 
         [Test]
         public void Test_NoFilesInCollection_NoArchive () {
-            ulong collectionID = _mfsOperations.CreateCollection (_collectionName, _collectionDesc);
+            ulong collectionID = _mfsOperations.Collection.New (_collectionName, _collectionDesc);
 
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.COLLECTION, collectionID, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+            _mfsOperations.Archive.New (GroupingType.COLLECTION, collectionID, outFilePath, archiveName, null);
 
             string opFileWithPath = outFilePath + archiveName;
 
             Assert.IsFalse (File.Exists (opFileWithPath), "File archive created even though no files in collection.");
 
-            _mfsOperations.DeleteCollection (collectionID);
+            _mfsOperations.Collection.Delete (collectionID);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_Collections_GroupingIDZero_Illegal () {
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.COLLECTION, 0, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+
+            _mfsOperations.Archive.New (GroupingType.COLLECTION, 0, outFilePath, archiveName, null);
         }
 
         [Test]
@@ -191,8 +228,9 @@ namespace MnemonicFS.Tests.Archiving {
             ulong veryLargeCollectionID = ulong.MaxValue;
 
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.COLLECTION, veryLargeCollectionID, outFilePath, archiveName, null);
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
+
+            _mfsOperations.Archive.New (GroupingType.COLLECTION, veryLargeCollectionID, outFilePath, archiveName, null);
         }
     }
 
@@ -200,41 +238,48 @@ namespace MnemonicFS.Tests.Archiving {
     public class Tests_ArchivingMethod_ArchiveFilesInGrouping_WithPassword : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
-
             DateTime when = DateTime.Now;
 
+            // First save some files:
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID1);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID2);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID3);
 
+            // Create an aspect:
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
+
+            // And apply that aspect to the saved files:
+            _mfsOperations.Aspect.Apply (aspectID, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID, fileID3);
+
+            // And call the archive method with archive password:
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.ASPECT, aspectID, outFilePath, archiveName, password);
+            _mfsOperations.Archive.New (GroupingType.ASPECT, aspectID, outFilePath, archiveName, password);
 
+            // Check to see if the o/p file exists:
             string opFileWithPath = outFilePath + archiveName;
 
             // Check to see if the o/p file exists:
             Assert.IsTrue (File.Exists (opFileWithPath), "File does not exist.");
 
-            // Next check archive contents for file names:
+            // Next check if archive content is valid:
             Assert.IsTrue (ZipFile.IsZipFile (opFileWithPath), "Output file is not a valid archive.");
 
+            // And also check to see archive contains the file data:
             byte[] retrFileData1 = TestUtils.RetrieveByteArrayFromZippedFile (opFileWithPath, fileName1, password);
             Assert.AreEqual (fileData1, retrFileData1, "Retrieved file data is not as accurate.");
 
@@ -244,72 +289,73 @@ namespace MnemonicFS.Tests.Archiving {
             byte[] retrFileData3 = TestUtils.RetrieveByteArrayFromZippedFile (opFileWithPath, fileName3, password);
             Assert.AreEqual (fileData3, retrFileData3, "Retrieved file data is not as accurate.");
 
+            // Clean up:
             File.Delete (opFileWithPath);
-            _mfsOperations.DeleteAspect (aspectID);
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.Aspect.Delete (aspectID);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyPassword_Illegal () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
 
             DateTime when = DateTime.Now;
             _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID);
+            _mfsOperations.Aspect.Apply (aspectID, fileID);
 
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
             string emptyPassword = string.Empty;
 
             try {
-                _mfsOperations.ArchiveFilesInGrouping (GroupingType.ASPECT, aspectID, outFilePath, archiveName, emptyPassword);
+                _mfsOperations.Archive.New (GroupingType.ASPECT, aspectID, outFilePath, archiveName, emptyPassword);
             } finally {
-                _mfsOperations.DeleteAspect (aspectID);
-                _mfsOperations.DeleteFile (fileID);
+                _mfsOperations.Aspect.Delete (aspectID);
+                _mfsOperations.File.Delete (fileID);
             }
         }
 
         [Test]
         public void Test_OpenArchiveWithWrongPassword () {
-            ulong aspectID = _mfsOperations.CreateAspect (_aspectName, _aspectDesc);
-
             DateTime when = DateTime.Now;
 
+            // Save some files:
             string fileName1 = TestUtils.GetAnyFileName ();
             string fileNarration1 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData1 = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
             ulong fileID1 = SaveFileToMfs (ref _mfsOperations, fileName1, fileNarration1, fileData1, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID1);
 
             string fileName2 = TestUtils.GetAnyFileName ();
             string fileNarration2 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData2 = TestUtils.GetAnyFileData (FileSize.MEDIUM_FILE_SIZE);
             ulong fileID2 = SaveFileToMfs (ref _mfsOperations, fileName2, fileNarration2, fileData2, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID2);
 
             string fileName3 = TestUtils.GetAnyFileName ();
             string fileNarration3 = TestUtils.GetASentence (TYPICAL_SENTENCE_SIZE, TYPICAL_WORD_SIZE);
             byte[] fileData3 = TestUtils.GetAnyFileData (FileSize.LARGE_FILE_SIZE);
             ulong fileID3 = SaveFileToMfs (ref _mfsOperations, fileName3, fileNarration3, fileData3, when, false);
-            _mfsOperations.ApplyAspectToDocument (aspectID, fileID3);
 
+            // Create an aspect:
+            ulong aspectID = _mfsOperations.Aspect.New (_aspectName, _aspectDesc);
+
+            // And apply that aspect to the files:
+            _mfsOperations.Aspect.Apply (aspectID, fileID1);
+            _mfsOperations.Aspect.Apply (aspectID, fileID2);
+            _mfsOperations.Aspect.Apply (aspectID, fileID3);
+
+            // And password-archive all files within that aspect:
             string outFilePath = FILE_SYSTEM_LOCATION;
-            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ".zip";
+            string archiveName = TestUtils.GetAWord (TYPICAL_WORD_SIZE) + ARCHIVE_EXTENSION;
             string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            _mfsOperations.ArchiveFilesInGrouping (GroupingType.ASPECT, aspectID, outFilePath, archiveName, password);
+            _mfsOperations.Archive.New (GroupingType.ASPECT, aspectID, outFilePath, archiveName, password);
 
             string opFileWithPath = outFilePath + archiveName;
 
-            // Check to see if the o/p file exists:
-            Assert.IsTrue (File.Exists (opFileWithPath), "File does not exist.");
-
-            // Next check archive contents for file names:
-            Assert.IsTrue (ZipFile.IsZipFile (opFileWithPath), "Output file is not a valid archive.");
-
+            // Next, use a wrong password to open the archive:
             string wrongPassword = TestUtils.GetAWord (TYPICAL_WORD_SIZE + 1);
 
             try {
@@ -321,11 +367,12 @@ namespace MnemonicFS.Tests.Archiving {
             } catch (Ionic.Zip.BadPasswordException) {
             }
 
+            // Clean up:
             File.Delete (opFileWithPath);
-            _mfsOperations.DeleteAspect (aspectID);
-            _mfsOperations.DeleteFile (fileID1);
-            _mfsOperations.DeleteFile (fileID2);
-            _mfsOperations.DeleteFile (fileID3);
+            _mfsOperations.Aspect.Delete (aspectID);
+            _mfsOperations.File.Delete (fileID1);
+            _mfsOperations.File.Delete (fileID2);
+            _mfsOperations.File.Delete (fileID3);
         }
     }
 }

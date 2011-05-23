@@ -108,6 +108,13 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [Url] NVARCHAR(4096) DEFAULT NULL
                 );
 
+                CREATE TABLE [L_SchemaFreeDocuments] (
+                [key_DocID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
+                [DocName] NVARCHAR(1024) DEFAULT NULL,
+                [WhenDateTime] TIMESTAMP NOT NULL
+                );
+
                 CREATE TABLE [L_AspectGroups] (
                 [key_AspectGroupID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 [fkey_ParentAspectGroupID] INTEGER DEFAULT 0,
@@ -154,12 +161,6 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [fkey_DocumentID] INTEGER NOT NULL
                 );
 
-                CREATE TABLE [L_SchemaFreeDocuments] (
-                [key_DocID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                [DocName] NVARCHAR(1024) DEFAULT NULL,
-                [WhenDateTime] TIMESTAMP NOT NULL
-                );
-
                 CREATE TABLE [L_SchemaFreeDocuments_Properties] (
                 [key_EntryID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 [fkey_DocID] INTEGER NOT NULL,
@@ -183,6 +184,13 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [fkey_SubjectDocumentID] INTEGER NOT NULL,
                 [fkey_ObjectDocumentID] INTEGER NOT NULL,
                 [fkey_PredicateID] INTEGER NOT NULL
+                );
+
+                CREATE TABLE [L_Credentials] (
+                [key_CredentialID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                [AppUrl] NVARCHAR(1024) NOT NULL,
+                [LoginName] NVARCHAR(64) NOT NULL,
+                [AccessKey] NVARCHAR(128) NOT NULL
                 );
             ";
         }

@@ -44,7 +44,7 @@ namespace MnemonicFS.Tests.Config {
     public class Tests_ConfigMethod_GetConfigValues : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            List<string> configKeys = MfsOperations.GetConfigFileKeys ();
+            List<string> configKeys = MfsOperations.ConfigFile.AllKeys ();
             Assert.IsNotNull (configKeys, "Returned a null object as config key list.");
         }
     }
@@ -53,12 +53,12 @@ namespace MnemonicFS.Tests.Config {
     public class Tests_ConfigMethod_DoesConfigKeyExist : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck_Exists () {
-            List<string> configKeys = MfsOperations.GetConfigFileKeys ();
+            List<string> configKeys = MfsOperations.ConfigFile.AllKeys ();
             Assert.IsTrue (configKeys.Count >= 1, "Test cannot be done since there should be at least one key.");
 
             // Take any one key:
             string key = configKeys[0];
-            bool keyExists = MfsOperations.DoesConfigKeyExist (key);
+            bool keyExists = MfsOperations.ConfigFile.Exists (key);
             Assert.IsTrue (keyExists, "Shows existing key as non-existent.");
         }
 
@@ -67,7 +67,7 @@ namespace MnemonicFS.Tests.Config {
             // We will take this test of the faith that such a large key does not already
             // exist in the config file:
             string key = TestUtils.GetAWord (TYPICAL_WORD_SIZE * TYPICAL_MULTI_VALUE);
-            bool keyExists = MfsOperations.DoesConfigKeyExist (key);
+            bool keyExists = MfsOperations.ConfigFile.Exists (key);
             Assert.IsFalse (keyExists, "Shows non-existing key as existent.");
         }
 
@@ -75,14 +75,14 @@ namespace MnemonicFS.Tests.Config {
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullKey_Illegal () {
             string nullKey = null;
-            MfsOperations.DoesConfigKeyExist (nullKey);
+            MfsOperations.ConfigFile.Exists (nullKey);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyKey_Illegal () {
             string emptyKey = string.Empty;
-            MfsOperations.DoesConfigKeyExist (emptyKey);
+            MfsOperations.ConfigFile.Exists (emptyKey);
         }
     }
 
@@ -90,10 +90,10 @@ namespace MnemonicFS.Tests.Config {
     public class Tests_ConfigMethod_GetConfigValue : TestMfsOperationsBase {
         [Test]
         public void Test_SanityCheck () {
-            List<string> configKeys = MfsOperations.GetConfigFileKeys ();
+            List<string> configKeys = MfsOperations.ConfigFile.AllKeys ();
 
             foreach (string key in configKeys) {
-                string value = MfsOperations.GetConfigValue (key);
+                string value = MfsOperations.ConfigFile.Value (key);
                 Assert.IsNotNull (value, "Returned a null value for key.");
                 Assert.IsNotEmpty (value, "Returned an empty value for key.");
             }
@@ -106,23 +106,23 @@ namespace MnemonicFS.Tests.Config {
 
             do {
                 nonExistentKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (MfsOperations.DoesConfigKeyExist (nonExistentKey));
+            } while (MfsOperations.ConfigFile.Exists (nonExistentKey));
 
-            MfsOperations.GetConfigValue (nonExistentKey);
+            MfsOperations.ConfigFile.Value (nonExistentKey);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_NullKey_Illegal () {
             string nullKey = null;
-            MfsOperations.GetConfigValue (nullKey);
+            MfsOperations.ConfigFile.Value (nullKey);
         }
 
         [Test]
         [ExpectedException (typeof (MfsIllegalArgumentException))]
         public void Test_EmptyKey_Illegal () {
             string emptyKey = string.Empty;
-            MfsOperations.GetConfigValue (emptyKey);
+            MfsOperations.ConfigFile.Value (emptyKey);
         }
     }
 
@@ -142,16 +142,16 @@ namespace MnemonicFS.Tests.Config {
 
             do {
                 anyKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (MfsOperations.DoesConfigKeyExist (anyKey));
+            } while (MfsOperations.ConfigFile.Exists (anyKey));
 
-            bool success = MfsOperations.AddConfigKVPair (anyKey, anyVal);
+            bool success = MfsOperations.ConfigFile.New (anyKey, anyVal);
             Assert.IsTrue (success, "Key-value pair not added successfully to config file.");
-            Assert.IsTrue (MfsOperations.DoesConfigKeyExist (anyKey), "Config file does not have specified key.");
+            Assert.IsTrue (MfsOperations.ConfigFile.Exists (anyKey), "Config file does not have specified key.");
 
-            string val = MfsOperations.GetConfigValue (anyKey);
+            string val = MfsOperations.ConfigFile.Value (anyKey);
             Assert.AreEqual (anyVal, val, "Retrieved value for newly-added key is not as expected.");
 
-            MfsOperations.RemoveConfigKey (anyKey);
+            MfsOperations.ConfigFile.Delete (anyKey);
         }
 
         [Test]
@@ -167,16 +167,16 @@ namespace MnemonicFS.Tests.Config {
 
             do {
                 anyKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (MfsOperations.DoesConfigKeyExist (anyKey));
+            } while (MfsOperations.ConfigFile.Exists (anyKey));
 
-            bool success = MfsOperations.AddConfigKVPair (anyKey, anyVal, commentLines);
+            bool success = MfsOperations.ConfigFile.New (anyKey, anyVal, commentLines);
             Assert.IsTrue (success, "Key-value pair not added successfully to config file.");
-            Assert.IsTrue (MfsOperations.DoesConfigKeyExist (anyKey), "Config file does not have specified key.");
+            Assert.IsTrue (MfsOperations.ConfigFile.Exists (anyKey), "Config file does not have specified key.");
 
-            string val = MfsOperations.GetConfigValue (anyKey);
+            string val = MfsOperations.ConfigFile.Value (anyKey);
             Assert.AreEqual (anyVal, val, "Retrieved value for newly-added key is not as expected.");
 
-            MfsOperations.RemoveConfigKey (anyKey);
+            MfsOperations.ConfigFile.Delete (anyKey);
         }
 
         [Test]
@@ -185,7 +185,7 @@ namespace MnemonicFS.Tests.Config {
             string nullKey = null;
             string anyVal = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            MfsOperations.AddConfigKVPair (nullKey, anyVal);
+            MfsOperations.ConfigFile.New (nullKey, anyVal);
         }
 
         [Test]
@@ -194,7 +194,7 @@ namespace MnemonicFS.Tests.Config {
             string emptyKey = string.Empty;
             string anyVal = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
 
-            MfsOperations.AddConfigKVPair (emptyKey, anyVal);
+            MfsOperations.ConfigFile.New (emptyKey, anyVal);
         }
 
         [Test]
@@ -205,9 +205,9 @@ namespace MnemonicFS.Tests.Config {
 
             do {
                 anyKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (MfsOperations.DoesConfigKeyExist (anyKey));
+            } while (MfsOperations.ConfigFile.Exists (anyKey));
 
-            MfsOperations.AddConfigKVPair (anyKey, nullVal);
+            MfsOperations.ConfigFile.New (anyKey, nullVal);
         }
 
         [Test]
@@ -218,9 +218,9 @@ namespace MnemonicFS.Tests.Config {
 
             do {
                 anyKey = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
-            } while (MfsOperations.DoesConfigKeyExist (anyKey));
+            } while (MfsOperations.ConfigFile.Exists (anyKey));
 
-            MfsOperations.AddConfigKVPair (anyKey, emptyVal);
+            MfsOperations.ConfigFile.New (anyKey, emptyVal);
         }
     }
 

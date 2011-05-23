@@ -219,7 +219,9 @@ namespace MnemonicFS.MfsCore {
             using (ZipFile zip = ZipFile.Read (srcZipFileWithPath)) {
                 ZipEntry e = zip[contentNameInZip];
                 if (e == null) {
-                    throw new MfsBadContentException ("Illegal content!");
+                    throw new MfsBadContentException (
+                        MfsErrorMessages.GetMessage (MessageType.STORAGE_EXC, "Bad content")
+                    );
                 }
                 stream = new MemoryStream ((int) e.UncompressedSize);
                 e.ExtractWithPassword (stream, password);

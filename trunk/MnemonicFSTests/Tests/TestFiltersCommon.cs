@@ -54,7 +54,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 listConsecutive.Add (i);
             }
 
-            List<ulong> listInverted = MfsOperations.FilterInvert (listConsecutive, listOdd);
+            List<ulong> listInverted = MfsOperations.Filter.Invert (listConsecutive, listOdd);
             Assert.AreEqual (listConsecutive.Count - listOdd.Count, listInverted.Count, "Wrong number of values returned.");
 
             listInverted.Sort ();
@@ -75,7 +75,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 opList.Add (i);
             }
 
-            MfsOperations.FilterInvert (ipList, opList);
+            MfsOperations.Filter.Invert (ipList, opList);
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> opList = null;
 
-            MfsOperations.FilterInvert (ipList, opList);
+            MfsOperations.Filter.Invert (ipList, opList);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 opList.Add (i);
             }
 
-            MfsOperations.FilterInvert (ipList, opList);
+            MfsOperations.Filter.Invert (ipList, opList);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> opList = new List<ulong> ();
 
-            MfsOperations.FilterInvert (ipList, opList);
+            MfsOperations.Filter.Invert (ipList, opList);
         }
 
         [Test]
@@ -137,7 +137,7 @@ namespace MnemonicFS.Tests.Filters.Common {
             }
             opList.Add (11);
 
-            MfsOperations.FilterInvert (ipList, opList);
+            MfsOperations.Filter.Invert (ipList, opList);
         }
 
         [Test]
@@ -149,7 +149,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> opList = new List<ulong> ();
 
-            List<ulong> invertedList = MfsOperations.FilterInvert (ipList, opList);
+            List<ulong> invertedList = MfsOperations.Filter.Invert (ipList, opList);
             Assert.AreEqual (ipList, invertedList, "Wrong values returned.");
         }
     }
@@ -168,7 +168,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 listEven.Add (i);
             }
 
-            List<ulong> oredList = MfsOperations.FilterCombineOR (listOdd, listEven);
+            List<ulong> oredList = MfsOperations.Filter.CombineOR (listOdd, listEven);
             Assert.AreEqual (listOdd.Count + listEven.Count, oredList.Count, "Wrong number of values returned.");
         }
 
@@ -182,7 +182,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 list2.Add (i);
             }
 
-            MfsOperations.FilterCombineOR (list1, list2);
+            MfsOperations.Filter.CombineOR (list1, list2);
         }
 
         [Test]
@@ -195,7 +195,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> list2 = null;
 
-            MfsOperations.FilterCombineOR (list1, list2);
+            MfsOperations.Filter.CombineOR (list1, list2);
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> list2 = new List<ulong> ();
 
-            MfsOperations.FilterCombineOR (list1, list2);
+            MfsOperations.Filter.CombineOR (list1, list2);
         }
 
         [Test]
@@ -219,7 +219,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 list2.Add (i);
             }
 
-            MfsOperations.FilterCombineOR (list1, list2);
+            MfsOperations.Filter.CombineOR (list1, list2);
         }
 
         [Test]
@@ -231,7 +231,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 list2.Add (i);
             }
 
-            List<ulong> oredList = MfsOperations.FilterCombineOR (list1, list2);
+            List<ulong> oredList = MfsOperations.Filter.CombineOR (list1, list2);
             Assert.AreEqual (list2, oredList, "Wrong values returned.");
         }
 
@@ -244,7 +244,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> list2 = new List<ulong> ();
 
-            List<ulong> oredList = MfsOperations.FilterCombineOR (list1, list2);
+            List<ulong> oredList = MfsOperations.Filter.CombineOR (list1, list2);
             Assert.AreEqual (list1, oredList, "Wrong values returned.");
         }
     }
@@ -263,7 +263,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 listConsecutive.Add (i);
             }
 
-            List<ulong> andedList = MfsOperations.FilterCombineAND (listOdd, listConsecutive);
+            List<ulong> andedList = MfsOperations.Filter.CombineAND (listOdd, listConsecutive);
             Assert.AreEqual (listOdd.Count, andedList.Count, "Wrong number of values returned.");
             Assert.AreEqual (listOdd, andedList, "Wrong values returned.");
         }
@@ -278,7 +278,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 list2.Add (i);
             }
 
-            MfsOperations.FilterCombineAND (list1, list2);
+            MfsOperations.Filter.CombineAND (list1, list2);
         }
 
         [Test]
@@ -291,7 +291,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> list2 = null;
 
-            MfsOperations.FilterCombineAND (list1, list2);
+            MfsOperations.Filter.CombineAND (list1, list2);
         }
 
         [Test]
@@ -303,7 +303,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 list2.Add (i);
             }
 
-            List<ulong> andedList = MfsOperations.FilterCombineAND (list1, list2);
+            List<ulong> andedList = MfsOperations.Filter.CombineAND (list1, list2);
             Assert.AreEqual (0, andedList.Count, "Non-empty list returned.");
         }
 
@@ -316,7 +316,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> list2 = new List<ulong> ();
 
-            List<ulong> andedList = MfsOperations.FilterCombineAND (list1, list2);
+            List<ulong> andedList = MfsOperations.Filter.CombineAND (list1, list2);
             Assert.AreEqual (0, andedList.Count, "Non-empty list returned.");
         }
     }
@@ -344,13 +344,13 @@ namespace MnemonicFS.Tests.Filters.Common {
             }
 
             // Evaluate the LHS first:
-            List<ulong> pORqList = MfsOperations.FilterCombineOR (pList, qList);
-            List<ulong> LHS = MfsOperations.FilterInvert (superList, pORqList);
+            List<ulong> pORqList = MfsOperations.Filter.CombineOR (pList, qList);
+            List<ulong> LHS = MfsOperations.Filter.Invert (superList, pORqList);
 
             // Evaluate the RHS next:
-            List<ulong> NOTpList = MfsOperations.FilterInvert (superList, pList);
-            List<ulong> NOTqList = MfsOperations.FilterInvert (superList, qList);
-            List<ulong> RHS = MfsOperations.FilterCombineAND (NOTpList, NOTqList);
+            List<ulong> NOTpList = MfsOperations.Filter.Invert (superList, pList);
+            List<ulong> NOTqList = MfsOperations.Filter.Invert (superList, qList);
+            List<ulong> RHS = MfsOperations.Filter.CombineAND (NOTpList, NOTqList);
 
             // Assert thy are equal:
             LHS.Sort ();
@@ -379,13 +379,13 @@ namespace MnemonicFS.Tests.Filters.Common {
             }
 
             // Evaluate the LHS first:
-            List<ulong> pANDqList = MfsOperations.FilterCombineAND (pList, qList);
-            List<ulong> LHS = MfsOperations.FilterInvert (superList, pANDqList);
+            List<ulong> pANDqList = MfsOperations.Filter.CombineAND (pList, qList);
+            List<ulong> LHS = MfsOperations.Filter.Invert (superList, pANDqList);
 
             // Evaluate the RHS next:
-            List<ulong> NOTpList = MfsOperations.FilterInvert (superList, pList);
-            List<ulong> NOTqList = MfsOperations.FilterInvert (superList, qList);
-            List<ulong> RHS = MfsOperations.FilterCombineOR (NOTpList, NOTqList);
+            List<ulong> NOTpList = MfsOperations.Filter.Invert (superList, pList);
+            List<ulong> NOTqList = MfsOperations.Filter.Invert (superList, qList);
+            List<ulong> RHS = MfsOperations.Filter.CombineOR (NOTpList, NOTqList);
 
             // Assert thy are equal:
             LHS.Sort ();
@@ -412,7 +412,7 @@ namespace MnemonicFS.Tests.Filters.Common {
             list2.Add (4);
             list2.Add (5);
 
-            List<ulong> exoredList = MfsOperations.FilterCombineEXOR (list1, list2);
+            List<ulong> exoredList = MfsOperations.Filter.CombineEXOR (list1, list2);
             // O/p list should now contain four elements: 2, 4, 7, & 9:
             Assert.AreEqual (4, exoredList.Count, "Wrong number of values returned.");
             Assert.IsTrue (exoredList.Contains (2), "Wrong value returned.");
@@ -431,7 +431,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 list2.Add (i);
             }
 
-            MfsOperations.FilterCombineEXOR (list1, list2);
+            MfsOperations.Filter.CombineEXOR (list1, list2);
         }
 
         [Test]
@@ -444,7 +444,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> list2 = null;
 
-            MfsOperations.FilterCombineEXOR (list1, list2);
+            MfsOperations.Filter.CombineEXOR (list1, list2);
         }
 
         [Test]
@@ -456,7 +456,7 @@ namespace MnemonicFS.Tests.Filters.Common {
                 list2.Add (i);
             }
 
-            List<ulong> exoredList = MfsOperations.FilterCombineEXOR (list1, list2);
+            List<ulong> exoredList = MfsOperations.Filter.CombineEXOR (list1, list2);
             Assert.AreEqual (list2, exoredList, "Wrong values returned.");
         }
 
@@ -469,7 +469,7 @@ namespace MnemonicFS.Tests.Filters.Common {
 
             List<ulong> list2 = new List<ulong> ();
 
-            List<ulong> exoredList = MfsOperations.FilterCombineEXOR (list1, list2);
+            List<ulong> exoredList = MfsOperations.Filter.CombineEXOR (list1, list2);
             Assert.AreEqual (list1, exoredList, "Wrong values returned.");
         }
     }
