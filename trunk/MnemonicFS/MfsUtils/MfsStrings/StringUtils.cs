@@ -36,6 +36,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 using MnemonicFS.MfsExceptions;
+using System.Globalization;
 
 namespace MnemonicFS.MfsUtils.MfsStrings {
     internal static class StringUtils {
@@ -129,32 +130,32 @@ namespace MnemonicFS.MfsUtils.MfsStrings {
 
         public static string GetAsZeroPaddedTwoCharString (int number) {
             if (number >= 0 && number <= 9) {
-                return "0" + number.ToString ();
+                return "0" + number.ToString (CultureInfo.InvariantCulture);
             }
-            return number.ToString ();
+            return number.ToString (CultureInfo.InvariantCulture);
         }
 
         public static string GetAsZeroPaddedThreeCharString (int number) {
             if (number >= 0 && number <= 9) {
-                return "00" + number.ToString ();
+                return "00" + number.ToString (CultureInfo.InvariantCulture);
             }
             if (number >= 10 && number <= 99) {
-                return "0" + number.ToString ();
+                return "0" + number.ToString (CultureInfo.InvariantCulture);
             }
-            return number.ToString ();
+            return number.ToString (CultureInfo.InvariantCulture);
         }
 
         public static string GetAsZeroPaddedFourCharString (int number) {
             if (number >= 0 && number <= 9) {
-                return "000" + number.ToString ();
+                return "000" + number.ToString (CultureInfo.InvariantCulture);
             }
             if (number >= 10 && number <= 99) {
-                return "00" + number.ToString ();
+                return "00" + number.ToString (CultureInfo.InvariantCulture);
             }
             if (number >= 100 && number <= 999) {
-                return "0" + number.ToString ();
+                return "0" + number.ToString (CultureInfo.InvariantCulture);
             }
-            return number.ToString ();
+            return number.ToString (CultureInfo.InvariantCulture);
         }
 
         public static byte[] ConvertToByteArray (string str) {
@@ -173,7 +174,7 @@ namespace MnemonicFS.MfsUtils.MfsStrings {
         }
 
         internal static bool FileNameContainsIllegalChars (string fileName) {
-            return (fileName.IndexOfAny (System.IO.Path.GetInvalidFileNameChars ()) != -1);
+            return (fileName.IndexOfAny (Path.GetInvalidFileNameChars ()) != -1);
         }
     }
 }

@@ -46,6 +46,7 @@ namespace MnemonicFS.MfsUtils.MfsIndexing {
         FILE_NARRRATION
     }
 
+    [Serializable]
     internal class LuceneIndexer {
         private const string DOC_ID_FIELD_NAME = "ID_FIELD";
 

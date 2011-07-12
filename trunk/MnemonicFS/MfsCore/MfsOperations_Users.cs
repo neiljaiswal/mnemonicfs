@@ -84,6 +84,24 @@ namespace MnemonicFS.MfsCore {
                 return uid;
             }
 
+            public static string GetPasswordHash (string userID) {
+                if (userID == null) {
+                    throw new MfsIllegalArgumentException (
+                        MfsErrorMessages.GetMessage (MessageType.NULL, "User id string")
+                    );
+                }
+
+                userID = ProcessUserIDStr (userID);
+
+                if (MfsDBOperations.DoesUserExist (userID) == 0) {
+                    throw new MfsNonExistentUserException (
+                        MfsErrorMessages.GetMessage (MessageType.NON_EXISTENT_USER, userID)
+                    );
+                }
+
+                return MfsDBOperations.GetUserPasswordHash (userID);
+            }
+
             public static int UpdatePassword (string userID, string newPasswordHash) {
                 if (userID == null) {
                     throw new MfsIllegalArgumentException (
