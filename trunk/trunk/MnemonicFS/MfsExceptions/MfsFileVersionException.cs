@@ -35,6 +35,7 @@ using System.Linq;
 using System.Text;
 
 namespace MnemonicFS.MfsExceptions {
+    [Serializable]
     public class MfsFileVersionException : Exception {
         public MfsFileVersionException () : base () {
         }

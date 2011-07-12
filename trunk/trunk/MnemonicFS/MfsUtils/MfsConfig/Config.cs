@@ -399,31 +399,22 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
         }
 
         internal static bool RemoveConfigKey (string key) {
-            FileStream fs = null;
-            TextReader reader = null;
             int lineNum = 0;
-            try {
-                fs = File.OpenRead (PROPERTIES_FILENAME);
-                reader = new StreamReader (fs);
-                do {
-                    string line = reader.ReadLine ().Trim ();
-                    if (line.StartsWith (key + "=")) {
-                        break;
-                    }
-                    ++lineNum;
-                } while (true);
-            } finally {
-                if (reader != null) {
-                    reader.Close ();
-                }
-                if (fs != null) {
-                    fs.Close ();
+
+            using (FileStream fs = File.OpenRead (PROPERTIES_FILENAME)) {
+                using (TextReader reader = new StreamReader (fs)) {
+                    do {
+                        string line = reader.ReadLine ().Trim ();
+                        if (line.StartsWith (key + "=")) {
+                            break;
+                        }
+                        ++lineNum;
+                    } while (true);
                 }
             }
 
-            TextWriter tw = null;
-            try {
-                fs = File.OpenWrite (PROPERTIES_FILENAME);
+            using (FileStream fs = File.OpenWrite (PROPERTIES_FILENAME)) {
+                TextWriter tw = null;
                 int i = 0;
                 while (i++ < lineNum) {
                     while (true) {
@@ -435,15 +426,9 @@ namespace MnemonicFS.MfsUtils.MfsConfig {
                 }
                 tw = new StreamWriter (fs);
                 tw.WriteLine ();
-            } finally {
-                if (tw != null) {
-                    tw.Close ();
-                }
-                if (fs != null) {
-                    fs.Close ();
-                }
-                _propertiesFileReader.ReadFileOnce ();
             }
+
+            _propertiesFileReader.ReadFileOnce ();
 
             return true;
         }

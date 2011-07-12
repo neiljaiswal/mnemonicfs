@@ -42,8 +42,10 @@ using MnemonicFS.MfsUtils.MfsDB;
 using MnemonicFS.MfsUtils.MfsStrings;
 using MnemonicFS.MfsExceptions;
 using MnemonicFS.MfsUtils.MfsConfig;
+using System.Globalization;
 
 namespace MnemonicFS.MfsCore {
+    [Serializable]
     internal class MfsDBOperations {
         #region << Constants & Class Init Code >>
 
@@ -67,6 +69,11 @@ namespace MnemonicFS.MfsCore {
         }
 
         private static void InitSystemDB (string systemDB) {
+            Trace.TraceInformation ("Creating storage folder...");
+            if (!Directory.Exists (BaseSystem.GetSystemDBBaseLocation ())) {
+                Directory.CreateDirectory (BaseSystem.GetSystemDBBaseLocation ());
+            }
+
             Trace.TraceInformation ("Creating system db...");
             SQLiteConnection cnn = new SQLiteConnection (SYSTEMDB_CONN_STR_FOR_WRITING);
 
@@ -128,7 +135,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -293,7 +300,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return int.Parse (dt.Rows[0][0].ToString ());
+                return int.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -359,7 +366,7 @@ namespace MnemonicFS.MfsCore {
                     return 0;
                 }
 
-                return ulong.Parse (dt.Rows[0][0].ToString ());
+                return ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -501,7 +508,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                lastVal = UInt64.Parse (dt.Rows[0][0].ToString ());
+                lastVal = UInt64.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -575,7 +582,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -607,7 +614,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                referenceNumber = Int32.Parse (dt.Rows[0][0].ToString ());
+                referenceNumber = Int32.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture);
                 assumedFileName = dt.Rows[0][1].ToString ();
                 Debug.Print (assumedFileName);
                 archiveName = dt.Rows[0][2].ToString ();
@@ -641,7 +648,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return Int32.Parse (dt.Rows[0][0].ToString ());
+                return Int32.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -743,7 +750,7 @@ namespace MnemonicFS.MfsCore {
                 List<ulong> listExpiredFiles = new List<ulong> ();
 
                 foreach (DataRow row in dt.Rows) {
-                    listExpiredFiles.Add (ulong.Parse (row[0].ToString ()));
+                    listExpiredFiles.Add (ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture));
                 }
 
                 return listExpiredFiles;
@@ -942,7 +949,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return dt.Rows.Count > 0 ? UInt64.Parse ((dt.Rows[0][0]).ToString ()) : 0;
+                return dt.Rows.Count > 0 ? UInt64.Parse ((dt.Rows[0][0]).ToString (), CultureInfo.InvariantCulture) : 0;
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -975,7 +982,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -1014,7 +1021,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -1120,34 +1127,6 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal string GetFilePath (ulong fileID) {
-            string sql = "select FilePath from L_Files where key_FileID=" + fileID;
-            Debug.Print ("Get file path: " + sql);
-
-            SQLiteConnection cnn = null;
-            try {
-                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
-                cnn.Open ();
-
-                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
-                SQLiteDataReader reader = myCommand.ExecuteReader ();
-
-                DataTable dt = new DataTable ();
-                dt.Load (reader);
-
-                return (dt.Rows[0][0].ToString ());
-            } catch (Exception e) {
-                Trace.TraceError (e.Message);
-                throw new MfsDBException (
-                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
-                );
-            } finally {
-                if (cnn != null) {
-                    cnn.Dispose ();
-                }
-            }
-        }
-
         /// <summary>
         /// This method returns the narration of a file stored on the system.
         /// </summary>
@@ -1201,7 +1180,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return int.Parse (dt.Rows[0][0].ToString ());
+                return int.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -1279,7 +1258,7 @@ namespace MnemonicFS.MfsCore {
                 List<ulong> matchedFileIDs = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
                     string user = row[0].ToString ();
-                    ulong matchedFileID = UInt64.Parse (row[0].ToString ());
+                    ulong matchedFileID = UInt64.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     matchedFileIDs.Add (matchedFileID);
                 }
                 if (matchedFileIDs.Count == 0) {
@@ -1339,7 +1318,7 @@ namespace MnemonicFS.MfsCore {
                 string dtTmStr = dt.Rows[0][0].ToString ();
                 Debug.Print ("Got file save date-time: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
-                return (DateTime.Parse (dtTmStr));
+                return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -1574,7 +1553,7 @@ namespace MnemonicFS.MfsCore {
                 }
                 Debug.Print ("Got file deletion date-time: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
-                DateTime dateTime = DateTime.Parse (dtTmStr);
+                DateTime dateTime = DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture);
                 // TODO: For some weird reason, sqlite reverts dates like
                 // '9999-12-12 23:59:59.999' to '0001-01-01 00:00:00.000'
                 // This in turn is converted again to date: '01-Jan-01 00:00:00'
@@ -1823,7 +1802,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -1871,7 +1850,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -1919,7 +1898,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -1967,7 +1946,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2008,7 +1987,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2049,7 +2028,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2090,7 +2069,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2131,7 +2110,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2172,7 +2151,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2213,7 +2192,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2254,7 +2233,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2295,7 +2274,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2336,7 +2315,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -2403,7 +2382,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -2471,7 +2450,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allAspects = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong aspectID = ulong.Parse (row[0].ToString ());
+                    ulong aspectID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allAspects.Add (aspectID);
                 }
 
@@ -2691,7 +2670,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return UInt64.Parse ((dt.Rows[0][0]).ToString ());
+                return UInt64.Parse ((dt.Rows[0][0]).ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -2768,7 +2747,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -2888,7 +2867,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> childAspectGroups = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong aspectGroupID = ulong.Parse (row[0].ToString ());
+                    ulong aspectGroupID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     childAspectGroups.Add (aspectGroupID);
                 }
 
@@ -2920,7 +2899,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return Int32.Parse (dt.Rows[0][0].ToString ());
+                return Int32.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -2948,7 +2927,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return Int32.Parse (dt.Rows[0][0].ToString ());
+                return Int32.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -3058,7 +3037,7 @@ namespace MnemonicFS.MfsCore {
                     string val = dt.Rows[0][0].ToString ();
                     Debug.Print ("Got from row: " + val);
                     try {
-                        lastVersionNumber = int.Parse (val);
+                        lastVersionNumber = int.Parse (val, CultureInfo.InvariantCulture);
                     } catch (Exception) {
                         // For some weird reason, sqlite actually returns a row, even for
                         // no entries in table. Control will reach here, i.e., exception
@@ -3132,7 +3111,7 @@ namespace MnemonicFS.MfsCore {
                     string val = dt.Rows[0][0].ToString ();
                     Debug.Print ("Got from row: " + val);
                     try {
-                        lastVersionNumber = int.Parse (val);
+                        lastVersionNumber = int.Parse (val, CultureInfo.InvariantCulture);
                     } catch (Exception) {
                         // For some weird reason, sqlite actually returns a row, even for
                         // no entries in table. Control will reach here, i.e., exception
@@ -3236,7 +3215,7 @@ namespace MnemonicFS.MfsCore {
                 comments = dt.Rows[0][0].ToString ();
                 Debug.Print (comments);
                 string dtTmStr = dt.Rows[0][1].ToString ();
-                whenDateTime = DateTime.Parse (dtTmStr);
+                whenDateTime = DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture);
                 Debug.Print (whenDateTime.ToString ());
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
@@ -3272,7 +3251,7 @@ namespace MnemonicFS.MfsCore {
                 foreach (DataRow row in dt.Rows) {
                     versionComments[count] = row[0].ToString ();
                     string dtTmStr = row[1].ToString ();
-                    versionDateTimes[count++] = DateTime.Parse (dtTmStr);
+                    versionDateTimes[count++] = DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture);
                 }
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
@@ -3454,7 +3433,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allAspects = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong aspectID = ulong.Parse (row[0].ToString ());
+                    ulong aspectID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allAspects.Add (aspectID);
                 }
 
@@ -3488,7 +3467,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -3536,7 +3515,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -3712,7 +3691,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return UInt64.Parse ((dt.Rows[0][0]).ToString ());
+                return UInt64.Parse ((dt.Rows[0][0]).ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -3742,7 +3721,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allBriefcases = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong briefcaseID = ulong.Parse (row[0].ToString ());
+                    ulong briefcaseID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allBriefcases.Add (briefcaseID);
                 }
 
@@ -3918,7 +3897,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -4062,7 +4041,7 @@ namespace MnemonicFS.MfsCore {
                     dt.Load (reader);
 
                     foreach (DataRow row in dt.Rows) {
-                        docsInBriefcase.Add (ulong.Parse (row[0].ToString ()));
+                        docsInBriefcase.Add (ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture));
                     }
                 }
 
@@ -4110,7 +4089,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -4286,7 +4265,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return UInt64.Parse ((dt.Rows[0][0]).ToString ());
+                return UInt64.Parse ((dt.Rows[0][0]).ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -4316,7 +4295,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allCollections = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong collectionID = ulong.Parse (row[0].ToString ());
+                    ulong collectionID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allCollections.Add (collectionID);
                 }
 
@@ -4559,7 +4538,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allCollections = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong aspectID = ulong.Parse (row[0].ToString ());
+                    ulong aspectID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allCollections.Add (aspectID);
                 }
 
@@ -4593,7 +4572,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -4735,7 +4714,7 @@ namespace MnemonicFS.MfsCore {
                 string dtTmStr = dt.Rows[0][2].ToString ();
                 Debug.Print ("Got url save date: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
-                when = DateTime.Parse (dtTmStr);
+                when = DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -5105,7 +5084,7 @@ namespace MnemonicFS.MfsCore {
                 string dtTmStr = dt.Rows[0][1].ToString ();
                 Debug.Print ("Got note save date: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
-                return (new MfsNote (noteContent, DateTime.Parse (dtTmStr)));
+                return (new MfsNote (noteContent, DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture)));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -5136,7 +5115,7 @@ namespace MnemonicFS.MfsCore {
                 string dtTmStr = dt.Rows[0][0].ToString ();
                 Debug.Print ("Got note save date/time: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
-                return (DateTime.Parse (dtTmStr));
+                return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -5228,7 +5207,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allFiles = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong fileID = ulong.Parse (row[0].ToString ());
+                    ulong fileID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allFiles.Add (fileID);
                 }
 
@@ -5366,7 +5345,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -5562,7 +5541,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return UInt64.Parse ((dt.Rows[0][0]).ToString ());
+                return UInt64.Parse ((dt.Rows[0][0]).ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -5593,7 +5572,7 @@ namespace MnemonicFS.MfsCore {
                 string dtTmStr = dt.Rows[0][0].ToString ();
                 Debug.Print ("Got schema-free document save date/time: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
-                return (DateTime.Parse (dtTmStr));
+                return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -5623,7 +5602,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allDocs = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong docID = ulong.Parse (row[0].ToString ());
+                    ulong docID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allDocs.Add (docID);
                 }
 
@@ -5861,7 +5840,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -5974,7 +5953,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return UInt64.Parse ((dt.Rows[0][0]).ToString ());
+                return UInt64.Parse ((dt.Rows[0][0]).ToString (), CultureInfo.InvariantCulture);
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (
@@ -6095,7 +6074,7 @@ namespace MnemonicFS.MfsCore {
 
                 List<ulong> allDocs = new List<ulong> ();
                 foreach (DataRow row in dt.Rows) {
-                    ulong docID = ulong.Parse (row[0].ToString ());
+                    ulong docID = ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture);
                     allDocs.Add (docID);
                 }
 
@@ -6288,7 +6267,7 @@ namespace MnemonicFS.MfsCore {
                 List<ulong> listRelations = new List<ulong> ();
 
                 foreach (DataRow row in dt.Rows) {
-                    listRelations.Add (ulong.Parse (row[0].ToString ()));
+                    listRelations.Add (ulong.Parse (row[0].ToString (), CultureInfo.InvariantCulture));
                 }
 
                 return listRelations;
@@ -6557,7 +6536,7 @@ namespace MnemonicFS.MfsCore {
                 DataTable dt = new DataTable ();
                 dt.Load (reader);
 
-                return (ulong.Parse (dt.Rows[0][0].ToString ()));
+                return (ulong.Parse (dt.Rows[0][0].ToString (), CultureInfo.InvariantCulture));
             } catch (Exception e) {
                 Trace.TraceError (e.Message);
                 throw new MfsDBException (

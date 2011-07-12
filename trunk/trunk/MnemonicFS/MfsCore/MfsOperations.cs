@@ -430,10 +430,6 @@ namespace MnemonicFS.MfsCore {
             CredentialsObj.Dispose ();
         }
 
-        ~MfsOperations () {
-            DisposeSubobjects ();
-        }
-
         #region << IDisposable Members >>
 
         public void Dispose () {
