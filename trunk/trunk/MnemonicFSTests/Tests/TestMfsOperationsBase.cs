@@ -53,6 +53,8 @@ namespace MnemonicFS.Tests.Base {
         protected const int TYPICAL_WORD_SIZE = 5; // characters per word;
         protected const int TYPICAL_SENTENCE_SIZE = 5; // words per sentence;
 
+        protected const int TYPICAL_PASSWORD_SIZE = 5; // characters per password string
+
         protected const int TYPICAL_TELEPHONE_NUMBER_SIZE = 12; // digits;
 
         protected const int TYPICAL_MULTI_VALUE = 5; // units;
@@ -160,7 +162,7 @@ namespace MnemonicFS.Tests.Base {
         protected void TestFixtureSetUp () {
             _userID = GetANonExistentUserID ();
 
-            string password = TestUtils.GetAWord (TYPICAL_WORD_SIZE);
+            string password = TestUtils.GetAWord (TYPICAL_PASSWORD_SIZE);
             string passwordHash = Hasher.GetSHA1 (password);
 
             MfsOperations.User.New (_userID, passwordHash);

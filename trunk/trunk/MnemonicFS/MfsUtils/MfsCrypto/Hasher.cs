@@ -37,12 +37,26 @@ using System.Security.Cryptography;
 
 namespace MnemonicFS.MfsUtils.MfsCrypto {
     public static class Hasher {
-        internal const int HASH_SIZE = 40;
+        internal const int SHA1_HASH_SIZE = 40;
+        internal const int SHA256_HASH_SIZE = 256;
 
         public static string GetSHA1 (string ipString) {
             SHA1 sha1 = new SHA1CryptoServiceProvider ();
             byte[] ipBytes = Encoding.Default.GetBytes (ipString.ToCharArray ());
             byte[] opBytes = sha1.ComputeHash (ipBytes);
+
+            StringBuilder stringBuilder = new StringBuilder (40);
+            for (int i = 0; i < opBytes.Length; i++) {
+                stringBuilder.Append (opBytes[i].ToString ("x2"));
+            }
+
+            return stringBuilder.ToString ();
+        }
+
+        public static string GetSHA256 (string ipStr) {
+            SHA256 sha256 = new SHA256CryptoServiceProvider ();
+            byte[] ipBytes = Encoding.Default.GetBytes (ipStr.ToCharArray ());
+            byte[] opBytes = sha256.ComputeHash (ipBytes);
 
             StringBuilder stringBuilder = new StringBuilder (40);
             for (int i = 0; i < opBytes.Length; i++) {

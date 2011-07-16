@@ -49,6 +49,11 @@ namespace MnemonicFS.Tests.Sequencing {
 
             // And a url:
             ulong urlID = CreateUrl (ref _mfsOperations);
+
+            // And also a file:
+            _fileData = TestUtils.GetAnyFileData (FileSize.SMALL_FILE_SIZE);
+            DateTime when = DateTime.Now;
+            ulong fileID = SaveFileToMfs (ref _mfsOperations, _fileName, _fileNarration, _fileData, when, false);
         }
     }
 }

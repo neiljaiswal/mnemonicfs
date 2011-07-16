@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MnemonicFS.MfsExceptions;
+using MnemonicFS.MfsUtils.MfsCrypto;
 
 namespace MnemonicFS.MfsCore {
     public partial class MfsOperations {
@@ -142,6 +143,22 @@ namespace MnemonicFS.MfsCore {
             }
 
             #endregion << Document Operations >>
+
+            #region << Universally Unique Document ID Operations >>
+
+            private string GetUniqueIPStrForDocument (ulong documentID) {
+                return _parent._userID + "-" + documentID.ToString ();
+            }
+
+            public string UUID (ulong documentID) {
+                DoDocumentChecks (documentID);
+
+                string ipStr = GetUniqueIPStrForDocument (documentID);
+
+                return Hasher.GetSHA256 (ipStr);
+            }
+
+            #endregion << Universally Unique Document ID Operations >>
         }
     }
 }
