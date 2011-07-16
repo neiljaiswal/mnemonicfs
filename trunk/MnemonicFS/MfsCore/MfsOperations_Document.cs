@@ -144,10 +144,38 @@ namespace MnemonicFS.MfsCore {
 
             #endregion << Document Operations >>
 
+            #region << Document Utility Operations >>
+
+            private DateTime GetDocumentDateTimeStamp (ulong documentID) {
+                DocumentType docType = Type (documentID);
+
+                switch (docType) {
+                    case DocumentType.FILE:
+                        return _dbOperations.GetFileTimeStamp (documentID);
+                    case DocumentType.NOTE:
+                        return _dbOperations.GetNoteTimeStamp (documentID);
+                    case DocumentType.SFD:
+                        return _dbOperations.GetSfdTimeStamp (documentID);
+                    case DocumentType.URL:
+                        return _dbOperations.GetUrlTimeStamp (documentID);
+                    case DocumentType.VCARD:
+                        return _dbOperations.GetVCardTimeStamp (documentID);
+                    case DocumentType.NONE:
+                        break;
+                }
+
+                throw new MfsNonExistentResourceException (
+                    MfsErrorMessages.GetMessage (MessageType.NON_EXISTENT_RES, "Document")
+                );
+            }
+
+            #endregion << Document Utility Operations >>
+
             #region << Universally Unique Document ID Operations >>
 
             private string GetUniqueIPStrForDocument (ulong documentID) {
-                return _parent._userID + "-" + documentID.ToString ();
+                DateTime when = GetDocumentDateTimeStamp (documentID);
+                return _parent._userID + "-" + documentID.ToString () + "-" + when.ToString ();
             }
 
             public string UUID (ulong documentID) {

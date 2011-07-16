@@ -105,7 +105,8 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [Logo] BLOB DEFAULT NULL,
                 [OrganizationName] NVARCHAR(1024) DEFAULT NULL,
                 [Note] NVARCHAR(2048) DEFAULT NULL,
-                [Url] NVARCHAR(4096) DEFAULT NULL
+                [Url] NVARCHAR(4096) DEFAULT NULL,
+                [WhenDateTime] TIMESTAMP NOT NULL
                 );
 
                 CREATE TABLE [L_SchemaFreeDocuments] (

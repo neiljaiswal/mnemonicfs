@@ -108,7 +108,7 @@ namespace MnemonicFS.MfsCore {
             }
 
             public DateTime GetDateTime (ulong noteID) {
-                return _dbOperations.GetNoteDateTime (noteID);
+                return _dbOperations.GetNoteTimeStamp (noteID);
             }
 
             public bool Exists (ulong noteID) {
