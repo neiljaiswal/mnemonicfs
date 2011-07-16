@@ -106,6 +106,7 @@
     <Compile Include="Tests\TestMfsOperationsBase.cs" />
     <Compile Include="Tests\TestNotes.cs" />
     <Compile Include="Tests\TestSchemaFreeDocs.cs" />
+    <Compile Include="Tests\TestUniversallyUniqueDocID.cs" />
     <Compile Include="Tests\TestUrls.cs" />
     <Compile Include="Tests\TestUserOperations.cs" />
     <Compile Include="Tests\TestVCards.cs" />
