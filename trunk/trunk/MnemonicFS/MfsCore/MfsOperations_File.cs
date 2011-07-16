@@ -314,7 +314,7 @@ namespace MnemonicFS.MfsCore {
             public DateTime GetSaveDateTime (ulong fileID) {
                 DoFileChecks (fileID);
 
-                return this._dbOperations.GetFileSaveDateTime (fileID);
+                return this._dbOperations.GetFileTimeStamp (fileID);
             }
 
             /// <summary>
@@ -325,7 +325,7 @@ namespace MnemonicFS.MfsCore {
             public void SetDeletionDateTime (ulong fileID, DateTime deletionDateTime) {
                 DoFileChecks (fileID);
 
-                DateTime fileSaveDateTime = _dbOperations.GetFileSaveDateTime (fileID);
+                DateTime fileSaveDateTime = _dbOperations.GetFileTimeStamp (fileID);
 
                 Debug.Print ("Save DateTime: " + fileSaveDateTime + "; Deletion DateTime: " + deletionDateTime);
 

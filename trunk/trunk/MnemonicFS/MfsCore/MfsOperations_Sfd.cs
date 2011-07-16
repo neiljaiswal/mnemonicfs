@@ -153,7 +153,7 @@ namespace MnemonicFS.MfsCore {
             public DateTime GetSaveDateTime (ulong docID) {
                 DoSfdChecks (docID);
 
-                return _dbOperations.GetSfdSaveDateTime (docID);
+                return _dbOperations.GetSfdTimeStamp (docID);
             }
 
             public List<ulong> All () {
