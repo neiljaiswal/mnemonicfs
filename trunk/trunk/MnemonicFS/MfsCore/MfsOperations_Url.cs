@@ -118,6 +118,12 @@ namespace MnemonicFS.MfsCore {
                 return _dbOperations.UpdateUrlDescription (urlID, newDescription);
             }
 
+            public DateTime GetSaveDateTime (ulong docID) {
+                DoUrlChecks (docID);
+
+                return _dbOperations.GetUrlSaveDateTime (docID);
+            }
+
             public bool UpdateDateTime (ulong urlID, DateTime newWhen) {
                 DoUrlChecks (urlID);
 

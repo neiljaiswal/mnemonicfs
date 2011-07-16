@@ -1300,7 +1300,7 @@ namespace MnemonicFS.MfsCore {
         /// </summary>
         /// <param name="fileID">Id of the file, the name of which is sought.</param>
         /// <returns>A DateTime object that indicates what date-time the file was stored at.</returns>
-        internal DateTime GetFileTimeStamp (ulong fileID) {
+        internal DateTime GetFileSaveDateTime (ulong fileID) {
             string sql = "select WhenDateTime from L_Files where key_FileID=" + fileID;
             Debug.Print ("Get file save date-time: " + sql);
 
@@ -1317,6 +1317,37 @@ namespace MnemonicFS.MfsCore {
 
                 string dtTmStr = dt.Rows[0][0].ToString ();
                 Debug.Print ("Got file save date-time: " + dtTmStr);
+                Debug.Print ("Now parsing it to get DateTime object.");
+                return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal DateTime GetFileTimeStamp (ulong fileID) {
+            string sql = "select ActualTimeStamp from L_Files where key_FileID=" + fileID;
+            Debug.Print ("Get file timestamp: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                string dtTmStr = dt.Rows[0][0].ToString ();
+                Debug.Print ("Got file timestamp: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
                 return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
             } catch (Exception e) {
@@ -4727,8 +4758,8 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal DateTime GetUrlTimeStamp (ulong urlID) {
-            string sql = "select WhenDateTime from L_Urls where key_UrlID=" + urlID;
+        internal DateTime GetUrlSaveDateTime (ulong urlID) {
+            string sql = "select ActualTimeStamp from L_Urls where key_UrlID=" + urlID;
             Debug.Print ("Get url save date/time: " + sql);
 
             SQLiteConnection cnn = null;
@@ -4744,6 +4775,37 @@ namespace MnemonicFS.MfsCore {
 
                 string dtTmStr = dt.Rows[0][0].ToString ();
                 Debug.Print ("Got url save date/time: " + dtTmStr);
+                Debug.Print ("Now parsing it to get DateTime object.");
+                return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal DateTime GetUrlTimeStamp (ulong urlID) {
+            string sql = "select ActualTimeStamp from L_Urls where key_UrlID=" + urlID;
+            Debug.Print ("Get url timestamp: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                string dtTmStr = dt.Rows[0][0].ToString ();
+                Debug.Print ("Got url timestamp: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
                 return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
             } catch (Exception e) {
@@ -5011,7 +5073,7 @@ namespace MnemonicFS.MfsCore {
         #region << VCard-related Operations >>
 
         internal DateTime GetVCardTimeStamp (ulong vcardID) {
-            string sql = "select WhenDateTime from L_VCards where key_VCardID=" + vcardID;
+            string sql = "select ActualTimeStamp from L_VCards where key_VCardID=" + vcardID;
             Debug.Print ("Get vcard save date/time: " + sql);
 
             SQLiteConnection cnn = null;
@@ -5163,7 +5225,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal DateTime GetNoteTimeStamp (ulong noteID) {
+        internal DateTime GetNoteDateTime (ulong noteID) {
             string sql = "select WhenDateTime from L_Notes where key_NoteID=" + noteID;
             Debug.Print ("Get note save date/time: " + sql);
 
@@ -5180,6 +5242,37 @@ namespace MnemonicFS.MfsCore {
 
                 string dtTmStr = dt.Rows[0][0].ToString ();
                 Debug.Print ("Got note save date/time: " + dtTmStr);
+                Debug.Print ("Now parsing it to get DateTime object.");
+                return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal DateTime GetNoteTimeStamp (ulong noteID) {
+            string sql = "select ActualTimeStamp from L_Notes where key_NoteID=" + noteID;
+            Debug.Print ("Get note timestamp: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                string dtTmStr = dt.Rows[0][0].ToString ();
+                Debug.Print ("Got note timestamp: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
                 return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
             } catch (Exception e) {
@@ -5620,7 +5713,7 @@ namespace MnemonicFS.MfsCore {
             }
         }
 
-        internal DateTime GetSfdTimeStamp (ulong docID) {
+        internal DateTime GetSfdSaveDateTime (ulong docID) {
             string sql = "select WhenDateTime from L_SchemaFreeDocuments where key_DocID=" + docID;
             Debug.Print ("Get schema-free document save date: " + sql);
 
@@ -5637,6 +5730,37 @@ namespace MnemonicFS.MfsCore {
 
                 string dtTmStr = dt.Rows[0][0].ToString ();
                 Debug.Print ("Got schema-free document save date/time: " + dtTmStr);
+                Debug.Print ("Now parsing it to get DateTime object.");
+                return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
+            } catch (Exception e) {
+                Trace.TraceError (e.Message);
+                throw new MfsDBException (
+                    MfsErrorMessages.GetMessage (MessageType.DB_EXC, e.Message)
+                );
+            } finally {
+                if (cnn != null) {
+                    cnn.Dispose ();
+                }
+            }
+        }
+
+        internal DateTime GetSfdTimeStamp (ulong docID) {
+            string sql = "select ActualTimeStamp from L_SchemaFreeDocuments where key_DocID=" + docID;
+            Debug.Print ("Get schema-free document timestamp: " + sql);
+
+            SQLiteConnection cnn = null;
+            try {
+                cnn = new SQLiteConnection (USERDB_CONN_STR_FOR_READING);
+                cnn.Open ();
+
+                SQLiteCommand myCommand = new SQLiteCommand (sql, cnn);
+                SQLiteDataReader reader = myCommand.ExecuteReader ();
+
+                DataTable dt = new DataTable ();
+                dt.Load (reader);
+
+                string dtTmStr = dt.Rows[0][0].ToString ();
+                Debug.Print ("Got schema-free document timestamp: " + dtTmStr);
                 Debug.Print ("Now parsing it to get DateTime object.");
                 return (DateTime.Parse (dtTmStr, CultureInfo.InvariantCulture));
             } catch (Exception e) {
