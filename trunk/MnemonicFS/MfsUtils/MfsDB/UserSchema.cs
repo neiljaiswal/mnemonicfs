@@ -50,7 +50,8 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [AssumedFileName] NVARCHAR(128) NOT NULL,
                 [FilePassword] VARCHAR(20) NOT NULL,
                 [WhenDateTime] TIMESTAMP NOT NULL,
-                [DeletionDateTime] TIMESTAMP DEFAULT NULL
+                [DeletionDateTime] TIMESTAMP DEFAULT NULL,
+                [ActualTimeStamp] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
                 );
 
                 CREATE TABLE [L_FileExtensions] (
@@ -69,14 +70,16 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [FileHash] VARCHAR NOT NULL,
                 [Comments] NVARCHAR(1024) NOT NULL,
                 [ArchiveNameWithPath] NVARCHAR(2048) NOT NULL,
-                [WhenDateTime] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                [WhenDateTime] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                [ActualTimeStamp] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
                 );
 
                 CREATE TABLE [L_Notes] (
                 [key_NoteID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
                 [NoteContent] NVARCHAR(4096) NOT NULL,
-                [WhenDateTime] TIMESTAMP NOT NULL
+                [WhenDateTime] TIMESTAMP NOT NULL,
+                [ActualTimeStamp] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
                 );
 
                 CREATE TABLE [L_Urls] (
@@ -84,7 +87,8 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
                 [Url] NVARCHAR(4096) NOT NULL,
                 [Description] NVARCHAR(1024),
-                [WhenDateTime] TIMESTAMP NOT NULL
+                [WhenDateTime] TIMESTAMP NOT NULL,
+                [ActualTimeStamp] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
                 );
 
                 CREATE TABLE [L_VCards] (
@@ -106,14 +110,16 @@ namespace MnemonicFS.MfsUtils.MfsDB {
                 [OrganizationName] NVARCHAR(1024) DEFAULT NULL,
                 [Note] NVARCHAR(2048) DEFAULT NULL,
                 [Url] NVARCHAR(4096) DEFAULT NULL,
-                [WhenDateTime] TIMESTAMP NOT NULL
+                [WhenDateTime] TIMESTAMP NOT NULL,
+                [ActualTimeStamp] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
                 );
 
                 CREATE TABLE [L_SchemaFreeDocuments] (
                 [key_DocID] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 [fkey_BriefcaseID] INTEGER NOT NULL DEFAULT 1,
                 [DocName] NVARCHAR(1024) DEFAULT NULL,
-                [WhenDateTime] TIMESTAMP NOT NULL
+                [WhenDateTime] TIMESTAMP NOT NULL,
+                [ActualTimeStamp] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
                 );
 
                 CREATE TABLE [L_AspectGroups] (
